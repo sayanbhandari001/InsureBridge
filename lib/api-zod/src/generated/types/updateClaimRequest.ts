@@ -13,6 +13,9 @@ export interface UpdateClaimRequest {
   deductible?: number | null;
   coPayAmount?: number | null;
   netPayableAmount?: number | null;
+  hospitalDiscount?: number | null;
+  paidByCustomer?: number | null;
+  paidByInsurer?: number | null;
   notes?: string | null;
   diagnosis?: string | null;
 }

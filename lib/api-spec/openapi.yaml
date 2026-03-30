@@ -1302,6 +1302,15 @@ components:
         otherCharges:
           type: number
           nullable: true
+        hospitalDiscount:
+          type: number
+          nullable: true
+        paidByCustomer:
+          type: number
+          nullable: true
+        paidByInsurer:
+          type: number
+          nullable: true
         policyNumber:
           type: string
         icdCode:
@@ -1381,6 +1390,15 @@ components:
         otherCharges:
           type: number
           nullable: true
+        hospitalDiscount:
+          type: number
+          nullable: true
+        paidByCustomer:
+          type: number
+          nullable: true
+        paidByInsurer:
+          type: number
+          nullable: true
         policyNumber:
           type: string
         icdCode:
@@ -1410,6 +1428,15 @@ components:
           type: number
           nullable: true
         netPayableAmount:
+          type: number
+          nullable: true
+        hospitalDiscount:
+          type: number
+          nullable: true
+        paidByCustomer:
+          type: number
+          nullable: true
+        paidByInsurer:
           type: number
           nullable: true
         notes:

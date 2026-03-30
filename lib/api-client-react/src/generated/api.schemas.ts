@@ -185,6 +185,9 @@ export interface Claim {
   medicineCharges?: number | null;
   diagnosticCharges?: number | null;
   otherCharges?: number | null;
+  hospitalDiscount?: number | null;
+  paidByCustomer?: number | null;
+  paidByInsurer?: number | null;
   policyNumber: string;
   icdCode?: string | null;
   treatmentType?: string | null;
@@ -218,6 +221,9 @@ export interface CreateClaimRequest {
   medicineCharges?: number | null;
   diagnosticCharges?: number | null;
   otherCharges?: number | null;
+  hospitalDiscount?: number | null;
+  paidByCustomer?: number | null;
+  paidByInsurer?: number | null;
   policyNumber: string;
   icdCode?: string | null;
   treatmentType?: string | null;
@@ -242,6 +248,9 @@ export interface UpdateClaimRequest {
   deductible?: number | null;
   coPayAmount?: number | null;
   netPayableAmount?: number | null;
+  hospitalDiscount?: number | null;
+  paidByCustomer?: number | null;
+  paidByInsurer?: number | null;
   notes?: string | null;
   diagnosis?: string | null;
 }

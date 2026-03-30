@@ -27,6 +27,9 @@ function mapClaim(c: any) {
     medicineCharges: toNum(c.medicineCharges),
     diagnosticCharges: toNum(c.diagnosticCharges),
     otherCharges: toNum(c.otherCharges),
+    hospitalDiscount: toNum(c.hospitalDiscount),
+    paidByCustomer: toNum(c.paidByCustomer),
+    paidByInsurer: toNum(c.paidByInsurer),
   };
 }
 
@@ -122,6 +125,9 @@ router.patch("/claims/:id", async (req, res) => {
     if (req.body.deductible !== undefined) updates.deductible = toStr(req.body.deductible);
     if (req.body.coPayAmount !== undefined) updates.coPayAmount = toStr(req.body.coPayAmount);
     if (req.body.netPayableAmount !== undefined) updates.netPayableAmount = toStr(req.body.netPayableAmount);
+    if (req.body.hospitalDiscount !== undefined) updates.hospitalDiscount = toStr(req.body.hospitalDiscount);
+    if (req.body.paidByCustomer !== undefined) updates.paidByCustomer = toStr(req.body.paidByCustomer);
+    if (req.body.paidByInsurer !== undefined) updates.paidByInsurer = toStr(req.body.paidByInsurer);
     if (req.body.notes !== undefined) updates.notes = req.body.notes;
     if (req.body.diagnosis !== undefined) updates.diagnosis = req.body.diagnosis;
     if (req.body.admissionDate !== undefined) updates.admissionDate = req.body.admissionDate ? new Date(req.body.admissionDate) : null;

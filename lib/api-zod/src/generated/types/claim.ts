@@ -32,6 +32,9 @@ export interface Claim {
   medicineCharges?: number | null;
   diagnosticCharges?: number | null;
   otherCharges?: number | null;
+  hospitalDiscount?: number | null;
+  paidByCustomer?: number | null;
+  paidByInsurer?: number | null;
   policyNumber: string;
   icdCode?: string | null;
   treatmentType?: string | null;
