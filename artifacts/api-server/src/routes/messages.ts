@@ -7,8 +7,16 @@ const router = Router();
 
 router.get("/threads", async (req, res) => {
   try {
-    const threads = await db.select().from(threadsTable).orderBy(threadsTable.createdAt);
-    res.json(threads);
+    const { participant } = req.query as { participant?: string };
+    const allThreads = await db.select().from(threadsTable).orderBy(threadsTable.lastMessageAt);
+    if (participant) {
+      const filtered = allThreads.filter(t =>
+        Array.isArray(t.participants) && t.participants.includes(participant)
+      );
+      res.json(filtered);
+    } else {
+      res.json(allThreads);
+    }
   } catch (err) {
     req.log.error({ err }, "Failed to list threads");
     res.status(500).json({ error: "Internal server error" });
