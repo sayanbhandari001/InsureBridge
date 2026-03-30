@@ -22,6 +22,7 @@ export const portabilityRequestsTable = pgTable("portability_requests", {
   requestedAt: timestamp("requested_at").notNull(),
   effectiveDate: timestamp("effective_date"),
   notes: text("notes"),
+  newPolicyNumber: text("new_policy_number"),
   expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

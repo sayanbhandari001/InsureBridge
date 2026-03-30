@@ -52,6 +52,7 @@ router.patch("/portability/:id", async (req, res) => {
     if (req.body.status) updates.status = req.body.status;
     if (req.body.effectiveDate !== undefined) updates.effectiveDate = req.body.effectiveDate ? new Date(req.body.effectiveDate) : null;
     if (req.body.notes !== undefined) updates.notes = req.body.notes;
+    if (req.body.newPolicyNumber !== undefined) updates.newPolicyNumber = req.body.newPolicyNumber || null;
 
     const [request] = await db.update(portabilityRequestsTable).set(updates).where(eq(portabilityRequestsTable.id, id)).returning();
     if (!request) {

@@ -22,6 +22,7 @@ export const renewalsTable = pgTable("renewals", {
   status: renewalStatusEnum("status").notNull().default("pending"),
   memberCount: integer("member_count").notNull().default(1),
   notes: text("notes"),
+  newPolicyNumber: text("new_policy_number"),
   expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

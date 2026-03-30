@@ -63,6 +63,7 @@ router.patch("/renewals/:id", async (req, res) => {
     if (req.body.newSumInsured !== undefined) updates.newSumInsured = req.body.newSumInsured ? String(req.body.newSumInsured) : null;
     if (req.body.newPremium !== undefined) updates.newPremium = req.body.newPremium ? String(req.body.newPremium) : null;
     if (req.body.notes !== undefined) updates.notes = req.body.notes;
+    if (req.body.newPolicyNumber !== undefined) updates.newPolicyNumber = req.body.newPolicyNumber || null;
 
     const [renewal] = await db.update(renewalsTable).set(updates).where(eq(renewalsTable.id, id)).returning();
     if (!renewal) { res.status(404).json({ error: "Renewal not found" }); return; }
