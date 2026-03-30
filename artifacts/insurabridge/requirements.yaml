@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For page transitions and micro-interactions"
+  "recharts": "For dashboard charts and analytics visualizations"
+  "date-fns": "For formatting dates consistently across the app"
+  "lucide-react": "For beautiful consistent icons"
+  "clsx": "For merging class names"
+  "tailwind-merge": "For merging tailwind classes"
+
+images:
+  - path: "artifacts/insurabridge/public/images/auth-bg.png"
+    description: "Abstract soft gradient mesh in deep enterprise blues and crisp white, professional and clean"
+    aspect_ratio: "16:9"
+  - path: "artifacts/insurabridge/public/images/logo.png"
+    description: "Modern minimalist logo mark for an insurance platform, interconnected shapes, blue and white"
+    aspect_ratio: "1:1"
+
+notes:
+  - Using generated API hooks from @workspace/api-client-react
+  - Expect standard Shadcn-like CSS variables in index.css

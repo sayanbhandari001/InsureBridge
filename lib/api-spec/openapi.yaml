@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: InsuraBridge - Insurance Middleware Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: claims
+    description: Insurance claims management
+  - name: messages
+    description: Chat/messaging between parties
+  - name: calls
+    description: Call logs and records
+  - name: documents
+    description: File uploads and document management
+  - name: feedback
+    description: Customer feedback
+  - name: bills
+    description: Bill details and financial management
+  - name: users
+    description: User management
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,388 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /claims:
+    get:
+      operationId: listClaims
+      tags: [claims]
+      summary: List all claims
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of claims
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Claim"
+    post:
+      operationId: createClaim
+      tags: [claims]
+      summary: Create a new claim
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClaimRequest"
+      responses:
+        "201":
+          description: Claim created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}:
+    get:
+      operationId: getClaim
+      tags: [claims]
+      summary: Get claim by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Claim found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+    patch:
+      operationId: updateClaim
+      tags: [claims]
+      summary: Update claim status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClaimRequest"
+      responses:
+        "200":
+          description: Claim updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List messages for a thread
+      parameters:
+        - name: claimId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: threadId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageRequest"
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  /threads:
+    get:
+      operationId: listThreads
+      tags: [messages]
+      summary: List all message threads
+      responses:
+        "200":
+          description: List of threads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Thread"
+    post:
+      operationId: createThread
+      tags: [messages]
+      summary: Create a new thread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateThreadRequest"
+      responses:
+        "201":
+          description: Thread created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Thread"
+
+  /calls:
+    get:
+      operationId: listCallLogs
+      tags: [calls]
+      summary: List all call logs
+      parameters:
+        - name: claimId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of call logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CallLog"
+    post:
+      operationId: createCallLog
+      tags: [calls]
+      summary: Log a call
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCallLogRequest"
+      responses:
+        "201":
+          description: Call log created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallLog"
+
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List documents for a claim
+      parameters:
+        - name: claimId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+    post:
+      operationId: uploadDocument
+      tags: [documents]
+      summary: Upload a document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadDocumentRequest"
+      responses:
+        "201":
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+  /feedback:
+    get:
+      operationId: listFeedback
+      tags: [feedback]
+      summary: List all customer feedback
+      responses:
+        "200":
+          description: List of feedback
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Feedback"
+    post:
+      operationId: submitFeedback
+      tags: [feedback]
+      summary: Submit customer feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitFeedbackRequest"
+      responses:
+        "201":
+          description: Feedback submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feedback"
+
+  /bills:
+    get:
+      operationId: listBills
+      tags: [bills]
+      summary: List bills
+      parameters:
+        - name: claimId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of bills
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bill"
+    post:
+      operationId: createBill
+      tags: [bills]
+      summary: Create a bill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBillRequest"
+      responses:
+        "201":
+          description: Bill created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bill"
+
+  /bills/{id}:
+    patch:
+      operationId: updateBill
+      tags: [bills]
+      summary: Update bill status/details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBillRequest"
+      responses:
+        "200":
+          description: Bill updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bill"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [health]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +429,686 @@ components:
       required:
         - status
 
+    DashboardStats:
+      type: object
+      properties:
+        totalClaims:
+          type: integer
+        pendingClaims:
+          type: integer
+        approvedClaims:
+          type: integer
+        rejectedClaims:
+          type: integer
+        totalBillAmount:
+          type: number
+        approvedBillAmount:
+          type: number
+        openThreads:
+          type: integer
+        totalFeedback:
+          type: integer
+        averageRating:
+          type: number
+      required:
+        - totalClaims
+        - pendingClaims
+        - approvedClaims
+        - rejectedClaims
+        - totalBillAmount
+        - approvedBillAmount
+        - openThreads
+        - totalFeedback
+        - averageRating
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [customer, hospital, tpa, insurer, admin]
+        organization:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - createdAt
+
+    CreateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [customer, hospital, tpa, insurer, admin]
+        organization:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+      required:
+        - name
+        - email
+        - role
+
+    Claim:
+      type: object
+      properties:
+        id:
+          type: integer
+        claimNumber:
+          type: string
+        customerId:
+          type: integer
+        patientName:
+          type: string
+        hospitalId:
+          type: integer
+          nullable: true
+        hospitalName:
+          type: string
+          nullable: true
+        insurerId:
+          type: integer
+          nullable: true
+        tpaId:
+          type: integer
+          nullable: true
+        status:
+          type: string
+          enum: [submitted, under_review, approved, rejected, settled, pending_documents]
+        claimType:
+          type: string
+          enum: [cashless, reimbursement]
+        diagnosis:
+          type: string
+          nullable: true
+        admissionDate:
+          type: string
+          format: date-time
+          nullable: true
+        dischargeDate:
+          type: string
+          format: date-time
+          nullable: true
+        claimedAmount:
+          type: number
+        approvedAmount:
+          type: number
+          nullable: true
+        policyNumber:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - claimNumber
+        - customerId
+        - patientName
+        - status
+        - claimType
+        - claimedAmount
+        - policyNumber
+        - createdAt
+        - updatedAt
+
+    CreateClaimRequest:
+      type: object
+      properties:
+        customerId:
+          type: integer
+        patientName:
+          type: string
+        hospitalId:
+          type: integer
+          nullable: true
+        hospitalName:
+          type: string
+          nullable: true
+        insurerId:
+          type: integer
+          nullable: true
+        tpaId:
+          type: integer
+          nullable: true
+        claimType:
+          type: string
+          enum: [cashless, reimbursement]
+        diagnosis:
+          type: string
+          nullable: true
+        admissionDate:
+          type: string
+          format: date-time
+          nullable: true
+        dischargeDate:
+          type: string
+          format: date-time
+          nullable: true
+        claimedAmount:
+          type: number
+        policyNumber:
+          type: string
+        notes:
+          type: string
+          nullable: true
+      required:
+        - customerId
+        - patientName
+        - claimType
+        - claimedAmount
+        - policyNumber
+
+    UpdateClaimRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [submitted, under_review, approved, rejected, settled, pending_documents]
+        approvedAmount:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        diagnosis:
+          type: string
+          nullable: true
+        admissionDate:
+          type: string
+          format: date-time
+          nullable: true
+        dischargeDate:
+          type: string
+          format: date-time
+          nullable: true
+
+    Thread:
+      type: object
+      properties:
+        id:
+          type: integer
+        subject:
+          type: string
+        claimId:
+          type: integer
+          nullable: true
+        participants:
+          type: array
+          items:
+            type: string
+        lastMessageAt:
+          type: string
+          format: date-time
+          nullable: true
+        messageCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - subject
+        - participants
+        - messageCount
+        - createdAt
+
+    CreateThreadRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+        claimId:
+          type: integer
+          nullable: true
+        participants:
+          type: array
+          items:
+            type: string
+      required:
+        - subject
+        - participants
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        threadId:
+          type: integer
+        claimId:
+          type: integer
+          nullable: true
+        senderId:
+          type: integer
+        senderName:
+          type: string
+        senderRole:
+          type: string
+        content:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - threadId
+        - senderId
+        - senderName
+        - senderRole
+        - content
+        - attachments
+        - createdAt
+
+    SendMessageRequest:
+      type: object
+      properties:
+        threadId:
+          type: integer
+        claimId:
+          type: integer
+          nullable: true
+        senderId:
+          type: integer
+        senderName:
+          type: string
+        senderRole:
+          type: string
+        content:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+      required:
+        - threadId
+        - senderId
+        - senderName
+        - senderRole
+        - content
+
+    CallLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+          nullable: true
+        callerId:
+          type: integer
+        callerName:
+          type: string
+        callerRole:
+          type: string
+        receiverName:
+          type: string
+        receiverRole:
+          type: string
+        direction:
+          type: string
+          enum: [inbound, outbound]
+        duration:
+          type: integer
+          nullable: true
+        outcome:
+          type: string
+          enum: [connected, missed, voicemail, busy]
+        notes:
+          type: string
+          nullable: true
+        callDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - callerId
+        - callerName
+        - callerRole
+        - receiverName
+        - receiverRole
+        - direction
+        - outcome
+        - callDate
+        - createdAt
+
+    CreateCallLogRequest:
+      type: object
+      properties:
+        claimId:
+          type: integer
+          nullable: true
+        callerId:
+          type: integer
+        callerName:
+          type: string
+        callerRole:
+          type: string
+        receiverName:
+          type: string
+        receiverRole:
+          type: string
+        direction:
+          type: string
+          enum: [inbound, outbound]
+        duration:
+          type: integer
+          nullable: true
+        outcome:
+          type: string
+          enum: [connected, missed, voicemail, busy]
+        notes:
+          type: string
+          nullable: true
+        callDate:
+          type: string
+          format: date-time
+      required:
+        - callerId
+        - callerName
+        - callerRole
+        - receiverName
+        - receiverRole
+        - direction
+        - outcome
+        - callDate
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+          nullable: true
+        uploadedById:
+          type: integer
+        uploaderName:
+          type: string
+        uploaderRole:
+          type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+        fileSize:
+          type: integer
+        documentType:
+          type: string
+          enum: [bill, discharge_summary, prescription, lab_report, tpa_form, insurance_form, id_proof, other]
+        url:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - uploadedById
+        - uploaderName
+        - uploaderRole
+        - fileName
+        - fileType
+        - fileSize
+        - documentType
+        - url
+        - status
+        - createdAt
+
+    UploadDocumentRequest:
+      type: object
+      properties:
+        claimId:
+          type: integer
+          nullable: true
+        uploadedById:
+          type: integer
+        uploaderName:
+          type: string
+        uploaderRole:
+          type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+        fileSize:
+          type: integer
+        documentType:
+          type: string
+          enum: [bill, discharge_summary, prescription, lab_report, tpa_form, insurance_form, id_proof, other]
+        url:
+          type: string
+        notes:
+          type: string
+          nullable: true
+      required:
+        - uploadedById
+        - uploaderName
+        - uploaderRole
+        - fileName
+        - fileType
+        - fileSize
+        - documentType
+        - url
+
+    Feedback:
+      type: object
+      properties:
+        id:
+          type: integer
+        customerId:
+          type: integer
+        customerName:
+          type: string
+        claimId:
+          type: integer
+          nullable: true
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        category:
+          type: string
+          enum: [claim_process, communication, hospital_service, tpa_service, insurer_service, overall]
+        comment:
+          type: string
+          nullable: true
+        targetEntity:
+          type: string
+          enum: [hospital, tpa, insurer, overall]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - customerId
+        - customerName
+        - rating
+        - category
+        - targetEntity
+        - createdAt
+
+    SubmitFeedbackRequest:
+      type: object
+      properties:
+        customerId:
+          type: integer
+        customerName:
+          type: string
+        claimId:
+          type: integer
+          nullable: true
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        category:
+          type: string
+          enum: [claim_process, communication, hospital_service, tpa_service, insurer_service, overall]
+        comment:
+          type: string
+          nullable: true
+        targetEntity:
+          type: string
+          enum: [hospital, tpa, insurer, overall]
+      required:
+        - customerId
+        - customerName
+        - rating
+        - category
+        - targetEntity
+
+    Bill:
+      type: object
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+          nullable: true
+        billNumber:
+          type: string
+        hospitalName:
+          type: string
+        patientName:
+          type: string
+        totalAmount:
+          type: number
+        approvedAmount:
+          type: number
+          nullable: true
+        deductible:
+          type: number
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BillItem"
+        status:
+          type: string
+          enum: [pending, under_review, approved, partially_approved, rejected]
+        submittedAt:
+          type: string
+          format: date-time
+          nullable: true
+        processedAt:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - billNumber
+        - hospitalName
+        - patientName
+        - totalAmount
+        - items
+        - status
+        - createdAt
+
+    BillItem:
+      type: object
+      properties:
+        description:
+          type: string
+        amount:
+          type: number
+        quantity:
+          type: integer
+        category:
+          type: string
+      required:
+        - description
+        - amount
+        - quantity
+
+    CreateBillRequest:
+      type: object
+      properties:
+        claimId:
+          type: integer
+          nullable: true
+        billNumber:
+          type: string
+        hospitalName:
+          type: string
+        patientName:
+          type: string
+        totalAmount:
+          type: number
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BillItem"
+        notes:
+          type: string
+          nullable: true
+      required:
+        - billNumber
+        - hospitalName
+        - patientName
+        - totalAmount
+        - items
+
+    UpdateBillRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, under_review, approved, partially_approved, rejected]
+        approvedAmount:
+          type: number
+          nullable: true
+        deductible:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        processedAt:
+          type: string
+          format: date-time
+          nullable: true
