@@ -17,6 +17,8 @@ export const callLogsTable = pgTable("call_logs", {
   duration: integer("duration"),
   outcome: callOutcomeEnum("outcome").notNull(),
   notes: text("notes"),
+  summary: text("summary"),
+  finalDecision: text("final_decision"),
   callDate: timestamp("call_date").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
