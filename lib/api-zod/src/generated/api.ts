@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * InsuraBridge - Insurance Middleware Platform API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import * as zod from "zod";
 
@@ -12,6 +12,61 @@ import * as zod from "zod";
  */
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
+});
+
+/**
+ * @summary Get dashboard statistics
+ */
+export const GetDashboardStatsResponse = zod.object({
+  totalClaims: zod.number(),
+  pendingClaims: zod.number(),
+  approvedClaims: zod.number(),
+  rejectedClaims: zod.number(),
+  totalBillAmount: zod.number(),
+  approvedBillAmount: zod.number(),
+  openThreads: zod.number(),
+  totalFeedback: zod.number(),
+  averageRating: zod.number(),
+  unreadNotifications: zod.number(),
+  pendingSettlements: zod.number(),
+  activeMembers: zod.number(),
+});
+
+/**
+ * @summary Login with email and password
+ */
+export const LoginBody = zod.object({
+  email: zod.string(),
+  password: zod.string(),
+});
+
+export const LoginResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  role: zod.enum(["customer", "hospital", "tpa", "insurer", "admin"]),
+  organization: zod.string().nullish(),
+  phone: zod.string().nullish(),
+});
+
+/**
+ * @summary Logout current user
+ */
+export const LogoutResponse = zod.object({
+  success: zod.boolean(),
+  message: zod.string().optional(),
+});
+
+/**
+ * @summary Get current logged-in user
+ */
+export const GetMeResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  role: zod.enum(["customer", "hospital", "tpa", "insurer", "admin"]),
+  organization: zod.string().nullish(),
+  phone: zod.string().nullish(),
 });
 
 /**
@@ -34,9 +89,97 @@ export const ListUsersResponse = zod.array(ListUsersResponseItem);
 export const CreateUserBody = zod.object({
   name: zod.string(),
   email: zod.string(),
+  password: zod.string(),
   role: zod.enum(["customer", "hospital", "tpa", "insurer", "admin"]),
   organization: zod.string().nullish(),
   phone: zod.string().nullish(),
+});
+
+/**
+ * @summary List notifications for current user
+ */
+export const ListNotificationsQueryParams = zod.object({
+  userId: zod.coerce.string().optional(),
+  unreadOnly: zod.coerce.boolean().optional(),
+});
+
+export const ListNotificationsResponseItem = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  title: zod.string(),
+  message: zod.string(),
+  type: zod.enum([
+    "message",
+    "claim_update",
+    "document",
+    "bill",
+    "settlement",
+    "system",
+  ]),
+  relatedId: zod.number().nullish(),
+  relatedType: zod.string().nullish(),
+  isRead: zod.boolean(),
+  createdAt: zod.coerce.date(),
+});
+export const ListNotificationsResponse = zod.array(
+  ListNotificationsResponseItem,
+);
+
+/**
+ * @summary Create a notification
+ */
+export const CreateNotificationBody = zod.object({
+  userId: zod.number(),
+  title: zod.string(),
+  message: zod.string(),
+  type: zod.enum([
+    "message",
+    "claim_update",
+    "document",
+    "bill",
+    "settlement",
+    "system",
+  ]),
+  relatedId: zod.number().nullish(),
+  relatedType: zod.string().nullish(),
+});
+
+/**
+ * @summary Mark a notification as read
+ */
+export const MarkNotificationReadParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const MarkNotificationReadResponse = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  title: zod.string(),
+  message: zod.string(),
+  type: zod.enum([
+    "message",
+    "claim_update",
+    "document",
+    "bill",
+    "settlement",
+    "system",
+  ]),
+  relatedId: zod.number().nullish(),
+  relatedType: zod.string().nullish(),
+  isRead: zod.boolean(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Mark all notifications as read for a user
+ */
+export const MarkAllNotificationsReadBody = zod.object({
+  userId: zod.number(),
+});
+
+export const MarkAllNotificationsReadResponse = zod.object({
+  success: zod.boolean(),
+  message: zod.string().optional(),
 });
 
 /**
@@ -45,6 +188,9 @@ export const CreateUserBody = zod.object({
 export const ListClaimsQueryParams = zod.object({
   status: zod.coerce.string().optional(),
   customerId: zod.coerce.string().optional(),
+  hospitalId: zod.coerce.string().optional(),
+  tpaId: zod.coerce.string().optional(),
+  insurerId: zod.coerce.string().optional(),
 });
 
 export const ListClaimsResponseItem = zod.object({
@@ -70,7 +216,17 @@ export const ListClaimsResponseItem = zod.object({
   dischargeDate: zod.coerce.date().nullish(),
   claimedAmount: zod.number(),
   approvedAmount: zod.number().nullish(),
+  deductible: zod.number().nullish(),
+  coPayAmount: zod.number().nullish(),
+  netPayableAmount: zod.number().nullish(),
+  roomRentCharges: zod.number().nullish(),
+  surgeryCharges: zod.number().nullish(),
+  medicineCharges: zod.number().nullish(),
+  diagnosticCharges: zod.number().nullish(),
+  otherCharges: zod.number().nullish(),
   policyNumber: zod.string(),
+  icdCode: zod.string().nullish(),
+  treatmentType: zod.string().nullish(),
   notes: zod.string().nullish(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
@@ -92,7 +248,14 @@ export const CreateClaimBody = zod.object({
   admissionDate: zod.coerce.date().nullish(),
   dischargeDate: zod.coerce.date().nullish(),
   claimedAmount: zod.number(),
+  roomRentCharges: zod.number().nullish(),
+  surgeryCharges: zod.number().nullish(),
+  medicineCharges: zod.number().nullish(),
+  diagnosticCharges: zod.number().nullish(),
+  otherCharges: zod.number().nullish(),
   policyNumber: zod.string(),
+  icdCode: zod.string().nullish(),
+  treatmentType: zod.string().nullish(),
   notes: zod.string().nullish(),
 });
 
@@ -126,14 +289,24 @@ export const GetClaimResponse = zod.object({
   dischargeDate: zod.coerce.date().nullish(),
   claimedAmount: zod.number(),
   approvedAmount: zod.number().nullish(),
+  deductible: zod.number().nullish(),
+  coPayAmount: zod.number().nullish(),
+  netPayableAmount: zod.number().nullish(),
+  roomRentCharges: zod.number().nullish(),
+  surgeryCharges: zod.number().nullish(),
+  medicineCharges: zod.number().nullish(),
+  diagnosticCharges: zod.number().nullish(),
+  otherCharges: zod.number().nullish(),
   policyNumber: zod.string(),
+  icdCode: zod.string().nullish(),
+  treatmentType: zod.string().nullish(),
   notes: zod.string().nullish(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
 
 /**
- * @summary Update claim status
+ * @summary Update claim
  */
 export const UpdateClaimParams = zod.object({
   id: zod.coerce.number(),
@@ -151,10 +324,11 @@ export const UpdateClaimBody = zod.object({
     ])
     .optional(),
   approvedAmount: zod.number().nullish(),
+  deductible: zod.number().nullish(),
+  coPayAmount: zod.number().nullish(),
+  netPayableAmount: zod.number().nullish(),
   notes: zod.string().nullish(),
   diagnosis: zod.string().nullish(),
-  admissionDate: zod.coerce.date().nullish(),
-  dischargeDate: zod.coerce.date().nullish(),
 });
 
 export const UpdateClaimResponse = zod.object({
@@ -180,7 +354,17 @@ export const UpdateClaimResponse = zod.object({
   dischargeDate: zod.coerce.date().nullish(),
   claimedAmount: zod.number(),
   approvedAmount: zod.number().nullish(),
+  deductible: zod.number().nullish(),
+  coPayAmount: zod.number().nullish(),
+  netPayableAmount: zod.number().nullish(),
+  roomRentCharges: zod.number().nullish(),
+  surgeryCharges: zod.number().nullish(),
+  medicineCharges: zod.number().nullish(),
+  diagnosticCharges: zod.number().nullish(),
+  otherCharges: zod.number().nullish(),
   policyNumber: zod.string(),
+  icdCode: zod.string().nullish(),
+  treatmentType: zod.string().nullish(),
   notes: zod.string().nullish(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
@@ -285,7 +469,7 @@ export const CreateCallLogBody = zod.object({
 });
 
 /**
- * @summary List documents for a claim
+ * @summary List documents
  */
 export const ListDocumentsQueryParams = zod.object({
   claimId: zod.coerce.string().optional(),
@@ -345,6 +529,10 @@ export const UploadDocumentBody = zod.object({
 /**
  * @summary List all customer feedback
  */
+export const ListFeedbackQueryParams = zod.object({
+  targetEntity: zod.coerce.string().optional(),
+});
+
 export const listFeedbackResponseRatingMax = 5;
 
 export const ListFeedbackResponseItem = zod.object({
@@ -387,6 +575,53 @@ export const SubmitFeedbackBody = zod.object({
   ]),
   comment: zod.string().nullish(),
   targetEntity: zod.enum(["hospital", "tpa", "insurer", "overall"]),
+});
+
+/**
+ * @summary List app-level feedback
+ */
+export const listAppFeedbackResponseRatingMax = 5;
+
+export const ListAppFeedbackResponseItem = zod.object({
+  id: zod.number(),
+  userId: zod.number(),
+  userName: zod.string(),
+  userRole: zod.string(),
+  rating: zod.number().min(1).max(listAppFeedbackResponseRatingMax),
+  feature: zod.enum([
+    "claims",
+    "chat",
+    "billing",
+    "documents",
+    "overall",
+    "tpa_tools",
+    "reports",
+  ]),
+  comment: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListAppFeedbackResponse = zod.array(ListAppFeedbackResponseItem);
+
+/**
+ * @summary Submit app feedback
+ */
+export const submitAppFeedbackBodyRatingMax = 5;
+
+export const SubmitAppFeedbackBody = zod.object({
+  userId: zod.number(),
+  userName: zod.string(),
+  userRole: zod.string(),
+  rating: zod.number().min(1).max(submitAppFeedbackBodyRatingMax),
+  feature: zod.enum([
+    "claims",
+    "chat",
+    "billing",
+    "documents",
+    "overall",
+    "tpa_tools",
+    "reports",
+  ]),
+  comment: zod.string().nullish(),
 });
 
 /**
@@ -502,16 +737,537 @@ export const UpdateBillResponse = zod.object({
 });
 
 /**
- * @summary Get dashboard statistics
+ * @summary List e-cards
  */
-export const GetDashboardStatsResponse = zod.object({
-  totalClaims: zod.number(),
-  pendingClaims: zod.number(),
-  approvedClaims: zod.number(),
-  rejectedClaims: zod.number(),
+export const ListEcardsQueryParams = zod.object({
+  memberId: zod.coerce.string().optional(),
+  status: zod.coerce.string().optional(),
+});
+
+export const ListEcardsResponseItem = zod.object({
+  id: zod.number(),
+  memberId: zod.number(),
+  memberName: zod.string(),
+  policyNumber: zod.string(),
+  insurerName: zod.string(),
+  tpaName: zod.string(),
+  cardNumber: zod.string(),
+  sumInsured: zod.number(),
+  validFrom: zod.coerce.date(),
+  validTo: zod.coerce.date(),
+  status: zod.enum(["active", "expired", "suspended", "cancelled"]),
+  dependents: zod.array(zod.string()),
+  createdAt: zod.coerce.date(),
+});
+export const ListEcardsResponse = zod.array(ListEcardsResponseItem);
+
+/**
+ * @summary Issue a new e-card
+ */
+export const CreateEcardBody = zod.object({
+  memberId: zod.number(),
+  memberName: zod.string(),
+  policyNumber: zod.string(),
+  insurerName: zod.string(),
+  tpaName: zod.string(),
+  sumInsured: zod.number(),
+  validFrom: zod.coerce.date(),
+  validTo: zod.coerce.date(),
+  dependents: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Update e-card status
+ */
+export const UpdateEcardParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateEcardBody = zod.object({
+  status: zod.enum(["active", "expired", "suspended", "cancelled"]).optional(),
+  sumInsured: zod.number().nullish(),
+  validTo: zod.coerce.date().nullish(),
+});
+
+export const UpdateEcardResponse = zod.object({
+  id: zod.number(),
+  memberId: zod.number(),
+  memberName: zod.string(),
+  policyNumber: zod.string(),
+  insurerName: zod.string(),
+  tpaName: zod.string(),
+  cardNumber: zod.string(),
+  sumInsured: zod.number(),
+  validFrom: zod.coerce.date(),
+  validTo: zod.coerce.date(),
+  status: zod.enum(["active", "expired", "suspended", "cancelled"]),
+  dependents: zod.array(zod.string()),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary List network hospitals/providers
+ */
+export const ListNetworkProvidersQueryParams = zod.object({
+  city: zod.coerce.string().optional(),
+  speciality: zod.coerce.string().optional(),
+  status: zod.coerce.string().optional(),
+});
+
+export const ListNetworkProvidersResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  type: zod.enum([
+    "hospital",
+    "clinic",
+    "diagnostic",
+    "pharmacy",
+    "specialist",
+  ]),
+  city: zod.string(),
+  state: zod.string(),
+  address: zod.string(),
+  phone: zod.string().nullish(),
+  email: zod.string().nullish(),
+  specialities: zod.array(zod.string()),
+  insurerIds: zod.array(zod.number()),
+  bedCount: zod.number().nullish(),
+  cashlessEnabled: zod.boolean(),
+  status: zod.enum(["active", "inactive", "suspended"]),
+  createdAt: zod.coerce.date(),
+});
+export const ListNetworkProvidersResponse = zod.array(
+  ListNetworkProvidersResponseItem,
+);
+
+/**
+ * @summary Add a network provider
+ */
+export const CreateNetworkProviderBody = zod.object({
+  name: zod.string(),
+  type: zod.enum([
+    "hospital",
+    "clinic",
+    "diagnostic",
+    "pharmacy",
+    "specialist",
+  ]),
+  city: zod.string(),
+  state: zod.string(),
+  address: zod.string(),
+  phone: zod.string().nullish(),
+  email: zod.string().nullish(),
+  specialities: zod.array(zod.string()),
+  insurerIds: zod.array(zod.number()),
+  bedCount: zod.number().nullish(),
+  cashlessEnabled: zod.boolean(),
+});
+
+/**
+ * @summary List scrutiny/settlement cases
+ */
+export const ListScrutinyQueryParams = zod.object({
+  status: zod.coerce.string().optional(),
+  claimId: zod.coerce.string().optional(),
+});
+
+export const ListScrutinyResponseItem = zod.object({
+  id: zod.number(),
+  claimId: zod.number().nullish(),
+  claimNumber: zod.string().nullish(),
+  patientName: zod.string(),
+  billAmount: zod.number(),
+  scrutinizedAmount: zod.number().nullish(),
+  deductions: zod.number().nullish(),
+  deductionReasons: zod.array(zod.string()),
+  status: zod.enum(["pending", "in_review", "completed", "escalated"]),
+  assignedTo: zod.string().nullish(),
+  remarks: zod.string().nullish(),
+  completedAt: zod.coerce.date().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListScrutinyResponse = zod.array(ListScrutinyResponseItem);
+
+/**
+ * @summary Create a scrutiny case
+ */
+export const CreateScrutinyBody = zod.object({
+  claimId: zod.number().nullish(),
+  claimNumber: zod.string().nullish(),
+  patientName: zod.string(),
+  billAmount: zod.number(),
+  assignedTo: zod.string().nullish(),
+  remarks: zod.string().nullish(),
+});
+
+/**
+ * @summary Update scrutiny case
+ */
+export const UpdateScrutinyParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateScrutinyBody = zod.object({
+  status: zod
+    .enum(["pending", "in_review", "completed", "escalated"])
+    .optional(),
+  scrutinizedAmount: zod.number().nullish(),
+  deductions: zod.number().nullish(),
+  deductionReasons: zod.array(zod.string()).optional(),
+  remarks: zod.string().nullish(),
+  completedAt: zod.coerce.date().nullish(),
+});
+
+export const UpdateScrutinyResponse = zod.object({
+  id: zod.number(),
+  claimId: zod.number().nullish(),
+  claimNumber: zod.string().nullish(),
+  patientName: zod.string(),
+  billAmount: zod.number(),
+  scrutinizedAmount: zod.number().nullish(),
+  deductions: zod.number().nullish(),
+  deductionReasons: zod.array(zod.string()),
+  status: zod.enum(["pending", "in_review", "completed", "escalated"]),
+  assignedTo: zod.string().nullish(),
+  remarks: zod.string().nullish(),
+  completedAt: zod.coerce.date().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary List portability requests
+ */
+export const ListPortabilityResponseItem = zod.object({
+  id: zod.number(),
+  customerId: zod.number(),
+  customerName: zod.string(),
+  fromInsurerName: zod.string(),
+  toInsurerName: zod.string(),
+  policyNumber: zod.string(),
+  sumInsured: zod.number(),
+  newSumInsured: zod.number().nullish(),
+  portabilityReason: zod.string().nullish(),
+  previousClaimHistory: zod.string().nullish(),
+  status: zod.enum([
+    "initiated",
+    "under_review",
+    "approved",
+    "rejected",
+    "completed",
+  ]),
+  requestedAt: zod.coerce.date(),
+  effectiveDate: zod.coerce.date().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListPortabilityResponse = zod.array(ListPortabilityResponseItem);
+
+/**
+ * @summary Submit a portability request
+ */
+export const CreatePortabilityBody = zod.object({
+  customerId: zod.number(),
+  customerName: zod.string(),
+  fromInsurerName: zod.string(),
+  toInsurerName: zod.string(),
+  policyNumber: zod.string(),
+  sumInsured: zod.number(),
+  newSumInsured: zod.number().nullish(),
+  portabilityReason: zod.string().nullish(),
+  previousClaimHistory: zod.string().nullish(),
+  requestedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Update portability request status
+ */
+export const UpdatePortabilityParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdatePortabilityBody = zod.object({
+  status: zod
+    .enum(["initiated", "under_review", "approved", "rejected", "completed"])
+    .optional(),
+  effectiveDate: zod.coerce.date().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const UpdatePortabilityResponse = zod.object({
+  id: zod.number(),
+  customerId: zod.number(),
+  customerName: zod.string(),
+  fromInsurerName: zod.string(),
+  toInsurerName: zod.string(),
+  policyNumber: zod.string(),
+  sumInsured: zod.number(),
+  newSumInsured: zod.number().nullish(),
+  portabilityReason: zod.string().nullish(),
+  previousClaimHistory: zod.string().nullish(),
+  status: zod.enum([
+    "initiated",
+    "under_review",
+    "approved",
+    "rejected",
+    "completed",
+  ]),
+  requestedAt: zod.coerce.date(),
+  effectiveDate: zod.coerce.date().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary List policy renewals
+ */
+export const ListRenewalsQueryParams = zod.object({
+  status: zod.coerce.string().optional(),
+});
+
+export const ListRenewalsResponseItem = zod.object({
+  id: zod.number(),
+  customerId: zod.number(),
+  customerName: zod.string(),
+  policyNumber: zod.string(),
+  insurerName: zod.string(),
+  expiryDate: zod.coerce.date(),
+  renewalDate: zod.coerce.date().nullish(),
+  currentSumInsured: zod.number(),
+  newSumInsured: zod.number().nullish(),
+  currentPremium: zod.number(),
+  newPremium: zod.number().nullish(),
+  status: zod.enum([
+    "pending",
+    "initiated",
+    "payment_due",
+    "completed",
+    "lapsed",
+  ]),
+  memberCount: zod.number(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListRenewalsResponse = zod.array(ListRenewalsResponseItem);
+
+/**
+ * @summary Create a renewal request
+ */
+export const CreateRenewalBody = zod.object({
+  customerId: zod.number(),
+  customerName: zod.string(),
+  policyNumber: zod.string(),
+  insurerName: zod.string(),
+  expiryDate: zod.coerce.date(),
+  currentSumInsured: zod.number(),
+  newSumInsured: zod.number().nullish(),
+  currentPremium: zod.number(),
+  newPremium: zod.number().nullish(),
+  memberCount: zod.number(),
+  notes: zod.string().nullish(),
+});
+
+/**
+ * @summary Update renewal status
+ */
+export const UpdateRenewalParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateRenewalBody = zod.object({
+  status: zod
+    .enum(["pending", "initiated", "payment_due", "completed", "lapsed"])
+    .optional(),
+  renewalDate: zod.coerce.date().nullish(),
+  newSumInsured: zod.number().nullish(),
+  newPremium: zod.number().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const UpdateRenewalResponse = zod.object({
+  id: zod.number(),
+  customerId: zod.number(),
+  customerName: zod.string(),
+  policyNumber: zod.string(),
+  insurerName: zod.string(),
+  expiryDate: zod.coerce.date(),
+  renewalDate: zod.coerce.date().nullish(),
+  currentSumInsured: zod.number(),
+  newSumInsured: zod.number().nullish(),
+  currentPremium: zod.number(),
+  newPremium: zod.number().nullish(),
+  status: zod.enum([
+    "pending",
+    "initiated",
+    "payment_due",
+    "completed",
+    "lapsed",
+  ]),
+  memberCount: zod.number(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary List policy members
+ */
+export const ListMembersQueryParams = zod.object({
+  policyNumber: zod.coerce.string().optional(),
+  customerId: zod.coerce.string().optional(),
+});
+
+export const ListMembersResponseItem = zod.object({
+  id: zod.number(),
+  customerId: zod.number(),
+  policyNumber: zod.string(),
+  name: zod.string(),
+  relationship: zod.enum([
+    "self",
+    "spouse",
+    "child",
+    "parent",
+    "parent_in_law",
+    "sibling",
+  ]),
+  dateOfBirth: zod.coerce.date(),
+  gender: zod.enum(["male", "female", "other"]),
+  preExistingConditions: zod.array(zod.string()),
+  sumInsured: zod.number(),
+  status: zod.enum(["active", "inactive"]),
+  addedAt: zod.coerce.date(),
+  createdAt: zod.coerce.date(),
+});
+export const ListMembersResponse = zod.array(ListMembersResponseItem);
+
+/**
+ * @summary Add a new member to a policy
+ */
+export const AddMemberBody = zod.object({
+  customerId: zod.number(),
+  policyNumber: zod.string(),
+  name: zod.string(),
+  relationship: zod.enum([
+    "self",
+    "spouse",
+    "child",
+    "parent",
+    "parent_in_law",
+    "sibling",
+  ]),
+  dateOfBirth: zod.coerce.date(),
+  gender: zod.enum(["male", "female", "other"]),
+  preExistingConditions: zod.array(zod.string()).optional(),
+  sumInsured: zod.number(),
+  addedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary List reimbursement settlements
+ */
+export const ListReimbursementSettlementsQueryParams = zod.object({
+  claimId: zod.coerce.string().optional(),
+  status: zod.coerce.string().optional(),
+});
+
+export const ListReimbursementSettlementsResponseItem = zod.object({
+  id: zod.number(),
+  claimId: zod.number().nullish(),
+  claimNumber: zod.string().nullish(),
+  patientName: zod.string(),
+  policyNumber: zod.string(),
+  hospitalName: zod.string(),
+  admissionDate: zod.coerce.date().nullish(),
+  dischargeDate: zod.coerce.date().nullish(),
   totalBillAmount: zod.number(),
-  approvedBillAmount: zod.number(),
-  openThreads: zod.number(),
-  totalFeedback: zod.number(),
-  averageRating: zod.number(),
+  admissibleAmount: zod.number().nullish(),
+  deductible: zod.number().nullish(),
+  coPayAmount: zod.number().nullish(),
+  nonAdmissibleAmount: zod.number().nullish(),
+  netPayableAmount: zod.number().nullish(),
+  roomRentCharges: zod.number().nullish(),
+  surgeryCharges: zod.number().nullish(),
+  medicineCharges: zod.number().nullish(),
+  diagnosticCharges: zod.number().nullish(),
+  otherCharges: zod.number().nullish(),
+  nonAdmissibleReasons: zod.array(zod.string()),
+  paymentMode: zod.enum(["neft", "cheque", "upi", "pending"]).nullish(),
+  utrNumber: zod.string().nullish(),
+  settlementDate: zod.coerce.date().nullish(),
+  status: zod.enum(["pending", "processing", "approved", "paid", "rejected"]),
+  remarks: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListReimbursementSettlementsResponse = zod.array(
+  ListReimbursementSettlementsResponseItem,
+);
+
+/**
+ * @summary Create a reimbursement settlement
+ */
+export const CreateReimbursementSettlementBody = zod.object({
+  claimId: zod.number().nullish(),
+  claimNumber: zod.string().nullish(),
+  patientName: zod.string(),
+  policyNumber: zod.string(),
+  hospitalName: zod.string(),
+  admissionDate: zod.coerce.date().nullish(),
+  dischargeDate: zod.coerce.date().nullish(),
+  totalBillAmount: zod.number(),
+  roomRentCharges: zod.number().nullish(),
+  surgeryCharges: zod.number().nullish(),
+  medicineCharges: zod.number().nullish(),
+  diagnosticCharges: zod.number().nullish(),
+  otherCharges: zod.number().nullish(),
+  remarks: zod.string().nullish(),
+});
+
+/**
+ * @summary Update settlement
+ */
+export const UpdateReimbursementSettlementParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateReimbursementSettlementBody = zod.object({
+  status: zod
+    .enum(["pending", "processing", "approved", "paid", "rejected"])
+    .optional(),
+  admissibleAmount: zod.number().nullish(),
+  deductible: zod.number().nullish(),
+  coPayAmount: zod.number().nullish(),
+  nonAdmissibleAmount: zod.number().nullish(),
+  netPayableAmount: zod.number().nullish(),
+  nonAdmissibleReasons: zod.array(zod.string()).optional(),
+  paymentMode: zod.enum(["neft", "cheque", "upi", "pending"]).nullish(),
+  utrNumber: zod.string().nullish(),
+  settlementDate: zod.coerce.date().nullish(),
+  remarks: zod.string().nullish(),
+});
+
+export const UpdateReimbursementSettlementResponse = zod.object({
+  id: zod.number(),
+  claimId: zod.number().nullish(),
+  claimNumber: zod.string().nullish(),
+  patientName: zod.string(),
+  policyNumber: zod.string(),
+  hospitalName: zod.string(),
+  admissionDate: zod.coerce.date().nullish(),
+  dischargeDate: zod.coerce.date().nullish(),
+  totalBillAmount: zod.number(),
+  admissibleAmount: zod.number().nullish(),
+  deductible: zod.number().nullish(),
+  coPayAmount: zod.number().nullish(),
+  nonAdmissibleAmount: zod.number().nullish(),
+  netPayableAmount: zod.number().nullish(),
+  roomRentCharges: zod.number().nullish(),
+  surgeryCharges: zod.number().nullish(),
+  medicineCharges: zod.number().nullish(),
+  diagnosticCharges: zod.number().nullish(),
+  otherCharges: zod.number().nullish(),
+  nonAdmissibleReasons: zod.array(zod.string()),
+  paymentMode: zod.enum(["neft", "cheque", "upi", "pending"]).nullish(),
+  utrNumber: zod.string().nullish(),
+  settlementDate: zod.coerce.date().nullish(),
+  status: zod.enum(["pending", "processing", "approved", "paid", "rejected"]),
+  remarks: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
 });

@@ -3,15 +3,16 @@
  * Do not edit manually.
  * Api
  * InsuraBridge - Insurance Middleware Platform API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import type { UpdateClaimRequestStatus } from "./updateClaimRequestStatus";
 
 export interface UpdateClaimRequest {
   status?: UpdateClaimRequestStatus;
   approvedAmount?: number | null;
+  deductible?: number | null;
+  coPayAmount?: number | null;
+  netPayableAmount?: number | null;
   notes?: string | null;
   diagnosis?: string | null;
-  admissionDate?: Date | null;
-  dischargeDate?: Date | null;
 }

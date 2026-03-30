@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { claimsTable, billsTable, threadsTable, feedbackTable } from "@workspace/db/schema";
+import {
+  claimsTable, billsTable, threadsTable, feedbackTable,
+  notificationsTable, reimbursementSettlementsTable, membersTable
+} from "@workspace/db/schema";
 import { count, eq, avg, sql } from "drizzle-orm";
 
 const router = Router();
@@ -28,6 +31,18 @@ router.get("/dashboard/stats", async (req, res) => {
       averageRating: avg(feedbackTable.rating),
     }).from(feedbackTable);
 
+    const [notifStats] = await db.select({
+      unread: count(sql`CASE WHEN ${notificationsTable.isRead} = false THEN 1 END`),
+    }).from(notificationsTable);
+
+    const [settlementStats] = await db.select({
+      pending: count(sql`CASE WHEN ${reimbursementSettlementsTable.status} = 'pending' OR ${reimbursementSettlementsTable.status} = 'processing' THEN 1 END`),
+    }).from(reimbursementSettlementsTable);
+
+    const [memberStats] = await db.select({
+      active: count(sql`CASE WHEN ${membersTable.status} = 'active' THEN 1 END`),
+    }).from(membersTable);
+
     res.json({
       totalClaims: Number(claimStats.total),
       pendingClaims: Number(claimStats.pending),
@@ -38,6 +53,9 @@ router.get("/dashboard/stats", async (req, res) => {
       openThreads: Number(threadStats.openThreads),
       totalFeedback: Number(feedbackStats.totalFeedback),
       averageRating: parseFloat(String(feedbackStats.averageRating)) || 0,
+      unreadNotifications: Number(notifStats.unread),
+      pendingSettlements: Number(settlementStats.pending),
+      activeMembers: Number(memberStats.active),
     });
   } catch (err) {
     req.log.error({ err }, "Failed to get dashboard stats");

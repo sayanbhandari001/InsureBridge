@@ -3,10 +3,19 @@
  * Do not edit manually.
  * Api
  * InsuraBridge - Insurance Middleware Platform API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 export interface HealthStatus {
   status: string;
+}
+
+export interface SuccessResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface ErrorResponse {
+  error: string;
 }
 
 export interface DashboardStats {
@@ -19,6 +28,33 @@ export interface DashboardStats {
   openThreads: number;
   totalFeedback: number;
   averageRating: number;
+  unreadNotifications: number;
+  pendingSettlements: number;
+  activeMembers: number;
+}
+
+export type AuthUserRole = (typeof AuthUserRole)[keyof typeof AuthUserRole];
+
+export const AuthUserRole = {
+  customer: "customer",
+  hospital: "hospital",
+  tpa: "tpa",
+  insurer: "insurer",
+  admin: "admin",
+} as const;
+
+export interface AuthUser {
+  id: number;
+  name: string;
+  email: string;
+  role: AuthUserRole;
+  organization?: string | null;
+  phone?: string | null;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
 }
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
@@ -55,9 +91,55 @@ export const CreateUserRequestRole = {
 export interface CreateUserRequest {
   name: string;
   email: string;
+  password: string;
   role: CreateUserRequestRole;
   organization?: string | null;
   phone?: string | null;
+}
+
+export type NotificationType =
+  (typeof NotificationType)[keyof typeof NotificationType];
+
+export const NotificationType = {
+  message: "message",
+  claim_update: "claim_update",
+  document: "document",
+  bill: "bill",
+  settlement: "settlement",
+  system: "system",
+} as const;
+
+export interface Notification {
+  id: number;
+  userId: number;
+  title: string;
+  message: string;
+  type: NotificationType;
+  relatedId?: number | null;
+  relatedType?: string | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export type CreateNotificationRequestType =
+  (typeof CreateNotificationRequestType)[keyof typeof CreateNotificationRequestType];
+
+export const CreateNotificationRequestType = {
+  message: "message",
+  claim_update: "claim_update",
+  document: "document",
+  bill: "bill",
+  settlement: "settlement",
+  system: "system",
+} as const;
+
+export interface CreateNotificationRequest {
+  userId: number;
+  title: string;
+  message: string;
+  type: CreateNotificationRequestType;
+  relatedId?: number | null;
+  relatedType?: string | null;
 }
 
 export type ClaimStatus = (typeof ClaimStatus)[keyof typeof ClaimStatus];
@@ -95,7 +177,17 @@ export interface Claim {
   dischargeDate?: string | null;
   claimedAmount: number;
   approvedAmount?: number | null;
+  deductible?: number | null;
+  coPayAmount?: number | null;
+  netPayableAmount?: number | null;
+  roomRentCharges?: number | null;
+  surgeryCharges?: number | null;
+  medicineCharges?: number | null;
+  diagnosticCharges?: number | null;
+  otherCharges?: number | null;
   policyNumber: string;
+  icdCode?: string | null;
+  treatmentType?: string | null;
   notes?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -121,7 +213,14 @@ export interface CreateClaimRequest {
   admissionDate?: string | null;
   dischargeDate?: string | null;
   claimedAmount: number;
+  roomRentCharges?: number | null;
+  surgeryCharges?: number | null;
+  medicineCharges?: number | null;
+  diagnosticCharges?: number | null;
+  otherCharges?: number | null;
   policyNumber: string;
+  icdCode?: string | null;
+  treatmentType?: string | null;
   notes?: string | null;
 }
 
@@ -140,10 +239,11 @@ export const UpdateClaimRequestStatus = {
 export interface UpdateClaimRequest {
   status?: UpdateClaimRequestStatus;
   approvedAmount?: number | null;
+  deductible?: number | null;
+  coPayAmount?: number | null;
+  netPayableAmount?: number | null;
   notes?: string | null;
   diagnosis?: string | null;
-  admissionDate?: string | null;
-  dischargeDate?: string | null;
 }
 
 export interface Thread {
@@ -390,6 +490,60 @@ export interface SubmitFeedbackRequest {
   targetEntity: SubmitFeedbackRequestTargetEntity;
 }
 
+export type AppFeedbackFeature =
+  (typeof AppFeedbackFeature)[keyof typeof AppFeedbackFeature];
+
+export const AppFeedbackFeature = {
+  claims: "claims",
+  chat: "chat",
+  billing: "billing",
+  documents: "documents",
+  overall: "overall",
+  tpa_tools: "tpa_tools",
+  reports: "reports",
+} as const;
+
+export interface AppFeedback {
+  id: number;
+  userId: number;
+  userName: string;
+  userRole: string;
+  /**
+   * @minimum 1
+   * @maximum 5
+   */
+  rating: number;
+  feature: AppFeedbackFeature;
+  comment?: string | null;
+  createdAt: string;
+}
+
+export type SubmitAppFeedbackRequestFeature =
+  (typeof SubmitAppFeedbackRequestFeature)[keyof typeof SubmitAppFeedbackRequestFeature];
+
+export const SubmitAppFeedbackRequestFeature = {
+  claims: "claims",
+  chat: "chat",
+  billing: "billing",
+  documents: "documents",
+  overall: "overall",
+  tpa_tools: "tpa_tools",
+  reports: "reports",
+} as const;
+
+export interface SubmitAppFeedbackRequest {
+  userId: number;
+  userName: string;
+  userRole: string;
+  /**
+   * @minimum 1
+   * @maximum 5
+   */
+  rating: number;
+  feature: SubmitAppFeedbackRequestFeature;
+  comment?: string | null;
+}
+
 export type BillStatus = (typeof BillStatus)[keyof typeof BillStatus];
 
 export const BillStatus = {
@@ -453,9 +607,489 @@ export interface UpdateBillRequest {
   processedAt?: string | null;
 }
 
+export type EcardStatus = (typeof EcardStatus)[keyof typeof EcardStatus];
+
+export const EcardStatus = {
+  active: "active",
+  expired: "expired",
+  suspended: "suspended",
+  cancelled: "cancelled",
+} as const;
+
+export interface Ecard {
+  id: number;
+  memberId: number;
+  memberName: string;
+  policyNumber: string;
+  insurerName: string;
+  tpaName: string;
+  cardNumber: string;
+  sumInsured: number;
+  validFrom: string;
+  validTo: string;
+  status: EcardStatus;
+  dependents: string[];
+  createdAt: string;
+}
+
+export interface CreateEcardRequest {
+  memberId: number;
+  memberName: string;
+  policyNumber: string;
+  insurerName: string;
+  tpaName: string;
+  sumInsured: number;
+  validFrom: string;
+  validTo: string;
+  dependents?: string[];
+}
+
+export type UpdateEcardRequestStatus =
+  (typeof UpdateEcardRequestStatus)[keyof typeof UpdateEcardRequestStatus];
+
+export const UpdateEcardRequestStatus = {
+  active: "active",
+  expired: "expired",
+  suspended: "suspended",
+  cancelled: "cancelled",
+} as const;
+
+export interface UpdateEcardRequest {
+  status?: UpdateEcardRequestStatus;
+  sumInsured?: number | null;
+  validTo?: string | null;
+}
+
+export type NetworkProviderType =
+  (typeof NetworkProviderType)[keyof typeof NetworkProviderType];
+
+export const NetworkProviderType = {
+  hospital: "hospital",
+  clinic: "clinic",
+  diagnostic: "diagnostic",
+  pharmacy: "pharmacy",
+  specialist: "specialist",
+} as const;
+
+export type NetworkProviderStatus =
+  (typeof NetworkProviderStatus)[keyof typeof NetworkProviderStatus];
+
+export const NetworkProviderStatus = {
+  active: "active",
+  inactive: "inactive",
+  suspended: "suspended",
+} as const;
+
+export interface NetworkProvider {
+  id: number;
+  name: string;
+  type: NetworkProviderType;
+  city: string;
+  state: string;
+  address: string;
+  phone?: string | null;
+  email?: string | null;
+  specialities: string[];
+  insurerIds: number[];
+  bedCount?: number | null;
+  cashlessEnabled: boolean;
+  status: NetworkProviderStatus;
+  createdAt: string;
+}
+
+export type CreateNetworkProviderRequestType =
+  (typeof CreateNetworkProviderRequestType)[keyof typeof CreateNetworkProviderRequestType];
+
+export const CreateNetworkProviderRequestType = {
+  hospital: "hospital",
+  clinic: "clinic",
+  diagnostic: "diagnostic",
+  pharmacy: "pharmacy",
+  specialist: "specialist",
+} as const;
+
+export interface CreateNetworkProviderRequest {
+  name: string;
+  type: CreateNetworkProviderRequestType;
+  city: string;
+  state: string;
+  address: string;
+  phone?: string | null;
+  email?: string | null;
+  specialities: string[];
+  insurerIds: number[];
+  bedCount?: number | null;
+  cashlessEnabled: boolean;
+}
+
+export type ScrutinyCaseStatus =
+  (typeof ScrutinyCaseStatus)[keyof typeof ScrutinyCaseStatus];
+
+export const ScrutinyCaseStatus = {
+  pending: "pending",
+  in_review: "in_review",
+  completed: "completed",
+  escalated: "escalated",
+} as const;
+
+export interface ScrutinyCase {
+  id: number;
+  claimId?: number | null;
+  claimNumber?: string | null;
+  patientName: string;
+  billAmount: number;
+  scrutinizedAmount?: number | null;
+  deductions?: number | null;
+  deductionReasons: string[];
+  status: ScrutinyCaseStatus;
+  assignedTo?: string | null;
+  remarks?: string | null;
+  completedAt?: string | null;
+  createdAt: string;
+}
+
+export interface CreateScrutinyRequest {
+  claimId?: number | null;
+  claimNumber?: string | null;
+  patientName: string;
+  billAmount: number;
+  assignedTo?: string | null;
+  remarks?: string | null;
+}
+
+export type UpdateScrutinyRequestStatus =
+  (typeof UpdateScrutinyRequestStatus)[keyof typeof UpdateScrutinyRequestStatus];
+
+export const UpdateScrutinyRequestStatus = {
+  pending: "pending",
+  in_review: "in_review",
+  completed: "completed",
+  escalated: "escalated",
+} as const;
+
+export interface UpdateScrutinyRequest {
+  status?: UpdateScrutinyRequestStatus;
+  scrutinizedAmount?: number | null;
+  deductions?: number | null;
+  deductionReasons?: string[];
+  remarks?: string | null;
+  completedAt?: string | null;
+}
+
+export type PortabilityRequestStatus =
+  (typeof PortabilityRequestStatus)[keyof typeof PortabilityRequestStatus];
+
+export const PortabilityRequestStatus = {
+  initiated: "initiated",
+  under_review: "under_review",
+  approved: "approved",
+  rejected: "rejected",
+  completed: "completed",
+} as const;
+
+export interface PortabilityRequest {
+  id: number;
+  customerId: number;
+  customerName: string;
+  fromInsurerName: string;
+  toInsurerName: string;
+  policyNumber: string;
+  sumInsured: number;
+  newSumInsured?: number | null;
+  portabilityReason?: string | null;
+  previousClaimHistory?: string | null;
+  status: PortabilityRequestStatus;
+  requestedAt: string;
+  effectiveDate?: string | null;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface CreatePortabilityRequest {
+  customerId: number;
+  customerName: string;
+  fromInsurerName: string;
+  toInsurerName: string;
+  policyNumber: string;
+  sumInsured: number;
+  newSumInsured?: number | null;
+  portabilityReason?: string | null;
+  previousClaimHistory?: string | null;
+  requestedAt: string;
+}
+
+export type UpdatePortabilityRequestStatus =
+  (typeof UpdatePortabilityRequestStatus)[keyof typeof UpdatePortabilityRequestStatus];
+
+export const UpdatePortabilityRequestStatus = {
+  initiated: "initiated",
+  under_review: "under_review",
+  approved: "approved",
+  rejected: "rejected",
+  completed: "completed",
+} as const;
+
+export interface UpdatePortabilityRequest {
+  status?: UpdatePortabilityRequestStatus;
+  effectiveDate?: string | null;
+  notes?: string | null;
+}
+
+export type RenewalStatus = (typeof RenewalStatus)[keyof typeof RenewalStatus];
+
+export const RenewalStatus = {
+  pending: "pending",
+  initiated: "initiated",
+  payment_due: "payment_due",
+  completed: "completed",
+  lapsed: "lapsed",
+} as const;
+
+export interface Renewal {
+  id: number;
+  customerId: number;
+  customerName: string;
+  policyNumber: string;
+  insurerName: string;
+  expiryDate: string;
+  renewalDate?: string | null;
+  currentSumInsured: number;
+  newSumInsured?: number | null;
+  currentPremium: number;
+  newPremium?: number | null;
+  status: RenewalStatus;
+  memberCount: number;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface CreateRenewalRequest {
+  customerId: number;
+  customerName: string;
+  policyNumber: string;
+  insurerName: string;
+  expiryDate: string;
+  currentSumInsured: number;
+  newSumInsured?: number | null;
+  currentPremium: number;
+  newPremium?: number | null;
+  memberCount: number;
+  notes?: string | null;
+}
+
+export type UpdateRenewalRequestStatus =
+  (typeof UpdateRenewalRequestStatus)[keyof typeof UpdateRenewalRequestStatus];
+
+export const UpdateRenewalRequestStatus = {
+  pending: "pending",
+  initiated: "initiated",
+  payment_due: "payment_due",
+  completed: "completed",
+  lapsed: "lapsed",
+} as const;
+
+export interface UpdateRenewalRequest {
+  status?: UpdateRenewalRequestStatus;
+  renewalDate?: string | null;
+  newSumInsured?: number | null;
+  newPremium?: number | null;
+  notes?: string | null;
+}
+
+export type MemberRelationship =
+  (typeof MemberRelationship)[keyof typeof MemberRelationship];
+
+export const MemberRelationship = {
+  self: "self",
+  spouse: "spouse",
+  child: "child",
+  parent: "parent",
+  parent_in_law: "parent_in_law",
+  sibling: "sibling",
+} as const;
+
+export type MemberGender = (typeof MemberGender)[keyof typeof MemberGender];
+
+export const MemberGender = {
+  male: "male",
+  female: "female",
+  other: "other",
+} as const;
+
+export type MemberStatus = (typeof MemberStatus)[keyof typeof MemberStatus];
+
+export const MemberStatus = {
+  active: "active",
+  inactive: "inactive",
+} as const;
+
+export interface Member {
+  id: number;
+  customerId: number;
+  policyNumber: string;
+  name: string;
+  relationship: MemberRelationship;
+  dateOfBirth: string;
+  gender: MemberGender;
+  preExistingConditions: string[];
+  sumInsured: number;
+  status: MemberStatus;
+  addedAt: string;
+  createdAt: string;
+}
+
+export type AddMemberRequestRelationship =
+  (typeof AddMemberRequestRelationship)[keyof typeof AddMemberRequestRelationship];
+
+export const AddMemberRequestRelationship = {
+  self: "self",
+  spouse: "spouse",
+  child: "child",
+  parent: "parent",
+  parent_in_law: "parent_in_law",
+  sibling: "sibling",
+} as const;
+
+export type AddMemberRequestGender =
+  (typeof AddMemberRequestGender)[keyof typeof AddMemberRequestGender];
+
+export const AddMemberRequestGender = {
+  male: "male",
+  female: "female",
+  other: "other",
+} as const;
+
+export interface AddMemberRequest {
+  customerId: number;
+  policyNumber: string;
+  name: string;
+  relationship: AddMemberRequestRelationship;
+  dateOfBirth: string;
+  gender: AddMemberRequestGender;
+  preExistingConditions?: string[];
+  sumInsured: number;
+  addedAt: string;
+}
+
+export type ReimbursementSettlementPaymentMode =
+  | (typeof ReimbursementSettlementPaymentMode)[keyof typeof ReimbursementSettlementPaymentMode]
+  | null;
+
+export const ReimbursementSettlementPaymentMode = {
+  neft: "neft",
+  cheque: "cheque",
+  upi: "upi",
+  pending: "pending",
+} as const;
+
+export type ReimbursementSettlementStatus =
+  (typeof ReimbursementSettlementStatus)[keyof typeof ReimbursementSettlementStatus];
+
+export const ReimbursementSettlementStatus = {
+  pending: "pending",
+  processing: "processing",
+  approved: "approved",
+  paid: "paid",
+  rejected: "rejected",
+} as const;
+
+export interface ReimbursementSettlement {
+  id: number;
+  claimId?: number | null;
+  claimNumber?: string | null;
+  patientName: string;
+  policyNumber: string;
+  hospitalName: string;
+  admissionDate?: string | null;
+  dischargeDate?: string | null;
+  totalBillAmount: number;
+  admissibleAmount?: number | null;
+  deductible?: number | null;
+  coPayAmount?: number | null;
+  nonAdmissibleAmount?: number | null;
+  netPayableAmount?: number | null;
+  roomRentCharges?: number | null;
+  surgeryCharges?: number | null;
+  medicineCharges?: number | null;
+  diagnosticCharges?: number | null;
+  otherCharges?: number | null;
+  nonAdmissibleReasons: string[];
+  paymentMode?: ReimbursementSettlementPaymentMode;
+  utrNumber?: string | null;
+  settlementDate?: string | null;
+  status: ReimbursementSettlementStatus;
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateReimbursementSettlementRequest {
+  claimId?: number | null;
+  claimNumber?: string | null;
+  patientName: string;
+  policyNumber: string;
+  hospitalName: string;
+  admissionDate?: string | null;
+  dischargeDate?: string | null;
+  totalBillAmount: number;
+  roomRentCharges?: number | null;
+  surgeryCharges?: number | null;
+  medicineCharges?: number | null;
+  diagnosticCharges?: number | null;
+  otherCharges?: number | null;
+  remarks?: string | null;
+}
+
+export type UpdateReimbursementSettlementRequestStatus =
+  (typeof UpdateReimbursementSettlementRequestStatus)[keyof typeof UpdateReimbursementSettlementRequestStatus];
+
+export const UpdateReimbursementSettlementRequestStatus = {
+  pending: "pending",
+  processing: "processing",
+  approved: "approved",
+  paid: "paid",
+  rejected: "rejected",
+} as const;
+
+export type UpdateReimbursementSettlementRequestPaymentMode =
+  | (typeof UpdateReimbursementSettlementRequestPaymentMode)[keyof typeof UpdateReimbursementSettlementRequestPaymentMode]
+  | null;
+
+export const UpdateReimbursementSettlementRequestPaymentMode = {
+  neft: "neft",
+  cheque: "cheque",
+  upi: "upi",
+  pending: "pending",
+} as const;
+
+export interface UpdateReimbursementSettlementRequest {
+  status?: UpdateReimbursementSettlementRequestStatus;
+  admissibleAmount?: number | null;
+  deductible?: number | null;
+  coPayAmount?: number | null;
+  nonAdmissibleAmount?: number | null;
+  netPayableAmount?: number | null;
+  nonAdmissibleReasons?: string[];
+  paymentMode?: UpdateReimbursementSettlementRequestPaymentMode;
+  utrNumber?: string | null;
+  settlementDate?: string | null;
+  remarks?: string | null;
+}
+
+export type ListNotificationsParams = {
+  userId?: string;
+  unreadOnly?: boolean;
+};
+
+export type MarkAllNotificationsReadBody = {
+  userId: number;
+};
+
 export type ListClaimsParams = {
   status?: string;
   customerId?: string;
+  hospitalId?: string;
+  tpaId?: string;
+  insurerId?: string;
 };
 
 export type ListMessagesParams = {
@@ -471,7 +1105,41 @@ export type ListDocumentsParams = {
   claimId?: string;
 };
 
+export type ListFeedbackParams = {
+  targetEntity?: string;
+};
+
 export type ListBillsParams = {
+  claimId?: string;
+  status?: string;
+};
+
+export type ListEcardsParams = {
+  memberId?: string;
+  status?: string;
+};
+
+export type ListNetworkProvidersParams = {
+  city?: string;
+  speciality?: string;
+  status?: string;
+};
+
+export type ListScrutinyParams = {
+  status?: string;
+  claimId?: string;
+};
+
+export type ListRenewalsParams = {
+  status?: string;
+};
+
+export type ListMembersParams = {
+  policyNumber?: string;
+  customerId?: string;
+};
+
+export type ListReimbursementSettlementsParams = {
   claimId?: string;
   status?: string;
 };

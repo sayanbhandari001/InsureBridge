@@ -1,28 +1,29 @@
 openapi: 3.1.0
 info:
   title: Api
-  version: 0.1.0
+  version: 0.2.0
   description: InsuraBridge - Insurance Middleware Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
-  - name: claims
-    description: Insurance claims management
-  - name: messages
-    description: Chat/messaging between parties
-  - name: calls
-    description: Call logs and records
-  - name: documents
-    description: File uploads and document management
-  - name: feedback
-    description: Customer feedback
-  - name: bills
-    description: Bill details and financial management
+  - name: auth
   - name: users
-    description: User management
+  - name: claims
+  - name: messages
+  - name: calls
+  - name: documents
+  - name: feedback
+  - name: bills
+  - name: notifications
+  - name: ecards
+  - name: network
+  - name: scrutiny
+  - name: portability
+  - name: renewals
+  - name: members
+  - name: settlements
 
 paths:
   /healthz:
@@ -38,6 +39,78 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
 
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [health]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  # AUTH
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current logged-in user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # USERS
   /users:
     get:
       operationId: listUsers
@@ -70,6 +143,94 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
 
+  # NOTIFICATIONS
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications for current user
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: unreadOnly
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+    post:
+      operationId: createNotification
+      tags: [notifications]
+      summary: Create a notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotificationRequest"
+      responses:
+        "201":
+          description: Notification created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark a notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+              required:
+                - userId
+      responses:
+        "200":
+          description: All notifications marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # CLAIMS
   /claims:
     get:
       operationId: listClaims
@@ -82,6 +243,21 @@ paths:
           schema:
             type: string
         - name: customerId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: hospitalId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: tpaId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: insurerId
           in: query
           required: false
           schema:
@@ -134,7 +310,7 @@ paths:
     patch:
       operationId: updateClaim
       tags: [claims]
-      summary: Update claim status
+      summary: Update claim
       parameters:
         - name: id
           in: path
@@ -155,6 +331,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Claim"
 
+  # MESSAGES & THREADS
   /messages:
     get:
       operationId: listMessages
@@ -230,6 +407,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Thread"
 
+  # CALLS
   /calls:
     get:
       operationId: listCallLogs
@@ -268,11 +446,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/CallLog"
 
+  # DOCUMENTS
   /documents:
     get:
       operationId: listDocuments
       tags: [documents]
-      summary: List documents for a claim
+      summary: List documents
       parameters:
         - name: claimId
           in: query
@@ -306,11 +485,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/Document"
 
+  # FEEDBACK (customer feedback)
   /feedback:
     get:
       operationId: listFeedback
       tags: [feedback]
       summary: List all customer feedback
+      parameters:
+        - name: targetEntity
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: List of feedback
@@ -338,6 +524,40 @@ paths:
               schema:
                 $ref: "#/components/schemas/Feedback"
 
+  # APP FEEDBACK (feedback about the InsuraBridge app itself)
+  /app-feedback:
+    get:
+      operationId: listAppFeedback
+      tags: [feedback]
+      summary: List app-level feedback
+      responses:
+        "200":
+          description: List of app feedback
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AppFeedback"
+    post:
+      operationId: submitAppFeedback
+      tags: [feedback]
+      summary: Submit app feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitAppFeedbackRequest"
+      responses:
+        "201":
+          description: App feedback submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppFeedback"
+
+  # BILLS
   /bills:
     get:
       operationId: listBills
@@ -406,18 +626,427 @@ paths:
               schema:
                 $ref: "#/components/schemas/Bill"
 
-  /dashboard/stats:
+  # E-CARDS (TPA feature)
+  /ecards:
     get:
-      operationId: getDashboardStats
-      tags: [health]
-      summary: Get dashboard statistics
+      operationId: listEcards
+      tags: [ecards]
+      summary: List e-cards
+      parameters:
+        - name: memberId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         "200":
-          description: Dashboard stats
+          description: List of e-cards
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DashboardStats"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ecard"
+    post:
+      operationId: createEcard
+      tags: [ecards]
+      summary: Issue a new e-card
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEcardRequest"
+      responses:
+        "201":
+          description: E-card created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ecard"
+
+  /ecards/{id}:
+    patch:
+      operationId: updateEcard
+      tags: [ecards]
+      summary: Update e-card status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEcardRequest"
+      responses:
+        "200":
+          description: E-card updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ecard"
+
+  # NETWORK PROVIDERS (TPA feature)
+  /network-providers:
+    get:
+      operationId: listNetworkProviders
+      tags: [network]
+      summary: List network hospitals/providers
+      parameters:
+        - name: city
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: speciality
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of network providers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NetworkProvider"
+    post:
+      operationId: createNetworkProvider
+      tags: [network]
+      summary: Add a network provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNetworkProviderRequest"
+      responses:
+        "201":
+          description: Network provider created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkProvider"
+
+  # SCRUTINY SETTLEMENTS (TPA feature)
+  /scrutiny:
+    get:
+      operationId: listScrutiny
+      tags: [scrutiny]
+      summary: List scrutiny/settlement cases
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: claimId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of scrutiny cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScrutinyCase"
+    post:
+      operationId: createScrutiny
+      tags: [scrutiny]
+      summary: Create a scrutiny case
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateScrutinyRequest"
+      responses:
+        "201":
+          description: Scrutiny case created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrutinyCase"
+
+  /scrutiny/{id}:
+    patch:
+      operationId: updateScrutiny
+      tags: [scrutiny]
+      summary: Update scrutiny case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateScrutinyRequest"
+      responses:
+        "200":
+          description: Scrutiny case updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrutinyCase"
+
+  # PORTABILITY
+  /portability:
+    get:
+      operationId: listPortability
+      tags: [portability]
+      summary: List portability requests
+      responses:
+        "200":
+          description: List of portability requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PortabilityRequest"
+    post:
+      operationId: createPortability
+      tags: [portability]
+      summary: Submit a portability request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePortabilityRequest"
+      responses:
+        "201":
+          description: Portability request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortabilityRequest"
+
+  /portability/{id}:
+    patch:
+      operationId: updatePortability
+      tags: [portability]
+      summary: Update portability request status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePortabilityRequest"
+      responses:
+        "200":
+          description: Portability request updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortabilityRequest"
+
+  # RENEWALS
+  /renewals:
+    get:
+      operationId: listRenewals
+      tags: [renewals]
+      summary: List policy renewals
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of renewals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Renewal"
+    post:
+      operationId: createRenewal
+      tags: [renewals]
+      summary: Create a renewal request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRenewalRequest"
+      responses:
+        "201":
+          description: Renewal created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Renewal"
+
+  /renewals/{id}:
+    patch:
+      operationId: updateRenewal
+      tags: [renewals]
+      summary: Update renewal status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRenewalRequest"
+      responses:
+        "200":
+          description: Renewal updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Renewal"
+
+  # MEMBERS
+  /members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      summary: List policy members
+      parameters:
+        - name: policyNumber
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+    post:
+      operationId: addMember
+      tags: [members]
+      summary: Add a new member to a policy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddMemberRequest"
+      responses:
+        "201":
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  # REIMBURSEMENT SETTLEMENTS
+  /reimbursement-settlements:
+    get:
+      operationId: listReimbursementSettlements
+      tags: [settlements]
+      summary: List reimbursement settlements
+      parameters:
+        - name: claimId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of settlements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReimbursementSettlement"
+    post:
+      operationId: createReimbursementSettlement
+      tags: [settlements]
+      summary: Create a reimbursement settlement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReimbursementSettlementRequest"
+      responses:
+        "201":
+          description: Settlement created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReimbursementSettlement"
+
+  /reimbursement-settlements/{id}:
+    patch:
+      operationId: updateReimbursementSettlement
+      tags: [settlements]
+      summary: Update settlement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReimbursementSettlementRequest"
+      responses:
+        "200":
+          description: Settlement updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReimbursementSettlement"
 
 components:
   schemas:
@@ -426,8 +1055,23 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required: [success]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
 
     DashboardStats:
       type: object
@@ -450,6 +1094,12 @@ components:
           type: integer
         averageRating:
           type: number
+        unreadNotifications:
+          type: integer
+        pendingSettlements:
+          type: integer
+        activeMembers:
+          type: integer
       required:
         - totalClaims
         - pendingClaims
@@ -460,6 +1110,38 @@ components:
         - openThreads
         - totalFeedback
         - averageRating
+        - unreadNotifications
+        - pendingSettlements
+        - activeMembers
+
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [customer, hospital, tpa, insurer, admin]
+        organization:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+      required: [id, name, email, role]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
 
     User:
       type: object
@@ -482,12 +1164,7 @@ components:
         createdAt:
           type: string
           format: date-time
-      required:
-        - id
-        - name
-        - email
-        - role
-        - createdAt
+      required: [id, name, email, role, createdAt]
 
     CreateUserRequest:
       type: object
@@ -495,6 +1172,8 @@ components:
         name:
           type: string
         email:
+          type: string
+        password:
           type: string
         role:
           type: string
@@ -505,10 +1184,54 @@ components:
         phone:
           type: string
           nullable: true
-      required:
-        - name
-        - email
-        - role
+      required: [name, email, password, role]
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+          enum: [message, claim_update, document, bill, settlement, system]
+        relatedId:
+          type: integer
+          nullable: true
+        relatedType:
+          type: string
+          nullable: true
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, title, message, type, isRead, createdAt]
+
+    CreateNotificationRequest:
+      type: object
+      properties:
+        userId:
+          type: integer
+        title:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+          enum: [message, claim_update, document, bill, settlement, system]
+        relatedId:
+          type: integer
+          nullable: true
+        relatedType:
+          type: string
+          nullable: true
+      required: [userId, title, message, type]
 
     Claim:
       type: object
@@ -555,8 +1278,38 @@ components:
         approvedAmount:
           type: number
           nullable: true
+        deductible:
+          type: number
+          nullable: true
+        coPayAmount:
+          type: number
+          nullable: true
+        netPayableAmount:
+          type: number
+          nullable: true
+        roomRentCharges:
+          type: number
+          nullable: true
+        surgeryCharges:
+          type: number
+          nullable: true
+        medicineCharges:
+          type: number
+          nullable: true
+        diagnosticCharges:
+          type: number
+          nullable: true
+        otherCharges:
+          type: number
+          nullable: true
         policyNumber:
           type: string
+        icdCode:
+          type: string
+          nullable: true
+        treatmentType:
+          type: string
+          nullable: true
         notes:
           type: string
           nullable: true
@@ -613,17 +1366,33 @@ components:
           nullable: true
         claimedAmount:
           type: number
+        roomRentCharges:
+          type: number
+          nullable: true
+        surgeryCharges:
+          type: number
+          nullable: true
+        medicineCharges:
+          type: number
+          nullable: true
+        diagnosticCharges:
+          type: number
+          nullable: true
+        otherCharges:
+          type: number
+          nullable: true
         policyNumber:
           type: string
+        icdCode:
+          type: string
+          nullable: true
+        treatmentType:
+          type: string
+          nullable: true
         notes:
           type: string
           nullable: true
-      required:
-        - customerId
-        - patientName
-        - claimType
-        - claimedAmount
-        - policyNumber
+      required: [customerId, patientName, claimType, claimedAmount, policyNumber]
 
     UpdateClaimRequest:
       type: object
@@ -634,19 +1403,20 @@ components:
         approvedAmount:
           type: number
           nullable: true
+        deductible:
+          type: number
+          nullable: true
+        coPayAmount:
+          type: number
+          nullable: true
+        netPayableAmount:
+          type: number
+          nullable: true
         notes:
           type: string
           nullable: true
         diagnosis:
           type: string
-          nullable: true
-        admissionDate:
-          type: string
-          format: date-time
-          nullable: true
-        dischargeDate:
-          type: string
-          format: date-time
           nullable: true
 
     Thread:
@@ -672,12 +1442,7 @@ components:
         createdAt:
           type: string
           format: date-time
-      required:
-        - id
-        - subject
-        - participants
-        - messageCount
-        - createdAt
+      required: [id, subject, participants, messageCount, createdAt]
 
     CreateThreadRequest:
       type: object
@@ -691,9 +1456,7 @@ components:
           type: array
           items:
             type: string
-      required:
-        - subject
-        - participants
+      required: [subject, participants]
 
     Message:
       type: object
@@ -720,15 +1483,7 @@ components:
         createdAt:
           type: string
           format: date-time
-      required:
-        - id
-        - threadId
-        - senderId
-        - senderName
-        - senderRole
-        - content
-        - attachments
-        - createdAt
+      required: [id, threadId, senderId, senderName, senderRole, content, attachments, createdAt]
 
     SendMessageRequest:
       type: object
@@ -750,12 +1505,7 @@ components:
           type: array
           items:
             type: string
-      required:
-        - threadId
-        - senderId
-        - senderName
-        - senderRole
-        - content
+      required: [threadId, senderId, senderName, senderRole, content]
 
     CallLog:
       type: object
@@ -793,17 +1543,7 @@ components:
         createdAt:
           type: string
           format: date-time
-      required:
-        - id
-        - callerId
-        - callerName
-        - callerRole
-        - receiverName
-        - receiverRole
-        - direction
-        - outcome
-        - callDate
-        - createdAt
+      required: [id, callerId, callerName, callerRole, receiverName, receiverRole, direction, outcome, callDate, createdAt]
 
     CreateCallLogRequest:
       type: object
@@ -836,15 +1576,7 @@ components:
         callDate:
           type: string
           format: date-time
-      required:
-        - callerId
-        - callerName
-        - callerRole
-        - receiverName
-        - receiverRole
-        - direction
-        - outcome
-        - callDate
+      required: [callerId, callerName, callerRole, receiverName, receiverRole, direction, outcome, callDate]
 
     Document:
       type: object
@@ -880,18 +1612,7 @@ components:
         createdAt:
           type: string
           format: date-time
-      required:
-        - id
-        - uploadedById
-        - uploaderName
-        - uploaderRole
-        - fileName
-        - fileType
-        - fileSize
-        - documentType
-        - url
-        - status
-        - createdAt
+      required: [id, uploadedById, uploaderName, uploaderRole, fileName, fileType, fileSize, documentType, url, status, createdAt]
 
     UploadDocumentRequest:
       type: object
@@ -919,15 +1640,7 @@ components:
         notes:
           type: string
           nullable: true
-      required:
-        - uploadedById
-        - uploaderName
-        - uploaderRole
-        - fileName
-        - fileType
-        - fileSize
-        - documentType
-        - url
+      required: [uploadedById, uploaderName, uploaderRole, fileName, fileType, fileSize, documentType, url]
 
     Feedback:
       type: object
@@ -957,14 +1670,7 @@ components:
         createdAt:
           type: string
           format: date-time
-      required:
-        - id
-        - customerId
-        - customerName
-        - rating
-        - category
-        - targetEntity
-        - createdAt
+      required: [id, customerId, customerName, rating, category, targetEntity, createdAt]
 
     SubmitFeedbackRequest:
       type: object
@@ -989,12 +1695,54 @@ components:
         targetEntity:
           type: string
           enum: [hospital, tpa, insurer, overall]
-      required:
-        - customerId
-        - customerName
-        - rating
-        - category
-        - targetEntity
+      required: [customerId, customerName, rating, category, targetEntity]
+
+    AppFeedback:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: string
+        userRole:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        feature:
+          type: string
+          enum: [claims, chat, billing, documents, overall, tpa_tools, reports]
+        comment:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, userName, userRole, rating, feature, createdAt]
+
+    SubmitAppFeedbackRequest:
+      type: object
+      properties:
+        userId:
+          type: integer
+        userName:
+          type: string
+        userRole:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        feature:
+          type: string
+          enum: [claims, chat, billing, documents, overall, tpa_tools, reports]
+        comment:
+          type: string
+          nullable: true
+      required: [userId, userName, userRole, rating, feature]
 
     Bill:
       type: object
@@ -1039,15 +1787,7 @@ components:
         createdAt:
           type: string
           format: date-time
-      required:
-        - id
-        - billNumber
-        - hospitalName
-        - patientName
-        - totalAmount
-        - items
-        - status
-        - createdAt
+      required: [id, billNumber, hospitalName, patientName, totalAmount, items, status, createdAt]
 
     BillItem:
       type: object
@@ -1060,10 +1800,7 @@ components:
           type: integer
         category:
           type: string
-      required:
-        - description
-        - amount
-        - quantity
+      required: [description, amount, quantity]
 
     CreateBillRequest:
       type: object
@@ -1086,12 +1823,7 @@ components:
         notes:
           type: string
           nullable: true
-      required:
-        - billNumber
-        - hospitalName
-        - patientName
-        - totalAmount
-        - items
+      required: [billNumber, hospitalName, patientName, totalAmount, items]
 
     UpdateBillRequest:
       type: object
@@ -1111,4 +1843,671 @@ components:
         processedAt:
           type: string
           format: date-time
+          nullable: true
+
+    Ecard:
+      type: object
+      properties:
+        id:
+          type: integer
+        memberId:
+          type: integer
+        memberName:
+          type: string
+        policyNumber:
+          type: string
+        insurerName:
+          type: string
+        tpaName:
+          type: string
+        cardNumber:
+          type: string
+        sumInsured:
+          type: number
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, expired, suspended, cancelled]
+        dependents:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, memberId, memberName, policyNumber, insurerName, tpaName, cardNumber, sumInsured, validFrom, validTo, status, dependents, createdAt]
+
+    CreateEcardRequest:
+      type: object
+      properties:
+        memberId:
+          type: integer
+        memberName:
+          type: string
+        policyNumber:
+          type: string
+        insurerName:
+          type: string
+        tpaName:
+          type: string
+        sumInsured:
+          type: number
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+        dependents:
+          type: array
+          items:
+            type: string
+      required: [memberId, memberName, policyNumber, insurerName, tpaName, sumInsured, validFrom, validTo]
+
+    UpdateEcardRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, expired, suspended, cancelled]
+        sumInsured:
+          type: number
+          nullable: true
+        validTo:
+          type: string
+          format: date-time
+          nullable: true
+
+    NetworkProvider:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [hospital, clinic, diagnostic, pharmacy, specialist]
+        city:
+          type: string
+        state:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        specialities:
+          type: array
+          items:
+            type: string
+        insurerIds:
+          type: array
+          items:
+            type: integer
+        bedCount:
+          type: integer
+          nullable: true
+        cashlessEnabled:
+          type: boolean
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, type, city, state, address, specialities, insurerIds, cashlessEnabled, status, createdAt]
+
+    CreateNetworkProviderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [hospital, clinic, diagnostic, pharmacy, specialist]
+        city:
+          type: string
+        state:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        specialities:
+          type: array
+          items:
+            type: string
+        insurerIds:
+          type: array
+          items:
+            type: integer
+        bedCount:
+          type: integer
+          nullable: true
+        cashlessEnabled:
+          type: boolean
+      required: [name, type, city, state, address, specialities, insurerIds, cashlessEnabled]
+
+    ScrutinyCase:
+      type: object
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+          nullable: true
+        claimNumber:
+          type: string
+          nullable: true
+        patientName:
+          type: string
+        billAmount:
+          type: number
+        scrutinizedAmount:
+          type: number
+          nullable: true
+        deductions:
+          type: number
+          nullable: true
+        deductionReasons:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [pending, in_review, completed, escalated]
+        assignedTo:
+          type: string
+          nullable: true
+        remarks:
+          type: string
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, patientName, billAmount, status, deductionReasons, createdAt]
+
+    CreateScrutinyRequest:
+      type: object
+      properties:
+        claimId:
+          type: integer
+          nullable: true
+        claimNumber:
+          type: string
+          nullable: true
+        patientName:
+          type: string
+        billAmount:
+          type: number
+        assignedTo:
+          type: string
+          nullable: true
+        remarks:
+          type: string
+          nullable: true
+      required: [patientName, billAmount]
+
+    UpdateScrutinyRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, in_review, completed, escalated]
+        scrutinizedAmount:
+          type: number
+          nullable: true
+        deductions:
+          type: number
+          nullable: true
+        deductionReasons:
+          type: array
+          items:
+            type: string
+        remarks:
+          type: string
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    PortabilityRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        customerId:
+          type: integer
+        customerName:
+          type: string
+        fromInsurerName:
+          type: string
+        toInsurerName:
+          type: string
+        policyNumber:
+          type: string
+        sumInsured:
+          type: number
+        newSumInsured:
+          type: number
+          nullable: true
+        portabilityReason:
+          type: string
+          nullable: true
+        previousClaimHistory:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [initiated, under_review, approved, rejected, completed]
+        requestedAt:
+          type: string
+          format: date-time
+        effectiveDate:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, customerId, customerName, fromInsurerName, toInsurerName, policyNumber, sumInsured, status, requestedAt, createdAt]
+
+    CreatePortabilityRequest:
+      type: object
+      properties:
+        customerId:
+          type: integer
+        customerName:
+          type: string
+        fromInsurerName:
+          type: string
+        toInsurerName:
+          type: string
+        policyNumber:
+          type: string
+        sumInsured:
+          type: number
+        newSumInsured:
+          type: number
+          nullable: true
+        portabilityReason:
+          type: string
+          nullable: true
+        previousClaimHistory:
+          type: string
+          nullable: true
+        requestedAt:
+          type: string
+          format: date-time
+      required: [customerId, customerName, fromInsurerName, toInsurerName, policyNumber, sumInsured, requestedAt]
+
+    UpdatePortabilityRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [initiated, under_review, approved, rejected, completed]
+        effectiveDate:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    Renewal:
+      type: object
+      properties:
+        id:
+          type: integer
+        customerId:
+          type: integer
+        customerName:
+          type: string
+        policyNumber:
+          type: string
+        insurerName:
+          type: string
+        expiryDate:
+          type: string
+          format: date-time
+        renewalDate:
+          type: string
+          format: date-time
+          nullable: true
+        currentSumInsured:
+          type: number
+        newSumInsured:
+          type: number
+          nullable: true
+        currentPremium:
+          type: number
+        newPremium:
+          type: number
+          nullable: true
+        status:
+          type: string
+          enum: [pending, initiated, payment_due, completed, lapsed]
+        memberCount:
+          type: integer
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, customerId, customerName, policyNumber, insurerName, expiryDate, currentSumInsured, currentPremium, status, memberCount, createdAt]
+
+    CreateRenewalRequest:
+      type: object
+      properties:
+        customerId:
+          type: integer
+        customerName:
+          type: string
+        policyNumber:
+          type: string
+        insurerName:
+          type: string
+        expiryDate:
+          type: string
+          format: date-time
+        currentSumInsured:
+          type: number
+        newSumInsured:
+          type: number
+          nullable: true
+        currentPremium:
+          type: number
+        newPremium:
+          type: number
+          nullable: true
+        memberCount:
+          type: integer
+        notes:
+          type: string
+          nullable: true
+      required: [customerId, customerName, policyNumber, insurerName, expiryDate, currentSumInsured, currentPremium, memberCount]
+
+    UpdateRenewalRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, initiated, payment_due, completed, lapsed]
+        renewalDate:
+          type: string
+          format: date-time
+          nullable: true
+        newSumInsured:
+          type: number
+          nullable: true
+        newPremium:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+        customerId:
+          type: integer
+        policyNumber:
+          type: string
+        name:
+          type: string
+        relationship:
+          type: string
+          enum: [self, spouse, child, parent, parent_in_law, sibling]
+        dateOfBirth:
+          type: string
+          format: date-time
+        gender:
+          type: string
+          enum: [male, female, other]
+        preExistingConditions:
+          type: array
+          items:
+            type: string
+        sumInsured:
+          type: number
+        status:
+          type: string
+          enum: [active, inactive]
+        addedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, customerId, policyNumber, name, relationship, dateOfBirth, gender, preExistingConditions, sumInsured, status, addedAt, createdAt]
+
+    AddMemberRequest:
+      type: object
+      properties:
+        customerId:
+          type: integer
+        policyNumber:
+          type: string
+        name:
+          type: string
+        relationship:
+          type: string
+          enum: [self, spouse, child, parent, parent_in_law, sibling]
+        dateOfBirth:
+          type: string
+          format: date-time
+        gender:
+          type: string
+          enum: [male, female, other]
+        preExistingConditions:
+          type: array
+          items:
+            type: string
+        sumInsured:
+          type: number
+        addedAt:
+          type: string
+          format: date-time
+      required: [customerId, policyNumber, name, relationship, dateOfBirth, gender, sumInsured, addedAt]
+
+    ReimbursementSettlement:
+      type: object
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+          nullable: true
+        claimNumber:
+          type: string
+          nullable: true
+        patientName:
+          type: string
+        policyNumber:
+          type: string
+        hospitalName:
+          type: string
+        admissionDate:
+          type: string
+          format: date-time
+          nullable: true
+        dischargeDate:
+          type: string
+          format: date-time
+          nullable: true
+        totalBillAmount:
+          type: number
+        admissibleAmount:
+          type: number
+          nullable: true
+        deductible:
+          type: number
+          nullable: true
+        coPayAmount:
+          type: number
+          nullable: true
+        nonAdmissibleAmount:
+          type: number
+          nullable: true
+        netPayableAmount:
+          type: number
+          nullable: true
+        roomRentCharges:
+          type: number
+          nullable: true
+        surgeryCharges:
+          type: number
+          nullable: true
+        medicineCharges:
+          type: number
+          nullable: true
+        diagnosticCharges:
+          type: number
+          nullable: true
+        otherCharges:
+          type: number
+          nullable: true
+        nonAdmissibleReasons:
+          type: array
+          items:
+            type: string
+        paymentMode:
+          type: string
+          enum: [neft, cheque, upi, pending]
+          nullable: true
+        utrNumber:
+          type: string
+          nullable: true
+        settlementDate:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [pending, processing, approved, paid, rejected]
+        remarks:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - patientName
+        - policyNumber
+        - hospitalName
+        - totalBillAmount
+        - nonAdmissibleReasons
+        - status
+        - createdAt
+
+    CreateReimbursementSettlementRequest:
+      type: object
+      properties:
+        claimId:
+          type: integer
+          nullable: true
+        claimNumber:
+          type: string
+          nullable: true
+        patientName:
+          type: string
+        policyNumber:
+          type: string
+        hospitalName:
+          type: string
+        admissionDate:
+          type: string
+          format: date-time
+          nullable: true
+        dischargeDate:
+          type: string
+          format: date-time
+          nullable: true
+        totalBillAmount:
+          type: number
+        roomRentCharges:
+          type: number
+          nullable: true
+        surgeryCharges:
+          type: number
+          nullable: true
+        medicineCharges:
+          type: number
+          nullable: true
+        diagnosticCharges:
+          type: number
+          nullable: true
+        otherCharges:
+          type: number
+          nullable: true
+        remarks:
+          type: string
+          nullable: true
+      required: [patientName, policyNumber, hospitalName, totalBillAmount]
+
+    UpdateReimbursementSettlementRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, processing, approved, paid, rejected]
+        admissibleAmount:
+          type: number
+          nullable: true
+        deductible:
+          type: number
+          nullable: true
+        coPayAmount:
+          type: number
+          nullable: true
+        nonAdmissibleAmount:
+          type: number
+          nullable: true
+        netPayableAmount:
+          type: number
+          nullable: true
+        nonAdmissibleReasons:
+          type: array
+          items:
+            type: string
+        paymentMode:
+          type: string
+          enum: [neft, cheque, upi, pending]
+          nullable: true
+        utrNumber:
+          type: string
+          nullable: true
+        settlementDate:
+          type: string
+          format: date-time
+          nullable: true
+        remarks:
+          type: string
           nullable: true

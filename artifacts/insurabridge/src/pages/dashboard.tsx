@@ -1,7 +1,7 @@
 import { useGetDashboardStats, useListClaims } from "@workspace/api-client-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { FileText, Clock, CheckCircle2, XCircle, DollarSign, MessageSquare, Star } from "lucide-react"
+import { FileText, Clock, CheckCircle2, DollarSign, Bell, Users, Banknote } from "lucide-react"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Link } from "wouter"
@@ -25,6 +25,10 @@ export default function Dashboard() {
     { title: "Pending Claims", value: stats?.pendingClaims, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
     { title: "Approved Claims", value: stats?.approvedClaims, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
     { title: "Total Billed", value: formatCurrency(stats?.totalBillAmount || 0), icon: DollarSign, color: "text-indigo-600", bg: "bg-indigo-50" },
+    { title: "Unread Notifications", value: stats?.unreadNotifications ?? 0, icon: Bell, color: "text-purple-600", bg: "bg-purple-50" },
+    { title: "Active Members", value: stats?.activeMembers ?? 0, icon: Users, color: "text-pink-600", bg: "bg-pink-50" },
+    { title: "Pending Settlements", value: stats?.pendingSettlements ?? 0, icon: Banknote, color: "text-teal-600", bg: "bg-teal-50" },
+    { title: "Open Threads", value: stats?.openThreads ?? 0, icon: FileText, color: "text-orange-600", bg: "bg-orange-50" },
   ]
 
   return (

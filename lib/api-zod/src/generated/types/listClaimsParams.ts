@@ -3,10 +3,13 @@
  * Do not edit manually.
  * Api
  * InsuraBridge - Insurance Middleware Platform API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 
 export type ListClaimsParams = {
   status?: string;
   customerId?: string;
+  hospitalId?: string;
+  tpaId?: string;
+  insurerId?: string;
 };

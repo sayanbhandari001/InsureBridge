@@ -3,13 +3,14 @@
  * Do not edit manually.
  * Api
  * InsuraBridge - Insurance Middleware Platform API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import type { CreateUserRequestRole } from "./createUserRequestRole";
 
 export interface CreateUserRequest {
   name: string;
   email: string;
+  password: string;
   role: CreateUserRequestRole;
   organization?: string | null;
   phone?: string | null;

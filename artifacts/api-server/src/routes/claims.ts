@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { claimsTable, insertClaimSchema } from "@workspace/db/schema";
+import { claimsTable } from "@workspace/db/schema";
 import { eq, and } from "drizzle-orm";
 
 const router = Router();
@@ -11,28 +11,40 @@ function generateClaimNumber() {
   return `CLM-${timestamp}-${random}`;
 }
 
+function toNum(v: string | null | undefined) { return v ? parseFloat(v) : null; }
+function toStr(v: unknown) { return v !== undefined && v !== null ? String(v) : null; }
+
+function mapClaim(c: any) {
+  return {
+    ...c,
+    claimedAmount: parseFloat(c.claimedAmount),
+    approvedAmount: toNum(c.approvedAmount),
+    deductible: toNum(c.deductible),
+    coPayAmount: toNum(c.coPayAmount),
+    netPayableAmount: toNum(c.netPayableAmount),
+    roomRentCharges: toNum(c.roomRentCharges),
+    surgeryCharges: toNum(c.surgeryCharges),
+    medicineCharges: toNum(c.medicineCharges),
+    diagnosticCharges: toNum(c.diagnosticCharges),
+    otherCharges: toNum(c.otherCharges),
+  };
+}
+
 router.get("/claims", async (req, res) => {
   try {
-    const { status, customerId } = req.query as { status?: string; customerId?: string };
-    let query = db.select().from(claimsTable);
-    
+    const { status, customerId, hospitalId, tpaId, insurerId } = req.query as Record<string, string>;
     const conditions = [];
-    if (status) {
-      conditions.push(eq(claimsTable.status, status as any));
-    }
-    if (customerId) {
-      conditions.push(eq(claimsTable.customerId, parseInt(customerId)));
-    }
-    
+    if (status) conditions.push(eq(claimsTable.status, status as any));
+    if (customerId) conditions.push(eq(claimsTable.customerId, parseInt(customerId)));
+    if (hospitalId) conditions.push(eq(claimsTable.hospitalId, parseInt(hospitalId)));
+    if (tpaId) conditions.push(eq(claimsTable.tpaId, parseInt(tpaId)));
+    if (insurerId) conditions.push(eq(claimsTable.insurerId, parseInt(insurerId)));
+
     const claims = conditions.length > 0
       ? await db.select().from(claimsTable).where(and(...conditions)).orderBy(claimsTable.createdAt)
       : await db.select().from(claimsTable).orderBy(claimsTable.createdAt);
-    
-    res.json(claims.map(c => ({
-      ...c,
-      claimedAmount: parseFloat(c.claimedAmount),
-      approvedAmount: c.approvedAmount ? parseFloat(c.approvedAmount) : null,
-    })));
+
+    res.json(claims.map(mapClaim));
   } catch (err) {
     req.log.error({ err }, "Failed to list claims");
     res.status(500).json({ error: "Internal server error" });
@@ -41,24 +53,44 @@ router.get("/claims", async (req, res) => {
 
 router.post("/claims", async (req, res) => {
   try {
-    const body = insertClaimSchema.safeParse({
-      ...req.body,
-      claimedAmount: String(req.body.claimedAmount),
-    });
-    if (!body.success) {
-      res.status(400).json({ error: "Invalid request", details: body.error });
+    const {
+      customerId, patientName, hospitalId, hospitalName, insurerId, tpaId,
+      claimType, diagnosis, admissionDate, dischargeDate,
+      claimedAmount, roomRentCharges, surgeryCharges, medicineCharges, diagnosticCharges, otherCharges,
+      policyNumber, icdCode, treatmentType, notes
+    } = req.body;
+
+    if (!customerId || !patientName || !claimType || !claimedAmount || !policyNumber) {
+      res.status(400).json({ error: "customerId, patientName, claimType, claimedAmount, and policyNumber are required" });
       return;
     }
+
     const [claim] = await db.insert(claimsTable).values({
-      ...body.data,
       claimNumber: generateClaimNumber(),
+      customerId,
+      patientName,
+      hospitalId: hospitalId || null,
+      hospitalName: hospitalName || null,
+      insurerId: insurerId || null,
+      tpaId: tpaId || null,
+      claimType,
+      diagnosis: diagnosis || null,
+      admissionDate: admissionDate ? new Date(admissionDate) : null,
+      dischargeDate: dischargeDate ? new Date(dischargeDate) : null,
+      claimedAmount: String(claimedAmount),
+      roomRentCharges: toStr(roomRentCharges),
+      surgeryCharges: toStr(surgeryCharges),
+      medicineCharges: toStr(medicineCharges),
+      diagnosticCharges: toStr(diagnosticCharges),
+      otherCharges: toStr(otherCharges),
+      policyNumber,
+      icdCode: icdCode || null,
+      treatmentType: treatmentType || null,
+      notes: notes || null,
       updatedAt: new Date(),
     }).returning();
-    res.status(201).json({
-      ...claim,
-      claimedAmount: parseFloat(claim.claimedAmount),
-      approvedAmount: claim.approvedAmount ? parseFloat(claim.approvedAmount) : null,
-    });
+
+    res.status(201).json(mapClaim(claim));
   } catch (err) {
     req.log.error({ err }, "Failed to create claim");
     res.status(500).json({ error: "Internal server error" });
@@ -73,11 +105,7 @@ router.get("/claims/:id", async (req, res) => {
       res.status(404).json({ error: "Claim not found" });
       return;
     }
-    res.json({
-      ...claim,
-      claimedAmount: parseFloat(claim.claimedAmount),
-      approvedAmount: claim.approvedAmount ? parseFloat(claim.approvedAmount) : null,
-    });
+    res.json(mapClaim(claim));
   } catch (err) {
     req.log.error({ err }, "Failed to get claim");
     res.status(500).json({ error: "Internal server error" });
@@ -88,24 +116,23 @@ router.patch("/claims/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const updates: Record<string, unknown> = { updatedAt: new Date() };
-    
+
     if (req.body.status) updates.status = req.body.status;
-    if (req.body.approvedAmount !== undefined) updates.approvedAmount = String(req.body.approvedAmount);
+    if (req.body.approvedAmount !== undefined) updates.approvedAmount = toStr(req.body.approvedAmount);
+    if (req.body.deductible !== undefined) updates.deductible = toStr(req.body.deductible);
+    if (req.body.coPayAmount !== undefined) updates.coPayAmount = toStr(req.body.coPayAmount);
+    if (req.body.netPayableAmount !== undefined) updates.netPayableAmount = toStr(req.body.netPayableAmount);
     if (req.body.notes !== undefined) updates.notes = req.body.notes;
     if (req.body.diagnosis !== undefined) updates.diagnosis = req.body.diagnosis;
     if (req.body.admissionDate !== undefined) updates.admissionDate = req.body.admissionDate ? new Date(req.body.admissionDate) : null;
     if (req.body.dischargeDate !== undefined) updates.dischargeDate = req.body.dischargeDate ? new Date(req.body.dischargeDate) : null;
-    
+
     const [claim] = await db.update(claimsTable).set(updates).where(eq(claimsTable.id, id)).returning();
     if (!claim) {
       res.status(404).json({ error: "Claim not found" });
       return;
     }
-    res.json({
-      ...claim,
-      claimedAmount: parseFloat(claim.claimedAmount),
-      approvedAmount: claim.approvedAmount ? parseFloat(claim.approvedAmount) : null,
-    });
+    res.json(mapClaim(claim));
   } catch (err) {
     req.log.error({ err }, "Failed to update claim");
     res.status(500).json({ error: "Internal server error" });

@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * InsuraBridge - Insurance Middleware Platform API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import type { CreateClaimRequestClaimType } from "./createClaimRequestClaimType";
 
@@ -19,6 +19,13 @@ export interface CreateClaimRequest {
   admissionDate?: Date | null;
   dischargeDate?: Date | null;
   claimedAmount: number;
+  roomRentCharges?: number | null;
+  surgeryCharges?: number | null;
+  medicineCharges?: number | null;
+  diagnosticCharges?: number | null;
+  otherCharges?: number | null;
   policyNumber: string;
+  icdCode?: string | null;
+  treatmentType?: string | null;
   notes?: string | null;
 }

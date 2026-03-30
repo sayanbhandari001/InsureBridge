@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import authRouter from "./auth";
 import usersRouter from "./users";
 import claimsRouter from "./claims";
 import messagesRouter from "./messages";
@@ -8,10 +9,20 @@ import documentsRouter from "./documents";
 import feedbackRouter from "./feedback";
 import billsRouter from "./bills";
 import dashboardRouter from "./dashboard";
+import notificationsRouter from "./notifications";
+import ecardsRouter from "./ecards";
+import networkRouter from "./network";
+import scrutinyRouter from "./scrutiny";
+import portabilityRouter from "./portability";
+import renewalsRouter from "./renewals";
+import membersRouter from "./members";
+import settlementsRouter from "./settlements";
+import appFeedbackRouter from "./app_feedback";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
 router.use(usersRouter);
 router.use(claimsRouter);
 router.use(messagesRouter);
@@ -20,5 +31,14 @@ router.use(documentsRouter);
 router.use(feedbackRouter);
 router.use(billsRouter);
 router.use(dashboardRouter);
+router.use(notificationsRouter);
+router.use(ecardsRouter);
+router.use(networkRouter);
+router.use(scrutinyRouter);
+router.use(portabilityRouter);
+router.use(renewalsRouter);
+router.use(membersRouter);
+router.use(settlementsRouter);
+router.use(appFeedbackRouter);
 
 export default router;
