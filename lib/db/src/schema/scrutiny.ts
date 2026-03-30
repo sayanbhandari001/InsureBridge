@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, numeric, json, pgEnum } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -17,9 +18,10 @@ export const scrutinyCasesTable = pgTable("scrutiny_cases", {
   assignedTo: text("assigned_to"),
   remarks: text("remarks"),
   completedAt: timestamp("completed_at"),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertScrutinySchema = createInsertSchema(scrutinyCasesTable).omit({ id: true, createdAt: true });
+export const insertScrutinySchema = createInsertSchema(scrutinyCasesTable).omit({ id: true, createdAt: true, expiresAt: true });
 export type InsertScrutiny = z.infer<typeof insertScrutinySchema>;
 export type ScrutinyCase = typeof scrutinyCasesTable.$inferSelect;

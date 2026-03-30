@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, pgEnum } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -14,9 +15,10 @@ export const appFeedbackTable = pgTable("app_feedback", {
   rating: integer("rating").notNull(),
   feature: appFeedbackFeatureEnum("feature").notNull(),
   comment: text("comment"),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertAppFeedbackSchema = createInsertSchema(appFeedbackTable).omit({ id: true, createdAt: true });
+export const insertAppFeedbackSchema = createInsertSchema(appFeedbackTable).omit({ id: true, createdAt: true, expiresAt: true });
 export type InsertAppFeedback = z.infer<typeof insertAppFeedbackSchema>;
 export type AppFeedback = typeof appFeedbackTable.$inferSelect;

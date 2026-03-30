@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, numeric, json, pgEnum } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -17,9 +18,10 @@ export const ecardsTable = pgTable("ecards", {
   validTo: timestamp("valid_to").notNull(),
   status: ecardStatusEnum("status").notNull().default("active"),
   dependents: json("dependents").$type<string[]>().notNull().default([]),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertEcardSchema = createInsertSchema(ecardsTable).omit({ id: true, createdAt: true, cardNumber: true });
+export const insertEcardSchema = createInsertSchema(ecardsTable).omit({ id: true, createdAt: true, cardNumber: true, expiresAt: true });
 export type InsertEcard = z.infer<typeof insertEcardSchema>;
 export type Ecard = typeof ecardsTable.$inferSelect;

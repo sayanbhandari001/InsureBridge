@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, json } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -9,6 +10,7 @@ export const threadsTable = pgTable("threads", {
   participants: json("participants").$type<string[]>().notNull().default([]),
   lastMessageAt: timestamp("last_message_at"),
   messageCount: integer("message_count").notNull().default(0),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -21,10 +23,11 @@ export const messagesTable = pgTable("messages", {
   senderRole: text("sender_role").notNull(),
   content: text("content").notNull(),
   attachments: json("attachments").$type<string[]>().notNull().default([]),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertThreadSchema = createInsertSchema(threadsTable).omit({ id: true, createdAt: true, messageCount: true });
+export const insertThreadSchema = createInsertSchema(threadsTable).omit({ id: true, createdAt: true, messageCount: true, expiresAt: true });
 export type InsertThread = z.infer<typeof insertThreadSchema>;
 export type Thread = typeof threadsTable.$inferSelect;
 

@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, numeric, pgEnum } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -21,9 +22,10 @@ export const portabilityRequestsTable = pgTable("portability_requests", {
   requestedAt: timestamp("requested_at").notNull(),
   effectiveDate: timestamp("effective_date"),
   notes: text("notes"),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertPortabilitySchema = createInsertSchema(portabilityRequestsTable).omit({ id: true, createdAt: true });
+export const insertPortabilitySchema = createInsertSchema(portabilityRequestsTable).omit({ id: true, createdAt: true, expiresAt: true });
 export type InsertPortability = z.infer<typeof insertPortabilitySchema>;
 export type PortabilityRequest = typeof portabilityRequestsTable.$inferSelect;

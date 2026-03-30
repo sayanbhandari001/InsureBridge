@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, numeric, json, pgEnum } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -31,9 +32,10 @@ export const reimbursementSettlementsTable = pgTable("reimbursement_settlements"
   settlementDate: timestamp("settlement_date"),
   status: settlementStatusEnum("status").notNull().default("pending"),
   remarks: text("remarks"),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertSettlementSchema = createInsertSchema(reimbursementSettlementsTable).omit({ id: true, createdAt: true });
+export const insertSettlementSchema = createInsertSchema(reimbursementSettlementsTable).omit({ id: true, createdAt: true, expiresAt: true });
 export type InsertSettlement = z.infer<typeof insertSettlementSchema>;
 export type ReimbursementSettlement = typeof reimbursementSettlementsTable.$inferSelect;

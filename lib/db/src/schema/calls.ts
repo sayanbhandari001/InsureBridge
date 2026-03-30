@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, pgEnum } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -20,9 +21,10 @@ export const callLogsTable = pgTable("call_logs", {
   summary: text("summary"),
   finalDecision: text("final_decision"),
   callDate: timestamp("call_date").notNull(),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertCallLogSchema = createInsertSchema(callLogsTable).omit({ id: true, createdAt: true });
+export const insertCallLogSchema = createInsertSchema(callLogsTable).omit({ id: true, createdAt: true, expiresAt: true });
 export type InsertCallLog = z.infer<typeof insertCallLogSchema>;
 export type CallLog = typeof callLogsTable.$inferSelect;

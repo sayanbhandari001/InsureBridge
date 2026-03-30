@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, pgEnum, numeric, json } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -27,9 +28,10 @@ export const billsTable = pgTable("bills", {
   submittedAt: timestamp("submitted_at"),
   processedAt: timestamp("processed_at"),
   notes: text("notes"),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertBillSchema = createInsertSchema(billsTable).omit({ id: true, createdAt: true });
+export const insertBillSchema = createInsertSchema(billsTable).omit({ id: true, createdAt: true, expiresAt: true });
 export type InsertBill = z.infer<typeof insertBillSchema>;
 export type Bill = typeof billsTable.$inferSelect;

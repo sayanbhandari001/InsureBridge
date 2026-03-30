@@ -18,6 +18,7 @@ import renewalsRouter from "./renewals";
 import membersRouter from "./members";
 import settlementsRouter from "./settlements";
 import appFeedbackRouter from "./app_feedback";
+import retentionRouter from "./retention";
 
 const router: IRouter = Router();
 
@@ -40,5 +41,6 @@ router.use(renewalsRouter);
 router.use(membersRouter);
 router.use(settlementsRouter);
 router.use(appFeedbackRouter);
+router.use(retentionRouter);
 
 export default router;

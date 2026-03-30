@@ -10,6 +10,7 @@ const DEMO_USERS = [
   { label: "Hospital", email: "admin@cityhospital.com" },
   { label: "TPA", email: "ops@meditpa.com" },
   { label: "Insurer", email: "claims@nationallife.com" },
+  { label: "Admin", email: "admin@insurabridge.com" },
 ]
 
 export default function Login() {

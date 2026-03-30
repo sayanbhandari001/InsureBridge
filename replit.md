@@ -155,10 +155,12 @@ Express 5 with pino logging, express-session, bcryptjs.
 - `admin@cityhospital.com` — hospital
 - `ops@meditpa.com` — TPA
 - `claims@nationallife.com` — insurer
+- `admin@insurabridge.com` — admin (platform administrator; can access Data Retention purge)
 
 **Key route files:**
 - `src/routes/auth.ts` — session-based auth
 - `src/routes/claims.ts` — `mapClaim()` converts Drizzle string numerics to floats; new fields: hospitalDiscount, paidByCustomer, paidByInsurer
+- `src/routes/retention.ts` — `GET /api/retention` (stats per table), `DELETE /api/retention/purge` (delete expired records)
 - `src/routes/notifications.ts`, `policies.ts`, `members.ts`, `settlements.ts`, `ecards.ts`, `network.ts`, `scrutiny.ts`
 
 ### DB Schema Key Points
@@ -166,3 +168,5 @@ Express 5 with pino logging, express-session, bcryptjs.
 - Numeric fields in PostgreSQL come back as strings from Drizzle → use `parseFloat()` in route handlers via `mapClaim` pattern
 - `push-force`: `pnpm --filter @workspace/db run push-force`
 - Seed: `pnpm --filter @workspace/scripts run seed`
+- **Data Retention**: All 15 record tables have `expires_at = created_at + 1 year` (DB default). Drizzle schema uses `sql\`NOW() + INTERVAL '1 year'\`` default. Purge route deletes `WHERE expires_at < NOW()`.
+- **Call Logs**: `summary` and `final_decision` columns added for call summaries and agreed decisions.

@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, numeric, json, pgEnum } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -20,9 +21,10 @@ export const membersTable = pgTable("members", {
   sumInsured: numeric("sum_insured", { precision: 12, scale: 2 }).notNull(),
   status: memberStatusEnum("status").notNull().default("active"),
   addedAt: timestamp("added_at").notNull(),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertMemberSchema = createInsertSchema(membersTable).omit({ id: true, createdAt: true });
+export const insertMemberSchema = createInsertSchema(membersTable).omit({ id: true, createdAt: true, expiresAt: true });
 export type InsertMember = z.infer<typeof insertMemberSchema>;
 export type Member = typeof membersTable.$inferSelect;

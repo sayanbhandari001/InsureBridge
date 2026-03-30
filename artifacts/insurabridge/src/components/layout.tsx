@@ -7,7 +7,7 @@ import {
   LayoutDashboard, FileText, MessageSquare, Phone, FolderOpen,
   Receipt, Star, Users, Bell, Menu, X, CreditCard, MapPin,
   Search as SearchIcon, ArrowLeftRight, RefreshCw, UserPlus,
-  Banknote, LogOut, ChevronDown, Check
+  Banknote, LogOut, ChevronDown, Check, ShieldCheck
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 
@@ -35,6 +35,7 @@ const navItems: NavItem[] = [
   { name: "Renewals", href: "/renewals", icon: RefreshCw, group: "Policy" },
   { name: "Members", href: "/members", icon: UserPlus, group: "Policy" },
   { name: "Settlements", href: "/settlements", icon: Banknote },
+  { name: "Data Retention", href: "/retention", icon: ShieldCheck, roles: ["admin", "tpa", "insurer"] },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {

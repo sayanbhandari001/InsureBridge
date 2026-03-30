@@ -22,6 +22,7 @@ import Portability from "@/pages/portability";
 import Renewals from "@/pages/renewals";
 import Members from "@/pages/members";
 import Settlements from "@/pages/settlements";
+import Retention from "@/pages/retention";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -73,6 +74,7 @@ function ProtectedRouter() {
         <Route path="/renewals" component={Renewals} />
         <Route path="/members" component={Members} />
         <Route path="/settlements" component={Settlements} />
+        <Route path="/retention" component={Retention} />
         <Route path="/login">
           <Redirect to="/" />
         </Route>

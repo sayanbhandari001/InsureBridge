@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, pgEnum } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -20,9 +21,10 @@ export const documentsTable = pgTable("documents", {
   url: text("url").notNull(),
   status: documentStatusEnum("status").notNull().default("pending"),
   notes: text("notes"),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertDocumentSchema = createInsertSchema(documentsTable).omit({ id: true, createdAt: true });
+export const insertDocumentSchema = createInsertSchema(documentsTable).omit({ id: true, createdAt: true, expiresAt: true });
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 export type Document = typeof documentsTable.$inferSelect;

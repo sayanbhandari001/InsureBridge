@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, pgEnum, numeric, integer } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -39,10 +40,11 @@ export const claimsTable = pgTable("claims", {
   icdCode: text("icd_code"),
   treatmentType: text("treatment_type"),
   notes: text("notes"),
+  expiresAt: timestamp("expires_at").default(sql`NOW() + INTERVAL '1 year'`),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const insertClaimSchema = createInsertSchema(claimsTable).omit({ id: true, createdAt: true, updatedAt: true, claimNumber: true });
+export const insertClaimSchema = createInsertSchema(claimsTable).omit({ id: true, createdAt: true, updatedAt: true, claimNumber: true, expiresAt: true });
 export type InsertClaim = z.infer<typeof insertClaimSchema>;
 export type Claim = typeof claimsTable.$inferSelect;
