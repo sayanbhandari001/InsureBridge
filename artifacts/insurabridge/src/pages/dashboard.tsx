@@ -1,7 +1,7 @@
 import { useGetDashboardStats, useListClaims } from "@workspace/api-client-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { FileText, Clock, CheckCircle2, DollarSign, Bell, Users, Banknote } from "lucide-react"
+import { FileText, Clock, CheckCircle2, DollarSign, Bell, Users, Banknote, MessageSquare, Star } from "lucide-react"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Link } from "wouter"
