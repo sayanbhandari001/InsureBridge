@@ -131,13 +131,28 @@ React + Vite SPA with full role-based authentication:
 | Settlements | `/settlements` | Reimbursement settlements |
 | Users | `/users` | Admin/TPA/insurer |
 
+### Always-Dark UI
+
+- `index.html` has `class="dark"` on `<html>` — forces dark mode
+- `index.css` `:root` variables are set to dark values directly (deep navy `222 47% 5%` background)
+- `.dark` class mirrors `:root` values so `dark:` Tailwind variants also work
+- Layout uses CSS-variable-based classes (`bg-card`, `text-foreground`, `text-muted-foreground`, `border-border`)
+- Page transition animation: `page-enter` keyframe in CSS applied via `.page-enter` class on the `key={location}` wrapper div in `layout.tsx`
+
+### Hub Redirect (unauthenticated users)
+
+- `App.tsx` exports a `HubRedirect` component that runs `window.location.href = HUB_URL` on mount
+- `HUB_URL` constant = `https://replit.com/@sayanbhandari00/Insurance-Bridge-Hub`
+- Unauthenticated users on any route except `/login` → HubRedirect
+- `/login` remains accessible directly (used as return URL from Hub)
+
 ### Claims Payment Bifurcation
 
 The `BillBreakdown` component (in `claims.tsx`) shows:
 1. **Itemized Bill** — room rent, surgery, medicines, diagnostics, other
-2. **Adjustments** — hospital discount (green), approved amount
-3. **Payment Responsibility Cards** — Insurance Co. (blue), Patient (amber), Hospital Discount (green)
-4. **Final Bill Summary** — full line-item table showing who pays what
+2. **Payment Bifurcation Ledger** — Total Bill → Hospital Discount (–) → Net After Discount → Insurer Pays (–) → Patient Deductible/Co-pay (–) → Outstanding/Settled
+3. **Responsibility Cards** — Insurance Co. (blue), Patient (amber), Hospital Discount (green)
+4. Amounts use +/– prefix with color coding (green = discount, blue = insurer, amber = patient)
 
 DB columns on `claims` table:
 - `hospitalDiscount` — amount waived by the hospital
@@ -167,6 +182,7 @@ Express 5 with pino logging, express-session, bcryptjs.
 
 - Numeric fields in PostgreSQL come back as strings from Drizzle → use `parseFloat()` in route handlers via `mapClaim` pattern
 - `push-force`: `pnpm --filter @workspace/db run push-force`
-- Seed: `pnpm --filter @workspace/scripts run seed`
+- Auto-seed: `seedIfEmpty()` called in `index.ts` before `app.listen()` — seeds 6 demo users + all data if DB empty
+- Manual seed: `pnpm --filter @workspace/scripts run seed`
 - **Data Retention**: All 15 record tables have `expires_at = created_at + 1 year` (DB default). Drizzle schema uses `sql\`NOW() + INTERVAL '1 year'\`` default. Purge route deletes `WHERE expires_at < NOW()`.
 - **Call Logs**: `summary` and `final_decision` columns added for call summaries and agreed decisions.

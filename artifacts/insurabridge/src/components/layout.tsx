@@ -25,7 +25,7 @@ const navItems: NavItem[] = [
   { name: "Communication", href: "/chat", icon: MessageSquare },
   { name: "Call Logs", href: "/calls", icon: Phone },
   { name: "Documents", href: "/documents", icon: FolderOpen },
-  { name: "Bills & Billing", href: "/bills", icon: Receipt },
+  { name: "Financials & Bills", href: "/bills", icon: Receipt },
   { name: "Feedback", href: "/feedback", icon: Star },
   { name: "Users", href: "/users", icon: Users, roles: ["admin", "tpa", "insurer"] },
   { name: "E-Cards", href: "/ecards", icon: CreditCard, roles: ["tpa", "admin", "insurer"], group: "TPA Tools" },
@@ -90,24 +90,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-50/50">
+    <div className="flex min-h-screen w-full bg-background">
       {isMobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden" onClick={() => setIsMobileOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden" onClick={() => setIsMobileOpen(false)} />
       )}
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-white border-r border-slate-200 transition-transform duration-300 lg:static lg:flex lg:translate-x-0 shadow-lg shadow-slate-200/50 lg:shadow-none",
+        "fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-[hsl(var(--sidebar))] border-r border-[hsl(var(--sidebar-border))] transition-transform duration-300 lg:static lg:flex lg:translate-x-0 shadow-xl shadow-black/30 lg:shadow-none",
         isMobileOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="flex h-16 items-center px-6 border-b border-slate-100">
-          <div className="flex items-center gap-2 font-display text-xl font-bold text-slate-900">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-inner">
-              <span className="text-white text-lg leading-none">I</span>
+        <div className="flex h-16 items-center px-6 border-b border-[hsl(var(--sidebar-border))]">
+          <div className="flex items-center gap-2 font-display text-xl font-bold text-foreground">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-inner shadow-primary/30">
+              <span className="text-primary-foreground text-lg leading-none font-bold">I</span>
             </div>
             InsuraBridge
           </div>
-          <button className="ml-auto lg:hidden text-slate-500" onClick={() => setIsMobileOpen(false)}>
+          <button className="ml-auto lg:hidden text-muted-foreground hover:text-foreground" onClick={() => setIsMobileOpen(false)}>
             <X size={20} />
           </button>
         </div>
@@ -116,7 +116,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {groupedNav.map(({ group, items }, gi) => (
             <div key={gi}>
               {group && (
-                <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">{group}</p>
+                <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">{group}</p>
               )}
               <div className="space-y-0.5">
                 {items.map((item) => {
@@ -128,12 +128,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       className={cn(
                         "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                         isActive
-                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
+                          : "text-muted-foreground hover:bg-[hsl(var(--sidebar-accent))] hover:text-foreground"
                       )}
                       onClick={() => setIsMobileOpen(false)}
                     >
-                      <item.icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : "text-slate-400")} />
+                      <item.icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : "text-muted-foreground/70")} />
                       {item.name}
                     </Link>
                   )
@@ -143,28 +143,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </div>
 
-        <div className="p-4 border-t border-slate-100" ref={userMenuRef}>
+        <div className="p-4 border-t border-[hsl(var(--sidebar-border))]" ref={userMenuRef}>
           <div
-            className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/50 cursor-pointer hover:bg-slate-100 transition-colors relative"
+            className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(var(--sidebar-accent))] border border-border/40 cursor-pointer hover:bg-muted/60 transition-colors relative"
             onClick={() => setUserMenuOpen(!userMenuOpen)}
           >
-            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-md shadow-primary/20">
               {user?.name?.charAt(0) ?? "?"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-900 truncate">{user?.name ?? "User"}</p>
+              <p className="text-sm font-semibold text-foreground truncate">{user?.name ?? "User"}</p>
               <span className={cn("text-[10px] px-1.5 py-0.5 rounded font-medium", ROLE_COLORS[user?.role ?? "customer"])}>
                 {ROLE_LABELS[user?.role ?? "customer"]}
               </span>
             </div>
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground/60" />
 
             {userMenuOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50">
-                <p className="text-xs text-slate-500 px-3 py-1 truncate">{user?.email}</p>
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-card border border-border rounded-xl shadow-2xl shadow-black/40 p-2 z-50">
+                <p className="text-xs text-muted-foreground px-3 py-1 truncate">{user?.email}</p>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleLogout() }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign out
@@ -177,40 +177,39 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-30">
+        <header className="h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-30">
           <div className="flex items-center gap-4">
-            <button className="lg:hidden text-slate-600 p-2 rounded-md hover:bg-slate-100" onClick={() => setIsMobileOpen(true)}>
+            <button className="lg:hidden text-muted-foreground p-2 rounded-md hover:bg-muted/50" onClick={() => setIsMobileOpen(true)}>
               <Menu size={20} />
             </button>
             <div className="relative hidden sm:block">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
               <input
                 type="text"
                 placeholder="Search claims, users, or bills..."
-                className="h-9 w-64 lg:w-96 pl-10 pr-4 text-sm rounded-full bg-slate-100 border-transparent focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                className="h-9 w-64 lg:w-96 pl-10 pr-4 text-sm rounded-full bg-muted/40 border border-border/50 text-foreground placeholder:text-muted-foreground/50 focus:bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-2" ref={notifRef}>
-            {/* Notification Bell */}
             <div className="relative">
               <button
-                className="relative p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
+                className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full transition-colors"
                 onClick={() => setNotifOpen(!notifOpen)}
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white border-2 border-white">
+                  <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white border-2 border-card">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
 
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-96 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                    <h3 className="font-semibold text-slate-900 text-sm">Notifications</h3>
+                <div className="absolute right-0 top-full mt-2 w-96 bg-card border border-border rounded-2xl shadow-2xl shadow-black/50 z-50 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                    <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
                     {unreadCount > 0 && (
                       <button
                         onClick={handleMarkAllRead}
@@ -220,25 +219,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       </button>
                     )}
                   </div>
-                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                  <div className="max-h-80 overflow-y-auto divide-y divide-border/50">
                     {!notifications || notifications.length === 0 ? (
-                      <div className="py-8 text-center text-slate-400 text-sm">No notifications</div>
+                      <div className="py-8 text-center text-muted-foreground text-sm">No notifications</div>
                     ) : notifications.slice(0, 10).map((notif) => (
                       <div
                         key={notif.id}
-                        className={cn("flex gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors", !notif.isRead && "bg-primary/5")}
+                        className={cn("flex gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors", !notif.isRead && "bg-primary/5")}
                         onClick={() => !notif.isRead && handleMarkOneRead(notif.id)}
                       >
                         <div className="mt-0.5 shrink-0">
                           {!notif.isRead
                             ? <div className="w-2 h-2 rounded-full bg-primary mt-1" />
-                            : <Check className="w-4 h-4 text-slate-300" />
+                            : <Check className="w-4 h-4 text-muted-foreground/40" />
                           }
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-800">{notif.title}</p>
-                          <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{notif.message}</p>
-                          <p className="text-[10px] text-slate-400 mt-1">{formatDate(notif.createdAt)}</p>
+                          <p className="text-sm font-medium text-foreground">{notif.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notif.message}</p>
+                          <p className="text-[10px] text-muted-foreground/60 mt-1">{formatDate(notif.createdAt)}</p>
                         </div>
                       </div>
                     ))}
@@ -250,7 +249,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </header>
 
         <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto w-full">
+          <div key={location} className="max-w-7xl mx-auto w-full page-enter">
             {children}
           </div>
         </div>
