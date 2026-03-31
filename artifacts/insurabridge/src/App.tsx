@@ -6,6 +6,8 @@ import { AuthProvider, useAuth } from "@/lib/auth"
 import { Layout } from "@/components/layout"
 
 // Pages
+import Home from "@/pages/home"
+import NetworkJoin from "@/pages/network-join"
 import Login from "@/pages/login"
 import Dashboard from "@/pages/dashboard"
 import Claims from "@/pages/claims"
@@ -48,9 +50,11 @@ function ProtectedRouter() {
   if (!isAuthenticated) {
     return (
       <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/network-join" component={NetworkJoin} />
         <Route path="/login" component={Login} />
         <Route>
-          <Redirect to="/login" />
+          <Redirect to="/" />
         </Route>
       </Switch>
     )
@@ -59,6 +63,7 @@ function ProtectedRouter() {
   return (
     <Layout>
       <Switch>
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/" component={Dashboard} />
         <Route path="/claims" component={Claims} />
         <Route path="/chat" component={Chat} />
@@ -76,7 +81,10 @@ function ProtectedRouter() {
         <Route path="/settlements" component={Settlements} />
         <Route path="/retention" component={Retention} />
         <Route path="/login">
-          <Redirect to="/" />
+          <Redirect to="/dashboard" />
+        </Route>
+        <Route path="/network-join">
+          <Redirect to="/network" />
         </Route>
         <Route component={NotFound} />
       </Switch>
