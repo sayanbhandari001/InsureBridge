@@ -1,4 +1,3 @@
-import { useEffect } from "react"
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Toaster } from "@/components/ui/toaster"
@@ -26,8 +25,6 @@ import Settlements from "@/pages/settlements"
 import Retention from "@/pages/retention"
 import NotFound from "@/pages/not-found"
 
-const HUB_URL = "https://replit.com/@sayanbhandari00/Insurance-Bridge-Hub"
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -36,27 +33,6 @@ const queryClient = new QueryClient({
     },
   },
 })
-
-function HubRedirect() {
-  useEffect(() => {
-    const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? ""
-    const loginUrl = encodeURIComponent(window.location.origin + base + "/login")
-    window.location.href = `${HUB_URL}?returnUrl=${loginUrl}`
-  }, [])
-
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-      <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-        <span className="text-primary-foreground text-2xl font-bold leading-none">I</span>
-      </div>
-      <div className="text-center">
-        <p className="text-foreground font-semibold text-lg">InsuraBridge</p>
-        <p className="text-muted-foreground text-sm mt-1">Redirecting to InsuraBridge Hub…</p>
-      </div>
-      <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
-    </div>
-  )
-}
 
 function ProtectedRouter() {
   const { isAuthenticated, loading } = useAuth()
@@ -73,7 +49,9 @@ function ProtectedRouter() {
     return (
       <Switch>
         <Route path="/login" component={Login} />
-        <Route component={HubRedirect} />
+        <Route>
+          <Redirect to="/login" />
+        </Route>
       </Switch>
     )
   }
