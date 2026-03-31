@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Eye, EyeOff, Zap, AlertCircle } from "lucide-react"
 import { useAuth } from "@/lib/auth"
-import { useLocation } from "wouter"
+import { useAppNavigate } from "@/hooks/use-navigate"
 import { ParticleNetwork } from "@/components/ParticleNetwork"
 import { AuroraBackground } from "@/components/AuroraBackground"
 import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
@@ -19,7 +19,7 @@ const DEMO_PASSWORD = "demo1234"
 
 export default function Login() {
   const { login } = useAuth()
-  const [, setLocation] = useLocation()
+  const navigate = useAppNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [selectedRole, setSelectedRole] = useState(0)
   const [email, setEmail] = useState("")
@@ -52,7 +52,7 @@ export default function Login() {
     await new Promise((r) => setTimeout(r, 500))
     try {
       await login(email, password)
-      setLocation("/")
+      navigate("/")
     } catch (err: any) {
       setError(err.message || "Invalid credentials. Use Fill Demo to try it out.")
     } finally {

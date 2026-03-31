@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useLocation } from "wouter"
+import { useAppNavigate } from "@/hooks/use-navigate"
 import {
   ArrowLeft,
   Building2,
@@ -26,7 +26,7 @@ const labelClr = "#94a3b8"
 const activeColor = "#00897B"
 
 export default function NetworkJoin() {
-  const [, setLocation] = useLocation()
+  const navigate = useAppNavigate()
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
@@ -78,7 +78,7 @@ export default function NetworkJoin() {
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => setLocation("/")}
+            onClick={() => navigate("/")}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold"
             style={{
               background: "rgba(14,26,54,0.7)",
@@ -93,7 +93,7 @@ export default function NetworkJoin() {
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => setLocation("/login")}
+            onClick={() => navigate("/login")}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{
               background: "linear-gradient(135deg, #1B3A6B 0%, #00897B 100%)",
@@ -137,7 +137,7 @@ export default function NetworkJoin() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <motion.button
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => setLocation("/login")}
+                    onClick={() => navigate("/login")}
                     className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
                     style={{
                       background: "linear-gradient(135deg, #1B3A6B 0%, #00897B 100%)",
@@ -148,7 +148,7 @@ export default function NetworkJoin() {
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => setLocation("/")}
+                    onClick={() => navigate("/")}
                     className="px-6 py-2.5 rounded-xl text-sm font-semibold"
                     style={{
                       background: "rgba(14,26,54,0.7)",

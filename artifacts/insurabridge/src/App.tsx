@@ -4,6 +4,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AuthProvider, useAuth } from "@/lib/auth"
 import { Layout } from "@/components/layout"
+import { NavProvider, useNavLoading } from "@/lib/nav-context"
+import { PageLoader } from "@/components/PageLoader"
 
 // Pages
 import Home from "@/pages/home"
@@ -29,10 +31,7 @@ import NotFound from "@/pages/not-found"
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: false,
-      refetchOnWindowFocus: false,
-    },
+    queries: { retry: false, refetchOnWindowFocus: false },
   },
 })
 
@@ -63,8 +62,8 @@ function ProtectedRouter() {
   return (
     <Layout>
       <Switch>
-        <Route path="/dashboard" component={Dashboard} />
         <Route path="/" component={Dashboard} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/claims" component={Claims} />
         <Route path="/chat" component={Chat} />
         <Route path="/calls" component={CallLogs} />
@@ -80,30 +79,38 @@ function ProtectedRouter() {
         <Route path="/members" component={Members} />
         <Route path="/settlements" component={Settlements} />
         <Route path="/retention" component={Retention} />
-        <Route path="/login">
-          <Redirect to="/dashboard" />
-        </Route>
-        <Route path="/network-join">
-          <Redirect to="/network" />
-        </Route>
+        <Route path="/login"><Redirect to="/" /></Route>
+        <Route path="/network-join"><Redirect to="/network" /></Route>
         <Route component={NotFound} />
       </Switch>
     </Layout>
   )
 }
 
+function AppContent() {
+  const { loading } = useNavLoading()
+  return (
+    <>
+      <PageLoader visible={loading} />
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <ProtectedRouter />
+            </WouterRouter>
+          </AuthProvider>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </>
+  )
+}
+
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <ProtectedRouter />
-          </WouterRouter>
-        </AuthProvider>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <NavProvider>
+      <AppContent />
+    </NavProvider>
   )
 }
 
