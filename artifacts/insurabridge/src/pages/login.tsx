@@ -14,6 +14,8 @@ const roles = [
   { label: "Admin", slug: "admin", color: "#6D28D9", email: "admin@insurabridge.com" },
 ]
 
+const DEMO_PASSWORD = "demo1234"
+
 export default function Login() {
   const { login } = useAuth()
   const [, setLocation] = useLocation()
@@ -37,9 +39,8 @@ export default function Login() {
   const ringGlow = `${activeColor}55`
 
   function fillDemo() {
-    const demo = roles[selectedRole]
-    setEmail(demo.email)
-    setPassword("demo1234")
+    setEmail(roles[selectedRole].email)
+    setPassword(DEMO_PASSWORD)
     setError("")
   }
 
@@ -47,6 +48,7 @@ export default function Login() {
     e.preventDefault()
     setError("")
     setLoading(true)
+    await new Promise((r) => setTimeout(r, 500))
     try {
       await login(email, password)
       setLocation("/")
@@ -61,7 +63,7 @@ export default function Login() {
   const cardBg = "rgba(8,18,38,0.88)"
   const heading = "#f1f5f9"
   const sub = "#64748b"
-  const label = "#94a3b8"
+  const labelClr = "#94a3b8"
   const inputBg = "rgba(14,26,54,0.85)"
   const inputBdr = "#1c3360"
   const inputClr = "#e2e8f0"
@@ -74,18 +76,41 @@ export default function Login() {
 
   return (
     <div
-      className="min-h-screen w-full relative overflow-hidden flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
       style={{ background: bg, fontFamily: "'Inter', sans-serif" }}
+      aria-label="InsuraBridge Portal Login"
     >
       <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet"
       />
 
+      {/* Animated background layers */}
       <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         <AuroraBackground />
         <ParticleNetwork />
       </div>
+
+      {/* Decorative rotating rings */}
+      {[700, 920].map((size, i) => (
+        <motion.div
+          key={size}
+          className="absolute pointer-events-none"
+          style={{
+            width: size,
+            height: size,
+            border: `1px solid rgba(0,191,165,${i === 0 ? 0.09 : 0.05})`,
+            borderRadius: "50%",
+            top: "50%",
+            left: "50%",
+            x: "-50%",
+            y: "-50%",
+          }}
+          animate={{ rotate: i === 0 ? 360 : -360 }}
+          transition={{ duration: i === 0 ? 40 : 55, repeat: Infinity, ease: "linear" }}
+          aria-hidden="true"
+        />
+      ))}
 
       <motion.div
         initial={{ opacity: 0, y: 32 }}
@@ -99,15 +124,17 @@ export default function Login() {
             background: cardBg,
             border: "1.5px solid #1c3360",
             boxShadow: `0 8px 48px rgba(0,0,0,0.55), 0 0 0 1px #1c336055, 0 0 80px ${ringGlow}22`,
+            transition: "box-shadow 0.4s ease",
           }}
         >
-          {/* Logo */}
+          {/* Logo header */}
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #1B3A6B 0%, #00897B 100%)",
                 boxShadow: `0 0 18px ${activeColor}44`,
+                transition: "box-shadow 0.4s ease",
               }}
             >
               <ShieldCheck className="w-5 h-5" style={{ color: logoClr }} />
@@ -149,7 +176,7 @@ export default function Login() {
 
           {/* Role selector */}
           <div className="mb-5">
-            <p className="text-xs font-medium mb-2" style={{ color: label }}>
+            <p className="text-xs font-medium mb-2" style={{ color: labelClr }}>
               Select your role
             </p>
             <div className="flex flex-wrap gap-2">
@@ -170,6 +197,7 @@ export default function Login() {
                       border: `1.5px solid ${active ? role.color : "#1c3360"}`,
                       color: active ? "#f1f5f9" : "#64748b",
                       boxShadow: active ? `0 0 12px ${role.color}44` : "none",
+                      transition: "all 0.2s ease",
                     }}
                   >
                     {role.label}
@@ -179,10 +207,10 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Form */}
+          {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: label }}>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: labelClr }}>
                 Email address
               </label>
               <input
@@ -203,7 +231,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: label }}>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: labelClr }}>
                 Password
               </label>
               <div className="relative">
@@ -237,23 +265,25 @@ export default function Login() {
             <AnimatePresence>
               {error && (
                 <motion.div
-                  initial={{ opacity: 0, y: -6 }}
+                  initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs"
-                  style={{
-                    background: "rgba(239,68,68,0.10)",
-                    border: "1px solid rgba(239,68,68,0.28)",
-                    color: "#f87171",
-                  }}
+                  exit={{ opacity: 0 }}
                   role="alert"
+                  aria-live="assertive"
+                  className="p-3 rounded-xl flex items-center gap-2 text-xs font-medium"
+                  style={{
+                    background: "rgba(220,38,38,0.12)",
+                    color: "#dc2626",
+                    border: "1px solid rgba(220,38,38,0.3)",
+                  }}
                 >
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
                   {error}
                 </motion.div>
               )}
             </AnimatePresence>
 
+            {/* Fill Demo + Sign in row */}
             <div className="flex gap-2 pt-1">
               <motion.button
                 type="button"
@@ -271,27 +301,27 @@ export default function Login() {
 
               <motion.button
                 type="submit"
+                whileHover={{ scale: 1.015 }}
+                whileTap={{ scale: 0.98 }}
                 disabled={loading}
-                whileTap={{ scale: 0.97 }}
-                className="flex-[2] py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                className="flex-[2] py-2.5 rounded-xl text-white font-semibold text-sm shadow-lg transition-all disabled:opacity-70 flex items-center justify-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 style={{
-                  background: loading
-                    ? activeColor + "99"
-                    : `linear-gradient(135deg, ${activeColor} 0%, ${activeColor}cc 100%)`,
-                  color: "#fff",
-                  boxShadow: loading ? "none" : `0 4px 20px ${activeColor}44`,
+                  background: `linear-gradient(135deg, #1B3A6B 0%, ${activeColor} 100%)`,
+                  boxShadow: `0 8px 32px ${activeColor}55`,
+                  outlineColor: activeColor,
                 }}
+                aria-label={loading ? "Signing in…" : `Sign in as ${roles[selectedRole].label}`}
               >
                 {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
                     Signing in…
-                  </span>
+                  </>
                 ) : (
-                  "Sign in"
+                  `Sign In as ${roles[selectedRole].label}`
                 )}
               </motion.button>
             </div>
@@ -299,7 +329,7 @@ export default function Login() {
 
           <div className="mt-6 pt-5" style={{ borderTop: `1px solid ${divClr}` }}>
             <p className="text-center text-xs" style={{ color: "#334155" }}>
-              © 2026 InsuraBridge. All rights reserved.
+              © 2026 InsuraBridge · All rights reserved
             </p>
           </div>
         </div>
