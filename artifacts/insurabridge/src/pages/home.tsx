@@ -2,7 +2,6 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useLocation } from "wouter"
 import {
-  ShieldCheck,
   ArrowRight,
   Building2,
   Users,
@@ -29,6 +28,7 @@ import {
 } from "lucide-react"
 import { AuroraBackground } from "@/components/AuroraBackground"
 import { ParticleNetwork } from "@/components/ParticleNetwork"
+import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
 
 /* ─── colour tokens ─────────────────────────────────────── */
 const C = {
@@ -249,17 +249,7 @@ function NavBar({ onLogin, onJoin }: { onLogin: () => void; onJoin: () => void }
     >
       <div className="max-w-7xl mx-auto px-5 md:px-10 flex items-center justify-between h-16">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 flex-shrink-0">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
-            style={{ background: C.grad }}
-          >
-            <ShieldCheck className="w-5 h-5 text-blue-100" />
-          </div>
-          <span className="font-extrabold text-base tracking-tight" style={{ color: C.heading }}>
-            Insura<span style={{ color: "#34d399" }}>Bridge</span>
-          </span>
-        </div>
+        <InsuraBridgeLogo size={36} textSize="0.95rem" />
 
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-7">
@@ -765,13 +755,8 @@ export default function Home() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
             {/* Brand */}
             <div>
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: C.grad }}>
-                  <ShieldCheck className="w-4 h-4 text-blue-100" />
-                </div>
-                <span className="font-extrabold text-sm" style={{ color: C.heading }}>
-                  Insura<span style={{ color: "#34d399" }}>Bridge</span>
-                </span>
+              <div className="mb-4">
+                <InsuraBridgeLogo size={30} textSize="0.85rem" />
               </div>
               <p className="text-xs leading-relaxed" style={{ color: C.sub }}>
                 The unified platform for modern health insurance — connecting TPAs, insurers, hospitals, and members.

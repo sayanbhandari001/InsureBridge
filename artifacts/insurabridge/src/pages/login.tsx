@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, ShieldCheck, Zap, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, Zap, AlertCircle } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { useLocation } from "wouter"
 import { ParticleNetwork } from "@/components/ParticleNetwork"
 import { AuroraBackground } from "@/components/AuroraBackground"
+import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
 
 const roles = [
   { label: "TPA", slug: "tpa", color: "#1B3A6B", email: "ops@meditpa.com" },
@@ -72,8 +73,6 @@ export default function Login() {
   const divClr = "#112044"
   const backBdr = "#1c3360"
   const backClr = "#94a3b8"
-  const logoClr = "#93c5fd"
-
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
@@ -128,25 +127,11 @@ export default function Login() {
           }}
         >
           {/* Logo header */}
-          <div className="flex items-center gap-3 mb-6">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, #1B3A6B 0%, #00897B 100%)",
-                boxShadow: `0 0 18px ${activeColor}44`,
-                transition: "box-shadow 0.4s ease",
-              }}
-            >
-              <ShieldCheck className="w-5 h-5" style={{ color: logoClr }} />
-            </div>
-            <div>
-              <span className="font-bold text-base" style={{ color: heading }}>
-                InsuraBridge
-              </span>
-              <p className="text-xs" style={{ color: sub }}>
-                Unified Insurance Portal
-              </p>
-            </div>
+          <div className="flex items-center justify-between mb-6">
+            <InsuraBridgeLogo size={38} textSize="1rem" />
+            <p className="text-xs" style={{ color: sub }}>
+              Unified Insurance Portal
+            </p>
           </div>
 
           <h1 className="text-2xl font-bold mb-1" style={{ color: heading }}>
