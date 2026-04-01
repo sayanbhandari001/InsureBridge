@@ -312,31 +312,33 @@ function TestimonialCarousel() {
 /* ─── Navbar ────────────────────────────────────────────────── */
 function NavBar({
   navigate,
-  headerLogoOpacity,
-  headerLogoScale,
+  visible,
 }: {
   navigate: (to: string) => void
-  headerLogoOpacity: any
-  headerLogoScale: any
+  visible: boolean
 }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <motion.div
+      className="sticky top-0 z-50 w-full"
+      animate={{ y: visible ? "0%" : "-100%" }}
+      transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+    >
+    <header className="w-full border-b border-border/60 bg-background/90 backdrop-blur-md">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-sm font-semibold z-50">
         Skip to main content
       </a>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo — fades out while hero card animates, then fades back */}
-          <motion.button
+          {/* Logo */}
+          <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            style={{ opacity: headerLogoOpacity, scale: headerLogoScale }}
             className="flex items-center gap-2.5 text-foreground hover:opacity-80 transition-opacity"
           >
             <InsuraBridgeLogo size={32} textSize="0.95rem" animated={false} />
-          </motion.button>
+          </button>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6" aria-label="Primary navigation">
@@ -430,6 +432,7 @@ function NavBar({
         )}
       </AnimatePresence>
     </header>
+    </motion.div>
   )
 }
 
@@ -514,28 +517,35 @@ function DashboardMockup() {
 export default function Home() {
   const navigate = useAppNavigate()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [winW, setWinW] = useState(typeof window !== "undefined" ? window.innerWidth : 1440)
+  const [navVisible, setNavVisible] = useState(true)
+  const lastScrollY = useRef(0)
 
   const heroRef = useRef<HTMLDivElement>(null)
 
+  /* Auto-hide navbar on scroll down, show on scroll up */
   useEffect(() => {
-    const onResize = () => setWinW(window.innerWidth)
-    window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
+    const handleScroll = () => {
+      const currentY = window.scrollY
+      if (currentY < 80) {
+        setNavVisible(true)
+      } else if (currentY > lastScrollY.current + 8) {
+        setNavVisible(false)
+      } else if (currentY < lastScrollY.current - 8) {
+        setNavVisible(true)
+      }
+      lastScrollY.current = currentY
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  /* Scroll-based hero morph */
+  /* Scroll-based hero logo morph (logo only — text stays fixed) */
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
   const smoothP = useSpring(scrollYProgress, { stiffness: 110, damping: 28, restDelta: 1e-4 })
 
-  const cardX       = useTransform(smoothP, (p) => p * (60 - winW / 2))
-  const cardY       = useTransform(smoothP, [0, 1], [0, -24])
-  const cardScale   = useTransform(smoothP, [0, 0.9], [1, 0.068])
-  const cardOpacity = useTransform(smoothP, [0, 0.78], [1, 0])
-  const cardBR      = useTransform(smoothP, [0, 0.8], ["1.5rem", "50%"])
-
-  const headerLogoOpacity = useTransform(smoothP, [0, 0.12, 0.72, 1], [1, 0.2, 0.2, 1])
-  const headerLogoScale   = useTransform(smoothP, [0, 0.72, 1], [1, 0.88, 1])
+  const logoScale   = useTransform(smoothP, [0, 0.6], [1, 0.28])
+  const logoY       = useTransform(smoothP, [0, 0.6], [0, -240])
+  const logoOpacity = useTransform(smoothP, [0, 0.35, 0.62], [1, 1, 0])
 
   return (
     <div id="main" className="min-h-screen relative w-full bg-background bg-grid-pattern">
@@ -543,88 +553,93 @@ export default function Home() {
       <div className="absolute inset-0 bg-hero-glow pointer-events-none" aria-hidden />
 
       <ScrollProgress />
-      <NavBar navigate={navigate} headerLogoOpacity={headerLogoOpacity} headerLogoScale={headerLogoScale} />
+      <NavBar navigate={navigate} visible={navVisible} />
 
-      {/* ══ HERO ═══════════════════════════════════════════════════ */}
-      <section
-        ref={heroRef}
-        className="relative z-10 h-[185vh] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 flex flex-col items-center text-center"
-      >
-        {/* Sticky morphing card */}
-        <motion.div
-          className="sticky top-20 mb-10 w-full max-w-2xl backdrop-blur-sm border border-border p-8 sm:p-12 shadow-xl will-change-transform z-10"
-          style={{
-            x: cardX, y: cardY,
-            scale: cardScale,
-            opacity: cardOpacity,
-            borderRadius: cardBR,
-            background: "hsl(var(--card) / 0.75)",
-          }}
-        >
-          {/* Live badge */}
+      {/* ══ FLOATING CTA PANEL (appears when header hides) ═════════ */}
+      <AnimatePresence>
+        {!navVisible && (
           <motion.div
-            initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold border border-primary/20 bg-primary/5 text-primary"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            Unified Insurance Platform — Trusted by 60+ Insurers
-          </motion.div>
-
-          {/* Logo in hero card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="flex justify-center mb-6"
-          >
-            <InsuraBridgeLogo size={64} textSize="1.5rem" />
-          </motion.div>
-
-          {/* Hero headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-display font-black text-foreground leading-tight mb-4"
-          >
-            The Intelligent Hub for{" "}
-            <Typewriter />
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-            className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl mx-auto"
-          >
-            InsuraBridge unifies TPAs, Insurers, Hospitals, and Members — automating claims, empanelments, settlements, and member experiences end-to-end.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-            className="flex flex-wrap items-center justify-center gap-3"
+            className="fixed left-5 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3"
+            initial={{ x: -120, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -120, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 280, damping: 28 }}
           >
             <motion.button
-              whileHover={{ scale: 1.04, boxShadow: "0 8px 32px hsl(var(--primary) / 0.45)" }}
-              whileTap={{ scale: 0.96 }}
               onClick={() => navigate("/network-join")}
-              className="flex items-center gap-2 px-7 py-3 rounded-full font-bold text-sm text-white shadow-md hover:shadow-lg"
+              whileHover={{ x: 6, scale: 1.06, boxShadow: "0 8px 32px hsl(var(--primary) / 0.5)" }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white shadow-xl"
               style={{ background: "linear-gradient(135deg, hsl(var(--primary)), #00BFA5)" }}
             >
-              <Building2 className="w-4 h-4" /> Join the Network
+              <Building2 className="w-4 h-4" /> Join Network
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
               onClick={() => navigate("/login")}
-              className="flex items-center gap-2 px-7 py-3 rounded-full font-semibold text-sm border border-border bg-card text-foreground hover:bg-muted transition-colors"
+              whileHover={{ x: 6, scale: 1.06 }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm border border-border/80 bg-card/90 backdrop-blur-sm text-foreground shadow-xl"
             >
               Portal Login <ArrowRight className="w-4 h-4" />
             </motion.button>
           </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* scroll hint */}
-          <motion.p
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
-            className="mt-8 text-xs text-muted-foreground/50 flex items-center justify-center gap-1"
-          >
-            <ChevronDown className="w-3.5 h-3.5 animate-bounce" /> Scroll to explore
-          </motion.p>
-        </motion.div>
+      {/* ══ HERO ═══════════════════════════════════════════════════ */}
+      <section
+        ref={heroRef}
+        className="relative z-10 min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24"
+      >
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10 lg:gap-20 min-h-[88vh]">
+
+          {/* LEFT — only the logo morphs on scroll */}
+          <div className="flex-none lg:w-72 flex justify-center lg:justify-start pt-8 lg:pt-16">
+            <motion.div
+              style={{ scale: logoScale, y: logoY, opacity: logoOpacity }}
+              className="will-change-transform"
+            >
+              <InsuraBridgeLogo size={72} textSize="1.75rem" animated={true} />
+            </motion.div>
+          </div>
+
+          {/* RIGHT — all text content, completely static (never moves or resizes) */}
+          <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left justify-center lg:pt-16 gap-6">
+            {/* Live badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold border border-primary/20 bg-primary/5 text-primary"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              Unified Insurance Platform — Trusted by 60+ Insurers
+            </motion.div>
+
+            {/* Hero headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+              className="text-4xl sm:text-5xl md:text-6xl font-display font-black text-foreground leading-tight"
+            >
+              The Intelligent Hub for{" "}
+              <br className="hidden sm:block" />
+              <Typewriter />
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+              className="text-lg text-muted-foreground leading-relaxed max-w-xl"
+            >
+              InsuraBridge unifies TPAs, Insurers, Hospitals, and Members — automating claims, empanelments, settlements, and member experiences end-to-end.
+            </motion.p>
+
+            {/* scroll hint */}
+            <motion.p
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
+              className="text-xs text-muted-foreground/50 flex items-center gap-1 mt-2"
+            >
+              <ChevronDown className="w-3.5 h-3.5 animate-bounce" /> Scroll to explore
+            </motion.p>
+          </div>
+        </div>
       </section>
 
       {/* ══ STATS ══════════════════════════════════════════════════ */}
