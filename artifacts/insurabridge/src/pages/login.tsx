@@ -10,11 +10,11 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { useTheme } from "@/lib/theme-context"
 
 const roles = [
-  { label: "TPA",      slug: "tpa",      color: "#1B3A6B", email: "ops@meditpa.com" },
-  { label: "Insurer",  slug: "insurer",  color: "#00897B", email: "claims@nationallife.com" },
-  { label: "Hospital", slug: "hospital", color: "#2a5298", email: "admin@cityhospital.com" },
-  { label: "Customer", slug: "customer", color: "#00BFA5", email: "rahul@example.com" },
-  { label: "Admin",    slug: "admin",    color: "#6D28D9", email: "admin@insurabridge.com" },
+  { label: "TPA",               slug: "tpa",      color: "#1B3A6B", email: "ops@meditpa.com",            isAdmin: false },
+  { label: "Insurance Company", slug: "insurer",  color: "#00897B", email: "claims@nationallife.com",    isAdmin: false },
+  { label: "Hospital",          slug: "hospital", color: "#2a5298", email: "admin@cityhospital.com",     isAdmin: false },
+  { label: "Patient Party",     slug: "customer", color: "#00BFA5", email: "rahul@example.com",          isAdmin: false },
+  { label: "Admin",             slug: "admin",    color: "#6D28D9", email: "admin@insurabridge.com",     isAdmin: true  },
 ]
 
 const EMAIL_DOMAINS = [
@@ -287,7 +287,34 @@ export default function Login() {
           <div className="mb-5">
             <p className="text-xs font-medium mb-2 text-muted-foreground">Select your role</p>
             <div className="flex flex-wrap gap-2">
-              {roles.map((role, idx) => {
+              {roles.filter(r => !r.isAdmin).map((role, idx) => {
+                const active = selectedRole === idx
+                return (
+                  <motion.button
+                    key={role.slug}
+                    type="button"
+                    onClick={() => { setSelectedRole(idx); setError("") }}
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.04 }}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                    style={{
+                      background: active ? role.color + "33" : "hsl(var(--muted))",
+                      border: `1.5px solid ${active ? role.color : "hsl(var(--border))"}`,
+                      color: active ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
+                      boxShadow: active ? `0 0 14px ${role.color}44` : "none",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    {role.label}
+                  </motion.button>
+                )
+              })}
+            </div>
+            {/* Admin access — separated at bottom */}
+            <div className="mt-3 pt-3 border-t border-border/40">
+              <p className="text-[10px] text-muted-foreground/60 mb-1.5 uppercase tracking-widest">Platform Access</p>
+              {roles.filter(r => r.isAdmin).map((role, _) => {
+                const idx = roles.findIndex(r => r.slug === role.slug)
                 const active = selectedRole === idx
                 return (
                   <motion.button
@@ -316,7 +343,9 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-xs font-medium mb-1.5 text-muted-foreground">Email address</label>
+              <label className="block text-xs font-medium mb-1.5 text-muted-foreground">
+                Email address <span className="text-red-500">*</span>
+              </label>
               <EmailSuggest
                 value={email}
                 onChange={v => { setEmail(v); setError("") }}
@@ -327,7 +356,9 @@ export default function Login() {
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-medium mb-1.5 text-muted-foreground">Password</label>
+              <label className="block text-xs font-medium mb-1.5 text-muted-foreground">
+                Password <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
                 <input

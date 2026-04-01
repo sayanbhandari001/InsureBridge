@@ -3,22 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
 import {
   FileText, Clock, CheckCircle2, DollarSign, Bell, Users,
-  Banknote, MessageSquare, Star, ArrowRight,
+  Banknote, MessageSquare, Star, ArrowRight, ShieldCheck, Building2, User,
 } from "lucide-react"
-import { formatCurrency, formatDate } from "@/lib/utils"
+import { formatDate } from "@/lib/utils"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { useLocation } from "wouter"
-
-const STAT_CARDS = (s: any) => [
-  { title: "Total Claims",          value: s?.totalClaims,           icon: FileText,     color: "#60a5fa", bg: "rgba(96,165,250,0.12)",   href: "/claims",      action: "View all claims"   },
-  { title: "Pending Claims",        value: s?.pendingClaims,         icon: Clock,        color: "#fbbf24", bg: "rgba(251,191,36,0.12)",   href: "/claims",      action: "Review pending"    },
-  { title: "Approved Claims",       value: s?.approvedClaims,        icon: CheckCircle2, color: "#34d399", bg: "rgba(52,211,153,0.12)",   href: "/claims",      action: "View approved"     },
-  { title: "Total Billed",          value: formatCurrency(s?.totalBillAmount || 0), icon: DollarSign, color: "#a78bfa", bg: "rgba(167,139,250,0.12)", href: "/bills", action: "View bills" },
-  { title: "Unread Notifications",  value: s?.unreadNotifications ?? 0, icon: Bell,     color: "#c084fc", bg: "rgba(192,132,252,0.12)",  href: "/chat",        action: "View messages"     },
-  { title: "Active Members",        value: s?.activeMembers ?? 0,    icon: Users,        color: "#f472b6", bg: "rgba(244,114,182,0.12)",  href: "/members",     action: "Manage members"    },
-  { title: "Pending Settlements",   value: s?.pendingSettlements ?? 0, icon: Banknote,  color: "#2dd4bf", bg: "rgba(45,212,191,0.12)",   href: "/settlements", action: "View settlements"  },
-  { title: "Open Threads",          value: s?.openThreads ?? 0,      icon: MessageSquare,color: "#fb923c", bg: "rgba(251,146,60,0.12)",   href: "/chat",        action: "View threads"      },
-]
+import { useCurrency } from "@/lib/currency-context"
+import { useAuth, ROLE_LABELS } from "@/lib/auth"
 
 const PIE_COLORS = { Pending: "#fbbf24", Approved: "#34d399", Rejected: "#f87171" }
 
@@ -32,10 +23,27 @@ function CustomTooltip({ active, payload }: any) {
   )
 }
 
+const ROLE_GREETINGS: Record<string, { headline: string; sub: string; icon: any; color: string }> = {
+  customer:  { headline: "Welcome back,", sub: "Here's a summary of your insurance claims and activity.",          icon: User,        color: "text-blue-400" },
+  hospital:  { headline: "Hospital Portal",  sub: "Track cashless claim requests and settlements for your facility.", icon: Building2,   color: "text-green-400" },
+  tpa:       { headline: "TPA Dashboard",    sub: "Manage claims, settlements, and member data across all insurers.", icon: ShieldCheck, color: "text-purple-400" },
+  insurer:   { headline: "Insurer Overview", sub: "Monitor claims, approvals, and financial liability across policies.", icon: ShieldCheck, color: "text-amber-400" },
+  admin:     { headline: "Admin Dashboard",  sub: "Full platform overview — users, claims, settlements, and system health.", icon: ShieldCheck, color: "text-red-400" },
+}
+
 export default function Dashboard() {
+  const { formatAmount } = useCurrency()
+  const { user } = useAuth()
   const { data: stats, isLoading: statsLoading } = useGetDashboardStats()
   const { data: claims, isLoading: claimsLoading } = useListClaims()
   const [, navigate] = useLocation()
+
+  const role = user?.role ?? "tpa"
+  const greeting = ROLE_GREETINGS[role] ?? ROLE_GREETINGS.tpa
+  const GreetIcon = greeting.icon
+
+  const isPatient = role === "customer"
+  const isHospital = role === "hospital"
 
   if (statsLoading || claimsLoading) {
     return (
@@ -45,19 +53,41 @@ export default function Dashboard() {
     )
   }
 
+  const statCards = [
+    { title: "Total Claims",        value: stats?.totalClaims,                        icon: FileText,     color: "#60a5fa", bg: "rgba(96,165,250,0.12)",   href: "/claims",      action: "View all" },
+    { title: "Pending Claims",      value: stats?.pendingClaims,                       icon: Clock,        color: "#fbbf24", bg: "rgba(251,191,36,0.12)",   href: "/claims",      action: "Review pending" },
+    { title: "Approved Claims",     value: stats?.approvedClaims,                      icon: CheckCircle2, color: "#34d399", bg: "rgba(52,211,153,0.12)",   href: "/claims",      action: "View approved" },
+    { title: "Total Billed",        value: formatAmount(stats?.totalBillAmount || 0),  icon: DollarSign,   color: "#a78bfa", bg: "rgba(167,139,250,0.12)",  href: "/bills",       action: "View bills" },
+    ...(!isPatient ? [
+      { title: "Unread Notifications", value: stats?.unreadNotifications ?? 0,         icon: Bell,         color: "#c084fc", bg: "rgba(192,132,252,0.12)",  href: "/chat",        action: "View messages" },
+      { title: "Active Members",       value: stats?.activeMembers ?? 0,               icon: Users,        color: "#f472b6", bg: "rgba(244,114,182,0.12)",  href: "/members",     action: "Manage members" },
+      { title: "Pending Settlements",  value: stats?.pendingSettlements ?? 0,          icon: Banknote,     color: "#2dd4bf", bg: "rgba(45,212,191,0.12)",   href: "/settlements", action: "View settlements" },
+      { title: "Open Threads",         value: stats?.openThreads ?? 0,                icon: MessageSquare, color: "#fb923c", bg: "rgba(251,146,60,0.12)",   href: "/chat",        action: "View threads" },
+    ] : []),
+  ]
+
   const pieData = [
     { name: "Pending",  value: stats?.pendingClaims  || 0, color: PIE_COLORS.Pending  },
     { name: "Approved", value: stats?.approvedClaims || 0, color: PIE_COLORS.Approved },
     { name: "Rejected", value: stats?.rejectedClaims || 0, color: PIE_COLORS.Rejected },
   ]
 
-  const statCards = STAT_CARDS(stats)
-
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-display font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Overview of your platform activities and metrics.</p>
+      {/* Role-aware greeting */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center">
+          <GreetIcon className={`w-5 h-5 ${greeting.color}`} />
+        </div>
+        <div>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            {greeting.headline} {isPatient && user?.name ? user.name.split(" ")[0] : ""}
+          </h1>
+          <p className="text-muted-foreground mt-0.5">{greeting.sub}</p>
+        </div>
+        <div className="ml-auto hidden sm:block">
+          <span className="text-xs text-muted-foreground/50">{ROLE_LABELS[role]} · {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
+        </div>
       </div>
 
       {/* Stat grid */}
@@ -130,26 +160,30 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {/* Quick stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-              {[
-                { label: "Open Threads",   val: stats?.openThreads || 0,                             icon: MessageSquare, color: "#fb923c", href: "/chat"     },
-                { label: "Approved Total", val: formatCurrency(stats?.approvedBillAmount || 0),       icon: DollarSign,    color: "#34d399", href: "/claims"   },
-                { label: "Avg Rating",     val: `${(stats?.averageRating ?? 0).toFixed(1)} / 5`,     icon: Star,          color: "#fbbf24", href: "/feedback" },
-              ].map(item => (
-                <button key={item.label} onClick={() => navigate(item.href)}
-                  className="text-left group rounded-xl p-3.5 transition-all duration-150 border border-border/50 bg-muted/30 hover:bg-muted/60 hover:border-border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                  <div className="flex items-center gap-2 mb-2">
-                    <item.icon className="w-4 h-4" style={{ color: item.color }} />
-                    <span className="text-xs font-medium text-muted-foreground">{item.label}</span>
-                    <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: item.color }} />
-                  </div>
-                  <p className="text-xl font-bold text-foreground tabular-nums">{item.val}</p>
-                </button>
-              ))}
-            </div>
+            {!isPatient && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                {[
+                  { label: "Open Threads",   val: stats?.openThreads || 0,                                      icon: MessageSquare, color: "#fb923c", href: "/chat"     },
+                  { label: "Approved Total", val: formatAmount(stats?.approvedBillAmount || 0),                  icon: DollarSign,    color: "#34d399", href: "/claims"   },
+                  { label: "Avg Rating",     val: `${(stats?.averageRating ?? 0).toFixed(1)} / 5`,              icon: Star,          color: "#fbbf24", href: "/feedback" },
+                ].map(item => (
+                  <button key={item.label} onClick={() => navigate(item.href)}
+                    className="text-left group rounded-xl p-3.5 transition-all duration-150 border border-border/50 bg-muted/30 hover:bg-muted/60 hover:border-border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                    <div className="flex items-center gap-2 mb-2">
+                      <item.icon className="w-4 h-4" style={{ color: item.color }} />
+                      <span className="text-xs font-medium text-muted-foreground">{item.label}</span>
+                      <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: item.color }} />
+                    </div>
+                    <p className="text-xl font-bold text-foreground tabular-nums">{item.val}</p>
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Recent claims table */}
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3">Recent Claims</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3">
+              {isPatient ? "Your Recent Claims" : "Recent Claims"}
+            </p>
             <div className="overflow-x-auto rounded-xl border border-border/40">
               <table className="w-full text-sm text-left">
                 <thead>
@@ -168,7 +202,7 @@ export default function Dashboard() {
                     >
                       <td className="px-4 py-2.5 font-medium text-primary group-hover:underline text-xs">{claim.claimNumber}</td>
                       <td className="px-4 py-2.5 text-foreground text-xs">{claim.patientName}</td>
-                      <td className="px-4 py-2.5 text-foreground text-xs tabular-nums">{formatCurrency(claim.claimedAmount)}</td>
+                      <td className="px-4 py-2.5 text-foreground text-xs tabular-nums">{formatAmount(claim.claimedAmount)}</td>
                       <td className="px-4 py-2.5"><StatusBadge status={claim.status} /></td>
                     </tr>
                   ))}

@@ -7,6 +7,8 @@ import { Layout } from "@/components/layout"
 import { NavProvider, useNavLoading } from "@/lib/nav-context"
 import { PageLoader } from "@/components/PageLoader"
 import { ThemeProvider } from "@/lib/theme-context"
+import { CurrencyProvider } from "@/lib/currency-context"
+import { LocaleProvider } from "@/lib/locale-context"
 
 // Pages
 import Home from "@/pages/home"
@@ -31,6 +33,7 @@ import Renewals from "@/pages/renewals"
 import Members from "@/pages/members"
 import Settlements from "@/pages/settlements"
 import Retention from "@/pages/retention"
+import Tickets from "@/pages/tickets"
 import NotFound from "@/pages/not-found"
 import { ChatbotBubble } from "@/components/ChatbotBubble"
 
@@ -87,6 +90,7 @@ function ProtectedRouter() {
         <Route path="/members" component={Members} />
         <Route path="/settlements" component={Settlements} />
         <Route path="/retention" component={Retention} />
+        <Route path="/tickets" component={Tickets} />
         <Route path="/login"><Redirect to="/" /></Route>
         <Route path="/network-join"><Redirect to="/network" /></Route>
         <Route component={NotFound} />
@@ -118,9 +122,13 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider>
-      <NavProvider>
-        <AppContent />
-      </NavProvider>
+      <CurrencyProvider>
+        <LocaleProvider>
+          <NavProvider>
+            <AppContent />
+          </NavProvider>
+        </LocaleProvider>
+      </CurrencyProvider>
     </ThemeProvider>
   )
 }

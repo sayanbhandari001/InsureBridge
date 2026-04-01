@@ -1,10 +1,20 @@
 import React, { useState } from "react"
 import { useListBills, useListClaims } from "@workspace/api-client-react"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { ShieldCheck, User, Tag, TrendingDown, TrendingUp, Wallet, AlertCircle, ChevronDown, ChevronUp, Building2 } from "lucide-react"
+import { ShieldCheck, User, Tag, TrendingDown, TrendingUp, Wallet, AlertCircle, ChevronDown, ChevronUp, Building2, Search, X, CreditCard, Banknote, Smartphone, ArrowUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
+
+const PAYMENT_MODES = [
+  { value: "upi", label: "UPI", icon: Smartphone },
+  { value: "card", label: "Card", icon: CreditCard },
+  { value: "cash", label: "Cash", icon: Banknote },
+  { value: "neft", label: "NEFT / RTGS", icon: ArrowUpDown },
+]
 
 type Claim = {
   id: number
@@ -42,6 +52,7 @@ type Bill = {
 type EnrichedBill = Bill & { claim?: Claim }
 
 function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
+  const { formatAmount } = useCurrency()
   const claim = bill.claim
   const totalBill = bill.totalAmount
   const hospitalDiscount = claim?.hospitalDiscount ?? 0
@@ -68,7 +79,7 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
           {/* Total Bill */}
           <div className="flex justify-between items-center px-4 py-3 text-sm font-semibold">
             <span className="text-foreground">Total Bill Raised</span>
-            <span className="text-foreground tabular-nums font-bold">{formatCurrency(totalBill)}</span>
+            <span className="text-foreground tabular-nums font-bold">{formatAmount(totalBill)}</span>
           </div>
 
           {/* Hospital Discount */}
@@ -78,7 +89,7 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
                 <Tag className="w-3.5 h-3.5" />
                 <span>Hospital Discount</span>
               </div>
-              <span className="font-semibold text-green-400 tabular-nums">– {formatCurrency(hospitalDiscount)}</span>
+              <span className="font-semibold text-green-400 tabular-nums">– {formatAmount(hospitalDiscount)}</span>
             </div>
           )}
 
@@ -86,7 +97,7 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
           {hospitalDiscount > 0 && (
             <div className="flex justify-between items-center px-4 py-3 text-sm bg-muted/20">
               <span className="text-muted-foreground">Net Bill after Discount</span>
-              <span className="font-semibold text-foreground tabular-nums">{formatCurrency(netAfterDiscount)}</span>
+              <span className="font-semibold text-foreground tabular-nums">{formatAmount(netAfterDiscount)}</span>
             </div>
           )}
 
@@ -97,7 +108,7 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Paid by Insurance Company</span>
               </div>
-              <span className="font-semibold text-blue-400 tabular-nums">– {formatCurrency(paidByInsurer)}</span>
+              <span className="font-semibold text-blue-400 tabular-nums">– {formatAmount(paidByInsurer)}</span>
             </div>
           )}
 
@@ -110,14 +121,14 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
                   <span>Paid by Patient</span>
                   {(claim?.deductible || claim?.coPayAmount) && (
                     <span className="text-[10px] text-muted-foreground ml-2">
-                      {claim?.deductible ? `Deductible ${formatCurrency(claim.deductible)}` : ""}
+                      {claim?.deductible ? `Deductible ${formatAmount(claim.deductible)}` : ""}
                       {claim?.deductible && claim?.coPayAmount ? " + " : ""}
-                      {claim?.coPayAmount ? `Co-pay ${formatCurrency(claim.coPayAmount)}` : ""}
+                      {claim?.coPayAmount ? `Co-pay ${formatAmount(claim.coPayAmount)}` : ""}
                     </span>
                   )}
                 </div>
               </div>
-              <span className="font-semibold text-amber-400 tabular-nums">– {formatCurrency(paidByCustomer)}</span>
+              <span className="font-semibold text-amber-400 tabular-nums">– {formatAmount(paidByCustomer)}</span>
             </div>
           )}
 
@@ -133,7 +144,7 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
               }
             </div>
             <span className={cn("font-bold tabular-nums", outstanding > 0 ? "text-destructive" : "text-green-400")}>
-              {outstanding > 0 ? formatCurrency(outstanding) : "₹ 0"}
+              {outstanding > 0 ? formatAmount(outstanding) : "₹ 0"}
             </span>
           </div>
         </div>
@@ -148,7 +159,7 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
                 <ShieldCheck className="w-4 h-4" />
                 <span className="text-xs font-semibold uppercase tracking-wide">Insurance Co.</span>
               </div>
-              <p className="text-xl font-bold text-blue-300">{formatCurrency(paidByInsurer)}</p>
+              <p className="text-xl font-bold text-blue-300">{formatAmount(paidByInsurer)}</p>
               <p className="text-xs text-blue-400/70 mt-1">Net payable amount</p>
             </div>
           )}
@@ -158,7 +169,7 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
                 <User className="w-4 h-4" />
                 <span className="text-xs font-semibold uppercase tracking-wide">Patient</span>
               </div>
-              <p className="text-xl font-bold text-amber-300">{formatCurrency(paidByCustomer)}</p>
+              <p className="text-xl font-bold text-amber-300">{formatAmount(paidByCustomer)}</p>
               <p className="text-xs text-amber-400/70 mt-1">Deductibles + co-pay</p>
             </div>
           )}
@@ -168,7 +179,7 @@ function BillDetailPanel({ bill }: { bill: EnrichedBill }) {
                 <Building2 className="w-4 h-4" />
                 <span className="text-xs font-semibold uppercase tracking-wide">Hospital Waived</span>
               </div>
-              <p className="text-xl font-bold text-green-300">{formatCurrency(hospitalDiscount)}</p>
+              <p className="text-xl font-bold text-green-300">{formatAmount(hospitalDiscount)}</p>
               <p className="text-xs text-green-400/70 mt-1">Discount applied</p>
             </div>
           )}
@@ -182,10 +193,15 @@ const FILTER_TABS = ["All", "Approved", "Pending", "Rejected"] as const
 type FilterTab = typeof FILTER_TABS[number]
 
 export default function Bills() {
+  const { formatAmount } = useCurrency()
+  const { formatDate: fmtDate } = useLocale()
   const { data: bills, isLoading: billsLoading } = useListBills()
   const { data: claims, isLoading: claimsLoading } = useListClaims()
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<FilterTab>("All")
+  const [search, setSearch] = useState("")
+  const [sortBy, setSortBy] = useState<"amount" | "date">("amount")
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc")
 
   const isLoading = billsLoading || claimsLoading
 
@@ -194,13 +210,34 @@ export default function Bills() {
     return { ...bill, claim }
   }) ?? []
 
-  const filtered = enrichedBills.filter(b => {
-    if (activeTab === "All") return true
-    if (activeTab === "Approved") return b.status === "approved" || b.claim?.status === "approved" || b.claim?.status === "settled"
-    if (activeTab === "Pending") return b.status === "pending" || b.status === "under_review"
-    if (activeTab === "Rejected") return b.status === "rejected"
-    return true
-  })
+  function toggleSort(col: "amount" | "date") {
+    if (sortBy === col) setSortDir(d => d === "asc" ? "desc" : "asc")
+    else { setSortBy(col); setSortDir("desc") }
+  }
+
+  function SortIcon({ col }: { col: "amount" | "date" }) {
+    if (sortBy !== col) return <ChevronDown className="w-3 h-3 opacity-30 inline-block ml-0.5" />
+    return sortDir === "desc"
+      ? <ChevronDown className="w-3 h-3 inline-block ml-0.5 text-primary" />
+      : <ChevronUp className="w-3 h-3 inline-block ml-0.5 text-primary" />
+  }
+
+  const filtered = enrichedBills
+    .filter(b => {
+      const q = search.toLowerCase()
+      if (q && !b.billNumber.toLowerCase().includes(q) && !b.hospitalName.toLowerCase().includes(q) && !b.patientName.toLowerCase().includes(q)) return false
+      if (activeTab === "All") return true
+      if (activeTab === "Approved") return b.status === "approved" || b.claim?.status === "approved" || b.claim?.status === "settled"
+      if (activeTab === "Pending") return b.status === "pending" || b.status === "under_review"
+      if (activeTab === "Rejected") return b.status === "rejected"
+      return true
+    })
+    .sort((a, b) => {
+      let cmp = 0
+      if (sortBy === "amount") cmp = a.totalAmount - b.totalAmount
+      else if (sortBy === "date") cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      return sortDir === "desc" ? -cmp : cmp
+    })
 
   const totalBilled = enrichedBills.reduce((s, b) => s + b.totalAmount, 0)
   const totalDiscounts = enrichedBills.reduce((s, b) => s + (b.claim?.hospitalDiscount ?? 0), 0)
@@ -224,7 +261,7 @@ export default function Bills() {
             </div>
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Billed</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">{formatCurrency(totalBilled)}</p>
+          <p className="text-2xl font-bold text-foreground">{formatAmount(totalBilled)}</p>
         </Card>
 
         <Card className="p-4 border-blue-500/20 bg-blue-500/10">
@@ -234,7 +271,7 @@ export default function Bills() {
             </div>
             <span className="text-xs font-medium text-blue-400 uppercase tracking-wide">Insurer Pays</span>
           </div>
-          <p className="text-2xl font-bold text-blue-300">{formatCurrency(totalInsurerPays)}</p>
+          <p className="text-2xl font-bold text-blue-300">{formatAmount(totalInsurerPays)}</p>
         </Card>
 
         <Card className="p-4 border-amber-500/20 bg-amber-500/10">
@@ -244,7 +281,7 @@ export default function Bills() {
             </div>
             <span className="text-xs font-medium text-amber-400 uppercase tracking-wide">Patient Pays</span>
           </div>
-          <p className="text-2xl font-bold text-amber-300">{formatCurrency(totalPatientPays)}</p>
+          <p className="text-2xl font-bold text-amber-300">{formatAmount(totalPatientPays)}</p>
         </Card>
 
         <Card className={cn(
@@ -267,8 +304,22 @@ export default function Bills() {
           </div>
           <p className={cn("text-2xl font-bold",
             totalOutstanding > 0 ? "text-red-300" : "text-green-300"
-          )}>{totalOutstanding > 0 ? formatCurrency(totalOutstanding) : "Settled"}</p>
+          )}>{totalOutstanding > 0 ? formatAmount(totalOutstanding) : "Settled"}</p>
         </Card>
+      </div>
+
+      {/* Search */}
+      <div className="flex gap-3 items-center flex-wrap">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+          <Input placeholder="Search bill number, hospital, patient..." className="pl-9 bg-muted/30" value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+        {search && (
+          <button onClick={() => setSearch("")} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+            <X className="w-3.5 h-3.5" /> Clear
+          </button>
+        )}
+        <span className="text-xs text-muted-foreground ml-auto">{filtered.length} bill{filtered.length !== 1 ? "s" : ""}</span>
       </div>
 
       {/* Filter Tabs */}
@@ -308,18 +359,23 @@ export default function Bills() {
                 <th className="px-5 py-4 font-medium">Bill #</th>
                 <th className="px-5 py-4 font-medium">Hospital / Patient</th>
                 <th className="px-5 py-4 font-medium">Linked Claim</th>
-                <th className="px-5 py-4 font-medium text-right">Total Billed</th>
+                <th className="px-5 py-4 font-medium text-right cursor-pointer hover:text-foreground" onClick={() => toggleSort("amount")}>
+                  Total Billed <SortIcon col="amount" />
+                </th>
                 <th className="px-5 py-4 font-medium text-right text-green-400">– Discount</th>
                 <th className="px-5 py-4 font-medium text-right text-blue-400">Insurer Pays</th>
                 <th className="px-5 py-4 font-medium text-right text-amber-400">Patient Pays</th>
                 <th className="px-5 py-4 font-medium">Status</th>
+                <th className="px-5 py-4 font-medium cursor-pointer hover:text-foreground" onClick={() => toggleSort("date")}>
+                  Date <SortIcon col="date" />
+                </th>
                 <th className="px-5 py-4 w-8"></th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-10 text-center text-muted-foreground">
+                  <td colSpan={10} className="px-6 py-10 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
                       Loading bills…
@@ -361,25 +417,28 @@ export default function Bills() {
                         )}
                       </td>
                       <td className="px-5 py-4 text-right font-bold text-foreground tabular-nums">
-                        {formatCurrency(bill.totalAmount)}
+                        {formatAmount(bill.totalAmount)}
                       </td>
                       <td className="px-5 py-4 text-right tabular-nums">
                         {discount > 0
-                          ? <span className="text-green-400 font-semibold">– {formatCurrency(discount)}</span>
+                          ? <span className="text-green-400 font-semibold">– {formatAmount(discount)}</span>
                           : <span className="text-muted-foreground/30">—</span>}
                       </td>
                       <td className="px-5 py-4 text-right tabular-nums">
                         {insurerPays > 0
-                          ? <span className="text-blue-400 font-bold">{formatCurrency(insurerPays)}</span>
+                          ? <span className="text-blue-400 font-bold">{formatAmount(insurerPays)}</span>
                           : <span className="text-muted-foreground/30">—</span>}
                       </td>
                       <td className="px-5 py-4 text-right tabular-nums">
                         {patientPays > 0
-                          ? <span className="text-amber-400 font-semibold">{formatCurrency(patientPays)}</span>
+                          ? <span className="text-amber-400 font-semibold">{formatAmount(patientPays)}</span>
                           : <span className="text-muted-foreground/30">—</span>}
                       </td>
                       <td className="px-5 py-4">
                         <StatusBadge status={bill.status} />
+                      </td>
+                      <td className="px-5 py-4 text-xs text-muted-foreground">
+                        {fmtDate(bill.createdAt)}
                       </td>
                       <td className="px-5 py-4 text-muted-foreground/50">
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -388,8 +447,31 @@ export default function Bills() {
 
                     {isExpanded && (
                       <tr key={`${bill.id}-detail`}>
-                        <td colSpan={9} className="px-5 pb-5 pt-2 bg-muted/10">
-                          <BillDetailPanel bill={bill} />
+                        <td colSpan={10} className="px-5 pb-5 pt-2 bg-muted/10">
+                          <div className="space-y-4">
+                            <BillDetailPanel bill={bill} />
+                            {/* Payment Mode Details */}
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-3">Payment Mode Details</p>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                {PAYMENT_MODES.map(mode => (
+                                  <div key={mode.value} className="bg-muted/20 border border-border/40 rounded-xl p-3">
+                                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                                      <mode.icon className="w-4 h-4" />
+                                      <span className="text-xs font-semibold">{mode.label}</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground/60">
+                                      {mode.value === "upi" && "UPI reference / VPA"}
+                                      {mode.value === "card" && "Debit / Credit card"}
+                                      {mode.value === "cash" && "Cash payment receipt"}
+                                      {mode.value === "neft" && "Bank transfer / RTGS"}
+                                    </p>
+                                    <p className="mt-1.5 text-[10px] bg-card border border-border/30 rounded px-2 py-1 text-muted-foreground/50 font-mono">—</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     )}
@@ -398,7 +480,7 @@ export default function Bills() {
               })}
               {!isLoading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={10} className="px-6 py-12 text-center text-muted-foreground">
                     No bills found for this filter.
                   </td>
                 </tr>

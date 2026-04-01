@@ -75,10 +75,10 @@ export function useAuth() {
 }
 
 export const ROLE_LABELS: Record<string, string> = {
-  customer: "Customer",
+  customer: "Patient Party",
   hospital: "Hospital",
   tpa: "TPA",
-  insurer: "Insurer",
+  insurer: "Insurance Company",
   admin: "Admin",
 }
 

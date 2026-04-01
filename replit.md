@@ -189,6 +189,39 @@ Express 5 with pino logging, express-session, bcryptjs.
 - **Threads/Messages**: `threadsTable` (threads) + `messagesTable` (thread_messages) added in `lib/db/src/schema/threads.ts` — user messaging system distinct from AI conversations.
 - **AI Messages**: renamed to `aiMessages` (table: `ai_messages`) to avoid conflict with existing messages table.
 
+### Session 3 Features (Bills, Settlements, Global Search, Role UI)
+
+**Bills Page** (`artifacts/insurabridge/src/pages/bills.tsx`):
+- All amounts use `formatAmount()` from `useCurrency()` (INR default)
+- Search bar filters by bill #, hospital, patient name
+- Sortable "Total Billed" and "Date" columns in table header
+- Expanded row shows Payment Mode Details panel (UPI/Card/Cash/NEFT cards)
+- colSpan updated to 10 (added Date column)
+
+**Settlements Page** (`artifacts/insurabridge/src/pages/settlements.tsx`):
+- Fully rewritten with `useMemo` for filtering + sorting
+- Filter tabs: All / Pending / Processing / Approved / Paid / Rejected
+- Sort buttons: date / amount / patient / status (with direction toggle)
+- Search: patient name, policy, claim #, hospital name
+- Stats: 6 cards including "Total Paid Out" (currency-aware)
+- Expandable cards: Billing Breakdown grid + Payment Mode cards (highlight active mode + UTR) + Remarks section
+- Role gating: Patient Party and Hospital users cannot create or process settlements
+- All amounts use `formatAmount()` from `useCurrency()`
+
+**Global Search** (`artifacts/insurabridge/src/components/layout.tsx`):
+- Header search bar is now functional with live dropdown results
+- Searches across Claims (claimNumber, patientName, hospitalName), Bills (billNumber, patientName, hospitalName), Settlements (patientName, policyNumber, claimNumber)
+- Results show type badge (Claim/Bill/Settlement), ref number, sub-description
+- Click result → navigate to relevant page and clear search
+- "No results" message when query has 2+ chars but no matches
+- Hooks: `useListClaims`, `useListBills`, `useListReimbursementSettlements` mounted in Layout
+
+**Role-Based UI** (`artifacts/insurabridge/src/pages/claims.tsx`, `dashboard.tsx`):
+- Claims page: `isPatient` → title "My Claims" + blue read-only banner; `isHospital` → title "Cashless Claims" + green info banner; TPA/Admin/Insurer → full "Claims Management" with New Claim button
+- Dashboard: role-aware greeting with icon (User/Building2/ShieldCheck), name salutation for Patient Party, date display, role-filtered stat cards (Patient sees fewer cards)
+- All formatCurrency calls in dashboard replaced with `formatAmount()` from `useCurrency()`
+- `useMemo` and `useAuth` used throughout for efficient role checks
+
 ### AI Chatbot
 
 - **Component**: `artifacts/insurabridge/src/components/ChatbotBubble.tsx` — floating chat bubble (bottom-right) with SSE streaming, suggested questions, unread badge, clear/reset, animated open/close.

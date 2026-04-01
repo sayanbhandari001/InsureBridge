@@ -4,10 +4,29 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { StatusBadge } from "@/components/ui/status-badge"
-import { Plus, Search, X, ChevronDown, ChevronUp, Building2, ShieldCheck, User, Tag, AlertCircle, TrendingDown } from "lucide-react"
+import { Plus, Search, X, ChevronDown, ChevronUp, Building2, ShieldCheck, User, Tag, AlertCircle, TrendingDown, Clock, CreditCard, Banknote, Smartphone, ArrowUpDown, Eye, Info } from "lucide-react"
 import { formatCurrency, formatDate } from "@/lib/utils"
+import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
+import { useAuth } from "@/lib/auth"
 import { useQueryClient } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
+
+const TAT_DAYS = 30
+
+function tatDays(createdAt: string, status: string) {
+  if (status === "approved" || status === "rejected" || status === "settled") return null
+  const diffMs = Date.now() - new Date(createdAt).getTime()
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  return days
+}
+
+const PAYMENT_MODES = [
+  { value: "upi", label: "UPI", icon: Smartphone },
+  { value: "card", label: "Card", icon: CreditCard },
+  { value: "cash", label: "Cash", icon: Banknote },
+  { value: "neft", label: "NEFT / RTGS", icon: ArrowUpDown },
+]
 
 type Claim = {
   id: number
@@ -221,10 +240,21 @@ function BillBreakdown({ claim }: { claim: Claim }) {
 
 export default function Claims() {
   const queryClient = useQueryClient()
+  const { formatAmount } = useCurrency()
+  const { formatDate: fmtDate } = useLocale()
+  const { user } = useAuth()
   const { data: claims, isLoading } = useListClaims()
+
+  const isPatient = user?.role === "customer"
+  const isHospital = user?.role === "hospital"
+  const canCreate = !isPatient
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [typeFilter, setTypeFilter] = useState("all")
+  const [sortBy, setSortBy] = useState<"tat" | "date" | "amount" | "status">("tat")
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc")
 
   const createMutation = useCreateClaim({
     mutation: {
@@ -253,32 +283,111 @@ export default function Claims() {
     createMutation.mutate({ data })
   }
 
-  const filteredClaims = (claims as Claim[] | undefined)?.filter(c =>
-    c.patientName.toLowerCase().includes(search.toLowerCase()) ||
-    c.claimNumber.toLowerCase().includes(search.toLowerCase())
-  )
+  function toggleSort(col: typeof sortBy) {
+    if (sortBy === col) setSortDir(d => d === "asc" ? "desc" : "asc")
+    else { setSortBy(col); setSortDir("desc") }
+  }
+
+  function SortIcon({ col }: { col: typeof sortBy }) {
+    if (sortBy !== col) return <ChevronDown className="w-3 h-3 opacity-30 inline-block ml-0.5" />
+    return sortDir === "desc"
+      ? <ChevronDown className="w-3 h-3 inline-block ml-0.5 text-primary" />
+      : <ChevronUp className="w-3 h-3 inline-block ml-0.5 text-primary" />
+  }
+
+  const filteredClaims = (claims as Claim[] | undefined)
+    ?.filter(c => {
+      const q = search.toLowerCase()
+      if (q && !c.patientName.toLowerCase().includes(q) && !c.claimNumber.toLowerCase().includes(q) && !(c.hospitalName ?? "").toLowerCase().includes(q)) return false
+      if (statusFilter !== "all" && c.status !== statusFilter) return false
+      if (typeFilter !== "all" && c.claimType !== typeFilter) return false
+      return true
+    })
+    .sort((a, b) => {
+      let cmp = 0
+      if (sortBy === "tat") {
+        const tA = tatDays(a.createdAt, a.status) ?? -1
+        const tB = tatDays(b.createdAt, b.status) ?? -1
+        cmp = tA - tB
+      } else if (sortBy === "date") {
+        cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      } else if (sortBy === "amount") {
+        cmp = a.claimedAmount - b.claimedAmount
+      } else if (sortBy === "status") {
+        cmp = a.status.localeCompare(b.status)
+      }
+      return sortDir === "desc" ? -cmp : cmp
+    })
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">Claims Management</h1>
-          <p className="text-muted-foreground mt-1">Track and manage insurance claims with full payment bifurcation.</p>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            {isPatient ? "My Claims" : isHospital ? "Cashless Claims" : "Claims Management"}
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            {isPatient
+              ? "View the status and details of your submitted insurance claims."
+              : isHospital
+              ? "Manage cashless claim approvals and track payment status from insurers."
+              : "Track and manage insurance claims with full payment bifurcation. Default sort: TAT exceeded (longest first)."}
+          </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
-          <Plus className="w-4 h-4" /> New Claim
-        </Button>
+        {canCreate && (
+          <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+            <Plus className="w-4 h-4" /> New Claim
+          </Button>
+        )}
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50" />
-        <Input
-          placeholder="Search by patient or claim ID..."
-          className="pl-9 bg-muted/30 border-border text-foreground placeholder:text-muted-foreground/50"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+      {/* Role-based banners */}
+      {isPatient && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-blue-500/10 border border-blue-500/30 rounded-xl text-sm">
+          <Eye className="w-4 h-4 text-blue-400 shrink-0" />
+          <p className="text-blue-300">You are viewing your claims in read-only mode. Contact your TPA or insurer for any queries.</p>
+        </div>
+      )}
+      {isHospital && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-green-500/10 border border-green-500/30 rounded-xl text-sm">
+          <Info className="w-4 h-4 text-green-400 shrink-0" />
+          <p className="text-green-300">Showing cashless claim requests for your facility. Reimbursement claims are managed by TPA/Insurer.</p>
+        </div>
+      )}
+
+      {/* Search + Filters */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50" />
+          <Input
+            placeholder="Search by patient, claim ID, hospital..."
+            className="pl-9 bg-muted/30 border-border text-foreground placeholder:text-muted-foreground/50"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+          className="px-3 py-2 text-xs rounded-lg bg-muted/40 border border-border text-foreground outline-none">
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="under_review">Under Review</option>
+          <option value="approved">Approved</option>
+          <option value="settled">Settled</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+          className="px-3 py-2 text-xs rounded-lg bg-muted/40 border border-border text-foreground outline-none">
+          <option value="all">All Types</option>
+          <option value="cashless">Cashless</option>
+          <option value="reimbursement">Reimbursement</option>
+        </select>
+        {(search || statusFilter !== "all" || typeFilter !== "all") && (
+          <button onClick={() => { setSearch(""); setStatusFilter("all"); setTypeFilter("all") }}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <X className="w-3.5 h-3.5" /> Clear
+          </button>
+        )}
+        <span className="text-xs text-muted-foreground ml-auto">{filteredClaims?.length ?? 0} claim{filteredClaims?.length !== 1 ? "s" : ""}</span>
       </div>
 
       {/* Claims Table */}
@@ -290,11 +399,18 @@ export default function Claims() {
                 <th className="px-5 py-4 font-medium">Claim ID</th>
                 <th className="px-5 py-4 font-medium">Patient</th>
                 <th className="px-5 py-4 font-medium">Hospital</th>
-                <th className="px-5 py-4 font-medium">Total Bill</th>
+                <th className="px-5 py-4 font-medium cursor-pointer hover:text-foreground" onClick={() => toggleSort("amount")}>
+                  Total Bill <SortIcon col="amount" />
+                </th>
                 <th className="px-5 py-4 font-medium text-green-400">– Discount</th>
                 <th className="px-5 py-4 font-medium text-blue-400">Insurer Pays</th>
                 <th className="px-5 py-4 font-medium text-amber-400">Patient Pays</th>
-                <th className="px-5 py-4 font-medium">Status</th>
+                <th className="px-5 py-4 font-medium cursor-pointer hover:text-foreground" onClick={() => toggleSort("status")}>
+                  Status <SortIcon col="status" />
+                </th>
+                <th className="px-5 py-4 font-medium cursor-pointer hover:text-foreground text-red-400" onClick={() => toggleSort("tat")}>
+                  TAT <SortIcon col="tat" />
+                </th>
                 <th className="px-5 py-4 w-8"></th>
               </tr>
             </thead>
@@ -328,30 +444,44 @@ export default function Claims() {
                         <div className="text-xs text-muted-foreground mt-0.5">{claim.diagnosis || "—"}</div>
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">{claim.hospitalName || "—"}</td>
-                      <td className="px-5 py-4 font-bold text-foreground tabular-nums">{formatCurrency(claim.claimedAmount)}</td>
+                      <td className="px-5 py-4 font-bold text-foreground tabular-nums">{formatAmount(claim.claimedAmount)}</td>
                       <td className="px-5 py-4 tabular-nums">
                         {claim.hospitalDiscount
-                          ? <span className="text-green-400 font-semibold">– {formatCurrency(claim.hospitalDiscount)}</span>
+                          ? <span className="text-green-400 font-semibold">– {formatAmount(claim.hospitalDiscount)}</span>
                           : <span className="text-muted-foreground/30">—</span>}
                       </td>
                       <td className="px-5 py-4 tabular-nums">
                         {paidByInsurer
-                          ? <span className="text-blue-400 font-bold">{formatCurrency(paidByInsurer)}</span>
+                          ? <span className="text-blue-400 font-bold">{formatAmount(paidByInsurer)}</span>
                           : <span className="text-muted-foreground/30">—</span>}
                       </td>
                       <td className="px-5 py-4 tabular-nums">
                         {paidByCustomer
-                          ? <span className="text-amber-400 font-semibold">{formatCurrency(paidByCustomer)}</span>
+                          ? <span className="text-amber-400 font-semibold">{formatAmount(paidByCustomer)}</span>
                           : <span className="text-muted-foreground/30">—</span>}
                       </td>
                       <td className="px-5 py-4"><StatusBadge status={claim.status} /></td>
+                      <td className="px-5 py-4">
+                        {(() => {
+                          const tat = tatDays(claim.createdAt, claim.status)
+                          if (tat === null) return <span className="text-muted-foreground/30 text-xs">—</span>
+                          const exceeded = tat > TAT_DAYS
+                          return (
+                            <span className={cn("flex items-center gap-1 text-xs font-semibold",
+                              exceeded ? "text-red-500" : tat > TAT_DAYS * 0.8 ? "text-amber-500" : "text-green-500")}>
+                              <Clock className="w-3 h-3" />
+                              {tat}d{exceeded ? " !" : ""}
+                            </span>
+                          )
+                        })()}
+                      </td>
                       <td className="px-5 py-4 text-muted-foreground/50">
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </td>
                     </tr>
                     {isExpanded && (
                       <tr>
-                        <td colSpan={9} className="px-5 pb-5 pt-2 bg-muted/10">
+                        <td colSpan={10} className="px-5 pb-5 pt-2 bg-muted/10">
                           <div className="border border-border/50 rounded-xl overflow-hidden">
                             <div className="bg-card px-5 py-3 border-b border-border/50 flex items-center gap-3 flex-wrap">
                               <span className="font-semibold text-foreground">{claim.patientName}</span>
@@ -359,10 +489,35 @@ export default function Claims() {
                               <span className="text-xs text-muted-foreground font-mono">{claim.policyNumber}</span>
                               <span className="text-xs text-muted-foreground/40">·</span>
                               <span className="text-xs capitalize text-muted-foreground">{claim.claimType} claim</span>
+                              <span className="text-xs text-muted-foreground/40">·</span>
+                              <span className="text-xs text-muted-foreground">Filed: {fmtDate(claim.createdAt)}</span>
                               <span className="ml-auto"><StatusBadge status={claim.status} /></span>
                             </div>
-                            <div className="p-5">
+                            <div className="p-5 space-y-5">
                               <BillBreakdown claim={claim} />
+                              {/* Payment Mode Section */}
+                              <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-3">Payment Mode Details</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                  {PAYMENT_MODES.map(mode => (
+                                    <div key={mode.value} className="bg-muted/20 border border-border/40 rounded-xl p-3">
+                                      <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                                        <mode.icon className="w-4 h-4" />
+                                        <span className="text-xs font-semibold">{mode.label}</span>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground/60">
+                                        {mode.value === "upi" && "UPI reference / VPA"}
+                                        {mode.value === "card" && "Debit / Credit card"}
+                                        {mode.value === "cash" && "Cash payment receipt"}
+                                        {mode.value === "neft" && "Bank transfer / RTGS"}
+                                      </p>
+                                      <p className="mt-1.5 text-[10px] bg-card border border-border/30 rounded px-2 py-1 text-muted-foreground/50 font-mono">
+                                        {mode.value === "upi" ? "—" : mode.value === "neft" ? "—" : "—"}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </td>
