@@ -1,7 +1,7 @@
 /**
- * InsuraBridge logo — clean modern wordmark with a bridge-connector icon.
- * No shield. Uses a minimal "bridge node" mark: two dots connected by a
- * rising arc, representing connected healthcare stakeholders.
+ * InsuraBridge official logo — using the brand kit SVG icon.
+ * Icon: two connected person figures joined by an arch bridge (the official mark).
+ * Wordmark: "Insura" (white/light) + "Bridge" (teal gradient).
  */
 
 interface LogoProps {
@@ -9,6 +9,7 @@ interface LogoProps {
   showText?: boolean
   textSize?: string
   className?: string
+  variant?: "icon-dark" | "icon-gradient" | "icon-transparent"
 }
 
 export function InsuraBridgeLogo({
@@ -16,80 +17,105 @@ export function InsuraBridgeLogo({
   showText = true,
   textSize = "1rem",
   className = "",
+  variant = "icon-dark",
 }: LogoProps) {
-  const id = `ib-${size}`
-  const r = size / 36 // scale ratio
+  const uid = `ib-${size}-${variant}`
 
   return (
-    <div className={`flex items-center gap-2 flex-shrink-0 select-none ${className}`}>
-      {/* ── Icon: bridge-node mark ────────────────────────── */}
+    <div className={`flex items-center gap-2.5 flex-shrink-0 select-none ${className}`}>
+      {/* ── Official Bridge-People Icon ──────────────────────── */}
       <svg
         width={size}
         height={size}
-        viewBox="0 0 36 36"
+        viewBox="0 0 180 180"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        aria-label="InsuraBridge"
+        aria-label="InsuraBridge icon"
       >
         <defs>
-          <linearGradient id={`${id}-g1`} x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#60a5fa" />
-            <stop offset="100%" stopColor="#34d399" />
+          <linearGradient id={`${uid}-bg`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#1B3A6B" />
+            <stop offset="100%" stopColor="#00897B" />
           </linearGradient>
-          <linearGradient id={`${id}-bg`} x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#1e3a5f" />
-            <stop offset="100%" stopColor="#0d4a40" />
+          <linearGradient id={`${uid}-arch`} x1="0%" y1="0%" x2="100%" y2="60%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="100%" stopColor="#00BFA5" />
           </linearGradient>
-          <filter id={`${id}-glow`}>
-            <feGaussianBlur stdDeviation="1.2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          <linearGradient id={`${uid}-person`} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="100%" stopColor="#bfdbfe" />
+          </linearGradient>
+          <filter id={`${uid}-glow`} x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
 
-        {/* Rounded square background */}
-        <rect width="36" height="36" rx="9" fill={`url(#${id}-bg)`} />
-        <rect width="36" height="36" rx="9" fill="none" stroke="rgba(96,165,250,0.2)" strokeWidth="1" />
+        {/* Background rounded square */}
+        {variant !== "icon-transparent" && (
+          <rect width="180" height="180" rx="36" fill={`url(#${uid}-bg)`} />
+        )}
 
-        {/* Left node */}
-        <circle cx="9" cy="22" r="3.2" fill={`url(#${id}-g1)`} />
+        {/* Bridge scene centered at (90, 86) */}
+        <g transform="translate(90, 86)">
+          {/* Left person — head */}
+          <circle cx="-36" cy="0" r="11" fill={`url(#${uid}-person)`} />
+          {/* Left person — body */}
+          <path d="M -46 13 Q -48 28 -46 42 L -26 42 Q -24 28 -26 13 Z" fill={`url(#${uid}-person)`} />
+          {/* Left person — arm reaching right */}
+          <path d="M -26 21 Q -17 17 -8 15" stroke={`url(#${uid}-person)`} strokeWidth="5" strokeLinecap="round" fill="none" />
+          {/* Left arm endpoint dot */}
+          <circle cx="-8" cy="15" r="4" fill="#00BFA5" />
 
-        {/* Right node */}
-        <circle cx="27" cy="22" r="3.2" fill={`url(#${id}-g1)`} />
+          {/* Right person — head */}
+          <circle cx="36" cy="0" r="11" fill={`url(#${uid}-person)`} />
+          {/* Right person — body */}
+          <path d="M 26 13 Q 24 28 26 42 L 46 42 Q 48 28 46 13 Z" fill={`url(#${uid}-person)`} />
+          {/* Right person — arm reaching left */}
+          <path d="M 26 21 Q 17 17 8 15" stroke={`url(#${uid}-person)`} strokeWidth="5" strokeLinecap="round" fill="none" />
+          {/* Right arm endpoint dot */}
+          <circle cx="8" cy="15" r="4" fill="#00BFA5" />
 
-        {/* Bridge arch connecting them */}
-        <path
-          d="M9 22 C9 10 27 10 27 22"
-          stroke={`url(#${id}-g1)`}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          fill="none"
-          filter={`url(#${id}-glow)`}
-        />
+          {/* Arch bridge connecting both sides */}
+          <path
+            d="M -32 15 Q 0 -36 32 15"
+            stroke={`url(#${uid}-arch)`}
+            strokeWidth="5.5"
+            strokeLinecap="round"
+            fill="none"
+            filter={`url(#${uid}-glow)`}
+          />
 
-        {/* Top node (apex of arch — the bridge tower) */}
-        <circle cx="18" cy="11.5" r="2.4" fill={`url(#${id}-g1)`} opacity="0.85" />
+          {/* Keystone dot at arch apex */}
+          <circle cx="0" cy="-22" r="6.5" fill="white" />
+          <circle cx="0" cy="-22" r="3.5" fill="#00BFA5" />
 
-        {/* Vertical drop lines from apex */}
-        <line x1="18" y1="13.8" x2="18" y2="21.5" stroke="rgba(96,165,250,0.35)" strokeWidth="1" strokeDasharray="2 1.5" />
+          {/* Ground line */}
+          <line x1="-48" y1="47" x2="48" y2="47" stroke="rgba(255,255,255,0.55)" strokeWidth="3.5" strokeLinecap="round" />
+        </g>
       </svg>
 
-      {/* ── Wordmark ─────────────────────────────────────── */}
+      {/* ── Wordmark ─────────────────────────────────────────── */}
       {showText && (
         <span
           style={{
-            fontSize: textSize,
+            fontFamily: "'Plus Jakarta Sans','Inter','Helvetica Neue',Arial,sans-serif",
             fontWeight: 700,
-            letterSpacing: "-0.025em",
-            fontFamily: "'Inter', 'Outfit', sans-serif",
+            fontSize: textSize,
+            letterSpacing: "-0.02em",
             lineHeight: 1,
           }}
         >
           <span style={{ color: "#e2e8f0" }}>Insura</span>
           <span
             style={{
-              background: "linear-gradient(90deg, #60a5fa 0%, #34d399 100%)",
+              background: "linear-gradient(90deg, #60a5fa 0%, #2dd4bf 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
             }}
           >
             Bridge
