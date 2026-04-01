@@ -20,6 +20,7 @@ import settlementsRouter from "./settlements";
 import appFeedbackRouter from "./app_feedback";
 import retentionRouter from "./retention";
 import policyLineageRouter from "./policy-lineage";
+import chatbotRouter from "./chatbot";
 
 const router: IRouter = Router();
 
@@ -44,5 +45,6 @@ router.use(settlementsRouter);
 router.use(appFeedbackRouter);
 router.use(retentionRouter);
 router.use(policyLineageRouter);
+router.use(chatbotRouter);
 
 export default router;

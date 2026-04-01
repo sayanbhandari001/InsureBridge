@@ -922,14 +922,71 @@ export default function Home() {
       {/* ══ FOOTER ═════════════════════════════════════════════════ */}
       <footer className="relative z-10 border-t border-border py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <InsuraBridgeLogo size={28} textSize="0.85rem" animated={false} />
-            <div className="flex items-center gap-6">
-              {["Privacy", "Terms", "Security", "Contact"].map((l) => (
-                <button key={l} className="text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</button>
-              ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Brand */}
+            <div className="flex flex-col gap-3">
+              <InsuraBridgeLogo size={28} textSize="0.85rem" animated={false} />
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+                India's unified health insurance platform connecting TPAs, Insurers, Hospitals, and Members.
+              </p>
             </div>
+
+            {/* Quick links */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3">Legal</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { label: "Privacy Policy", href: "/privacy" },
+                  { label: "Terms of Service", href: "/terms" },
+                  { label: "Security", href: "/security" },
+                ].map(({ label, href }) => (
+                  <button
+                    key={label}
+                    onClick={() => navigate(href)}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors text-left w-fit"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3">Contact</p>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="mailto:sayanbhandari007@gmail.com"
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  sayanbhandari007@gmail.com
+                </a>
+                <a
+                  href="tel:+918806822007"
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  +91 8806822007
+                </a>
+                <a
+                  href="tel:+917908815767"
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  +91 7908815767
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground">© 2026 InsuraBridge · IRDAI Compliant · All rights reserved</p>
+            <div className="flex items-center gap-4">
+              <button onClick={() => navigate("/network-join")} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                Join Network
+              </button>
+              <button onClick={() => navigate("/login")} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                Portal Login
+              </button>
+            </div>
           </div>
         </div>
       </footer>

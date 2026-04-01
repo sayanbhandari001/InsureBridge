@@ -12,6 +12,9 @@ import { ThemeProvider } from "@/lib/theme-context"
 import Home from "@/pages/home"
 import NetworkJoin from "@/pages/network-join"
 import Login from "@/pages/login"
+import Privacy from "@/pages/privacy"
+import Terms from "@/pages/terms"
+import Security from "@/pages/security"
 import Dashboard from "@/pages/dashboard"
 import Claims from "@/pages/claims"
 import Chat from "@/pages/chat"
@@ -29,6 +32,7 @@ import Members from "@/pages/members"
 import Settlements from "@/pages/settlements"
 import Retention from "@/pages/retention"
 import NotFound from "@/pages/not-found"
+import { ChatbotBubble } from "@/components/ChatbotBubble"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +57,9 @@ function ProtectedRouter() {
         <Route path="/" component={Home} />
         <Route path="/network-join" component={NetworkJoin} />
         <Route path="/login" component={Login} />
+        <Route path="/privacy" component={Privacy} />
+        <Route path="/terms" component={Terms} />
+        <Route path="/security" component={Security} />
         <Route>
           <Redirect to="/" />
         </Route>
@@ -103,6 +110,7 @@ function AppContent() {
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>
+      <ChatbotBubble />
     </>
   )
 }

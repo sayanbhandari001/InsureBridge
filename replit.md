@@ -186,3 +186,23 @@ Express 5 with pino logging, express-session, bcryptjs.
 - Manual seed: `pnpm --filter @workspace/scripts run seed`
 - **Data Retention**: All 15 record tables have `expires_at = created_at + 1 year` (DB default). Drizzle schema uses `sql\`NOW() + INTERVAL '1 year'\`` default. Purge route deletes `WHERE expires_at < NOW()`.
 - **Call Logs**: `summary` and `final_decision` columns added for call summaries and agreed decisions.
+- **Threads/Messages**: `threadsTable` (threads) + `messagesTable` (thread_messages) added in `lib/db/src/schema/threads.ts` — user messaging system distinct from AI conversations.
+- **AI Messages**: renamed to `aiMessages` (table: `ai_messages`) to avoid conflict with existing messages table.
+
+### AI Chatbot
+
+- **Component**: `artifacts/insurabridge/src/components/ChatbotBubble.tsx` — floating chat bubble (bottom-right) with SSE streaming, suggested questions, unread badge, clear/reset, animated open/close.
+- **Endpoint**: `POST /api/chatbot/message` — stateless SSE endpoint, accepts `{ messages: [...] }`, streams `{ content }` / `{ done: true }` SSE events.
+- **Model**: `gpt-5.2` via `@workspace/integrations-openai-ai-server`.
+- **Visible on**: all pages (mounted outside router in AppContent).
+
+### Legal Pages
+
+- `/privacy` — Privacy Policy (8 sections, IRDAI compliant)
+- `/terms` — Terms of Service (11 sections, governed by Indian law)  
+- `/security` — Security page (pillars, practices, certifications, vulnerability reporting)
+- All have sticky header with logo + theme toggle + Back button, and chatbot bubble.
+
+### Footer (home.tsx)
+
+Updated to 3-column grid: Brand description | Legal links (Privacy, Terms, Security) | Contact info (email + two phone numbers). Bottom bar has copyright + Join Network + Portal Login links.
