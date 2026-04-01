@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/lib/auth"
 import { Layout } from "@/components/layout"
 import { NavProvider, useNavLoading } from "@/lib/nav-context"
 import { PageLoader } from "@/components/PageLoader"
+import { ThemeProvider } from "@/lib/theme-context"
 
 // Pages
 import Home from "@/pages/home"
@@ -108,9 +109,11 @@ function AppContent() {
 
 function App() {
   return (
-    <NavProvider>
-      <AppContent />
-    </NavProvider>
+    <ThemeProvider>
+      <NavProvider>
+        <AppContent />
+      </NavProvider>
+    </ThemeProvider>
   )
 }
 

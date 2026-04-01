@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 interface NavItem {
   name: string
@@ -189,6 +190,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2" ref={notifRef}>
+            <ThemeToggle />
             <div className="relative">
               <button
                 className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full transition-colors"

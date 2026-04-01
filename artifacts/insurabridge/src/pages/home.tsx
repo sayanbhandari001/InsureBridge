@@ -13,6 +13,7 @@ import {
   Landmark, LayoutDashboard,
 } from "lucide-react"
 import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import { useAppNavigate } from "@/hooks/use-navigate"
 
 /* ─── Data ──────────────────────────────────────────────────── */
@@ -353,8 +354,9 @@ function NavBar({
             ))}
           </nav>
 
-          {/* CTAs */}
+          {/* CTAs + Theme toggle */}
           <div className="hidden sm:flex items-center gap-2.5">
+            <ThemeToggle />
             <motion.button
               whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
               onClick={() => navigate("/network-join")}

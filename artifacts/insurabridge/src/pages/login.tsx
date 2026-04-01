@@ -6,6 +6,8 @@ import { useAppNavigate } from "@/hooks/use-navigate"
 import { ParticleNetwork } from "@/components/ParticleNetwork"
 import { AuroraBackground } from "@/components/AuroraBackground"
 import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
+import { ThemeToggle } from "@/components/ThemeToggle"
+import { useTheme } from "@/lib/theme-context"
 
 const roles = [
   { label: "TPA",      slug: "tpa",      color: "#1B3A6B", email: "ops@meditpa.com" },
@@ -96,15 +98,15 @@ function EmailSuggest({
   return (
     <div ref={ref} className="relative">
       <div className="relative">
-        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#475569" }} />
+        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
         <input
           type="email"
           value={value}
           required
           placeholder="you@example.com"
           autoComplete="off"
-          className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm outline-none transition-all"
-          style={{ background: "rgba(14,26,54,0.85)", border: `1.5px solid ${focused ? activeColor : "#1c3360"}`, color: "#e2e8f0" }}
+          className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm outline-none transition-all bg-card text-foreground placeholder:text-muted-foreground/50"
+          style={{ border: `1.5px solid ${focused ? activeColor : "hsl(var(--border))"}` }}
           onChange={e => { onChange(e.target.value); setOpen(true) }}
           onFocus={() => { setFocused(true); setOpen(true) }}
           onBlur={() => setFocused(false)}
@@ -119,13 +121,8 @@ function EmailSuggest({
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
             exit={{ opacity: 0, scaleY: 0.9 }}
             transition={{ duration: 0.18 }}
-            className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl overflow-hidden"
-            style={{
-              background: "rgba(6,12,26,0.98)",
-              border: "1.5px solid #1c3360",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.65)",
-              transformOrigin: "top",
-            }}
+            className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl overflow-hidden bg-card border border-border shadow-xl"
+            style={{ transformOrigin: "top" }}
           >
             {suggestions.map((s, i) => {
               const [sLocal, sDomain] = s.split("@")
@@ -136,16 +133,10 @@ function EmailSuggest({
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0, transition: { delay: i * 0.04 } }}
                   onMouseDown={() => { onChange(s); setOpen(false) }}
-                  className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 transition-colors"
-                  style={{
-                    color: "#e2e8f0",
-                    borderBottom: i < suggestions.length - 1 ? "1px solid #1c336040" : "none",
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                  className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-muted/60 transition-colors text-foreground border-b border-border/40 last:border-0"
                 >
                   <Mail className="w-3 h-3 flex-shrink-0" style={{ color: activeColor }} />
-                  <span style={{ color: "#94a3b8" }}>{sLocal}</span>
+                  <span className="text-muted-foreground">{sLocal}</span>
                   <span style={{ color: activeColor }}>@{sDomain}</span>
                 </motion.button>
               )
@@ -204,18 +195,20 @@ export default function Login() {
     }
   }
 
-  const bg       = "linear-gradient(145deg, #060c1a 0%, #081428 45%, #060f12 100%)"
-  const cardBg   = "rgba(8,18,38,0.88)"
-  const heading  = "#f1f5f9"
-  const sub      = "#64748b"
-  const labelClr = "#94a3b8"
-  const inputBg  = "rgba(14,26,54,0.85)"
-  const inputBdr = "#1c3360"
-  const inputClr = "#e2e8f0"
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
+  const cardBg   = isDark ? "rgba(8,18,38,0.92)" : "rgba(255,255,255,0.94)"
+  const cardBdr  = isDark ? "#1c3360" : "hsl(var(--border))"
+  const inputBg  = isDark ? "rgba(14,26,54,0.85)" : "hsl(var(--card))"
+  const inputBdr = "hsl(var(--border))"
+  const inputClr = "hsl(var(--foreground))"
+  const bgStyle  = isDark
+    ? "linear-gradient(145deg, #060c1a 0%, #081428 45%, #060f12 100%)"
+    : "linear-gradient(145deg, hsl(210 25% 90%) 0%, hsl(210 22% 94%) 100%)"
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: bg, fontFamily: "'Inter', sans-serif" }}
+      style={{ background: bgStyle }}
       aria-label="InsuraBridge Portal Login"
     >
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -243,8 +236,8 @@ export default function Login() {
           className="rounded-2xl p-8 shadow-2xl backdrop-blur-xl"
           style={{
             background: cardBg,
-            border: "1.5px solid #1c3360",
-            boxShadow: `0 8px 48px rgba(0,0,0,0.55), 0 0 80px ${activeColor}18`,
+            border: `1.5px solid ${cardBdr}`,
+            boxShadow: `0 8px 48px rgba(0,0,0,0.45), 0 0 80px ${activeColor}18`,
             transition: "box-shadow 0.4s ease",
           }}
         >
@@ -256,22 +249,24 @@ export default function Login() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.15 }}
             whileHover={{ x: -3 }}
-            className="flex items-center gap-1.5 mb-5 text-xs font-medium transition-colors group"
-            style={{ color: sub }}
+            className="flex items-center gap-1.5 mb-5 text-xs font-medium transition-colors group text-muted-foreground hover:text-foreground"
             aria-label="Back to homepage"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
             Back to homepage
           </motion.button>
 
-          {/* Logo */}
+          {/* Logo + theme toggle */}
           <div className="flex items-center justify-between mb-6">
             <InsuraBridgeLogo size={38} textSize="1rem" />
-            <p className="text-xs" style={{ color: sub }}>Unified Insurance Portal</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-muted-foreground">Unified Insurance Portal</p>
+              <ThemeToggle />
+            </div>
           </div>
 
-          <h1 className="text-2xl font-bold mb-1" style={{ color: heading }}>Welcome back</h1>
-          <p className="text-sm mb-5" style={{ color: sub }}>Sign in to access your role dashboard</p>
+          <h1 className="text-2xl font-bold mb-1 text-foreground">Welcome back</h1>
+          <p className="text-sm mb-5 text-muted-foreground">Sign in to access your role dashboard</p>
 
           {/* Demo banner */}
           <motion.div
@@ -282,15 +277,15 @@ export default function Login() {
             <Zap className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "#00897B" }} />
             <div>
               <p className="text-xs font-semibold" style={{ color: "#34d399" }}>Demo Mode</p>
-              <p className="text-xs mt-0.5" style={{ color: sub }}>
-                Select a role and click <strong className="text-white/70">Fill Demo</strong> to auto-fill credentials.
+              <p className="text-xs mt-0.5 text-muted-foreground">
+                Select a role and click <strong className="text-foreground/80">Fill Demo</strong> to auto-fill credentials.
               </p>
             </div>
           </motion.div>
 
           {/* Role pills */}
           <div className="mb-5">
-            <p className="text-xs font-medium mb-2" style={{ color: labelClr }}>Select your role</p>
+            <p className="text-xs font-medium mb-2 text-muted-foreground">Select your role</p>
             <div className="flex flex-wrap gap-2">
               {roles.map((role, idx) => {
                 const active = selectedRole === idx
@@ -303,9 +298,9 @@ export default function Login() {
                     whileHover={{ scale: 1.04 }}
                     className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                     style={{
-                      background: active ? role.color + "33" : "rgba(14,26,54,0.7)",
-                      border: `1.5px solid ${active ? role.color : "#1c3360"}`,
-                      color: active ? "#f1f5f9" : "#64748b",
+                      background: active ? role.color + "33" : "hsl(var(--muted))",
+                      border: `1.5px solid ${active ? role.color : "hsl(var(--border))"}`,
+                      color: active ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
                       boxShadow: active ? `0 0 14px ${role.color}44` : "none",
                       transition: "all 0.2s ease",
                     }}
@@ -321,7 +316,7 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: labelClr }}>Email address</label>
+              <label className="block text-xs font-medium mb-1.5 text-muted-foreground">Email address</label>
               <EmailSuggest
                 value={email}
                 onChange={v => { setEmail(v); setError("") }}
@@ -332,23 +327,23 @@ export default function Login() {
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: labelClr }}>Password</label>
+              <label className="block text-xs font-medium mb-1.5 text-muted-foreground">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#475569" }} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={e => { setPassword(e.target.value); setError("") }}
                   required
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all"
+                  className="w-full pl-9 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all bg-card text-foreground placeholder:text-muted-foreground/50"
                   style={{ background: inputBg, border: `1.5px solid ${inputBdr}`, color: inputClr }}
                   onFocus={e => (e.target.style.borderColor = activeColor)}
                   onBlur={e => (e.target.style.borderColor = inputBdr)}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                  style={{ color: "#64748b" }} aria-label={showPassword ? "Hide password" : "Show password"}>
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? "Hide password" : "Show password"}>
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -360,8 +355,7 @@ export default function Login() {
             {/* Buttons row */}
             <div className="flex gap-2 pt-1">
               <motion.button type="button" onClick={fillDemo} whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.02 }}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                style={{ background: "rgba(14,26,54,0.7)", border: "1.5px solid #1c3360", color: "#94a3b8" }}>
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all border border-border bg-muted text-muted-foreground hover:text-foreground">
                 Fill Demo
               </motion.button>
               <motion.button type="submit"
@@ -385,8 +379,8 @@ export default function Login() {
             </div>
           </form>
 
-          <div className="mt-6 pt-5" style={{ borderTop: "1px solid #112044" }}>
-            <p className="text-center text-xs" style={{ color: "#334155" }}>© 2026 InsuraBridge · All rights reserved</p>
+          <div className="mt-6 pt-5 border-t border-border">
+            <p className="text-center text-xs text-muted-foreground">© 2026 InsuraBridge · All rights reserved</p>
           </div>
         </motion.div>
       </motion.div>

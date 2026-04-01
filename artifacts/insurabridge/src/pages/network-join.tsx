@@ -8,6 +8,7 @@ import {
 import { AuroraBackground } from "@/components/AuroraBackground"
 import { ParticleNetwork } from "@/components/ParticleNetwork"
 import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 /* ─── static data ───────────────────────────────────────────── */
 const FACILITY_TYPES = [
@@ -60,14 +61,14 @@ const EMAIL_DOMAINS = [
   "clinic.in","healthcare.in","medicenter.in","nhc.in","meditrust.in",
 ]
 
-/* ─── theme ─────────────────────────────────────────────────── */
+/* ─── theme (CSS-variable-based, works dark + light) ───────── */
 const T = {
-  bg:       "linear-gradient(145deg, #060c1a 0%, #081428 45%, #060f12 100%)",
-  card:     "rgba(8,18,38,0.88)",
-  input:    "rgba(14,26,54,0.85)",
-  border:   "#1c3360",
-  text:     "#e2e8f0",
-  label:    "#94a3b8",
+  get bg()       { return "hsl(var(--background))" },
+  get card()     { return "hsl(var(--card) / 0.92)" },
+  get input()    { return "hsl(var(--card))" },
+  get border()   { return "hsl(var(--border))" },
+  get text()     { return "hsl(var(--foreground))" },
+  get label()    { return "hsl(var(--muted-foreground))" },
   active:   "#00897B",
   error:    "#dc2626",
   errorBg:  "rgba(220,38,38,0.10)",
@@ -201,7 +202,7 @@ function AutoSuggest({
             transition={{ duration: 0.18 }}
             className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl overflow-hidden"
             style={{
-              background: "rgba(6,12,26,0.98)",
+              background: "hsl(var(--card))",
               border: `1.5px solid ${T.border}`,
               boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
               transformOrigin: "top",
@@ -219,7 +220,7 @@ function AutoSuggest({
                   color: T.text,
                   borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}40` : "none",
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                onMouseEnter={e => (e.currentTarget.style.background = "hsl(var(--muted))")}
                 onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
               >
                 {highlight ? highlight(s, value) : highlightMatch(s, value)}
@@ -261,7 +262,7 @@ function EmailField({ value, onChange, error }: { value: string; onChange: (v: s
   return (
     <div ref={ref} className="relative">
       <div className="relative">
-        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#475569" }} />
+        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
         <input
           type="email"
           value={value}
@@ -285,7 +286,7 @@ function EmailField({ value, onChange, error }: { value: string; onChange: (v: s
             exit={{ opacity: 0, scaleY: 0.92 }}
             transition={{ duration: 0.18 }}
             className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl overflow-hidden"
-            style={{ background: "rgba(6,12,26,0.98)", border: `1.5px solid ${T.border}`, boxShadow: "0 12px 40px rgba(0,0,0,0.6)", transformOrigin: "top" }}
+            style={{ background: "hsl(var(--card))", border: `1.5px solid ${T.border}`, boxShadow: "0 12px 40px rgba(0,0,0,0.6)", transformOrigin: "top" }}
           >
             {suggestions.map((s, i) => (
               <motion.button
@@ -296,7 +297,7 @@ function EmailField({ value, onChange, error }: { value: string; onChange: (v: s
                 onMouseDown={() => { onChange(s); setOpen(false) }}
                 className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors"
                 style={{ color: T.text, borderBottom: i < suggestions.length - 1 ? `1px solid ${T.border}40` : "none" }}
-                onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                onMouseEnter={e => (e.currentTarget.style.background = "hsl(var(--muted))")}
                 onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
               >
                 <Mail className="w-3 h-3 flex-shrink-0" style={{ color: T.active }} />
@@ -342,7 +343,7 @@ function FancySelect({
         type="button"
         onClick={() => { setOpen(o => !o); setSearch("") }}
         className="w-full px-4 py-2.5 rounded-xl text-sm text-left flex items-center justify-between outline-none transition-all"
-        style={{ background: T.input, border: `1.5px solid ${borderColor}`, color: value ? T.text : "#475569" }}
+        style={{ background: T.input, border: `1.5px solid ${borderColor}`, color: value ? T.text : T.label }}
       >
         <span className="flex items-center gap-2">
           {selected
@@ -350,7 +351,7 @@ function FancySelect({
             : <span>{placeholder ?? "Select an option"}</span>}
         </span>
         <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.22 }}>
-          <ChevronDown className="w-4 h-4" style={{ color: "#475569" }} />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </motion.div>
       </button>
 
@@ -366,7 +367,7 @@ function FancySelect({
             transition={{ duration: 0.2 }}
             className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl overflow-hidden"
             style={{
-              background: "rgba(6,12,26,0.98)",
+              background: "hsl(var(--card))",
               border: `1.5px solid ${T.border}`,
               boxShadow: "0 12px 48px rgba(0,0,0,0.65)",
               transformOrigin: "top",
@@ -375,14 +376,14 @@ function FancySelect({
             {/* Search bar */}
             <div className="p-2.5" style={{ borderBottom: `1px solid ${T.border}` }}>
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#475569" }} />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                 <input
                   autoFocus
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Search facility type…"
                   className="w-full pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none"
-                  style={{ background: "rgba(14,26,54,0.8)", border: `1px solid ${T.border}`, color: T.text }}
+                  style={{ background: T.input, border: `1px solid ${T.border}`, color: T.text }}
                 />
               </div>
             </div>
@@ -390,7 +391,7 @@ function FancySelect({
             {/* Options list */}
             <div className="max-h-64 overflow-y-auto">
               {filtered.length === 0 ? (
-                <p className="text-xs py-5 text-center" style={{ color: "#475569" }}>No matching types</p>
+                <p className="text-xs py-5 text-center text-muted-foreground">No matching types</p>
               ) : filtered.map((opt, i) => {
                 const isSelected = value === opt.value
                 return (
@@ -405,13 +406,13 @@ function FancySelect({
                       borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}30` : "none",
                       background: isSelected ? "rgba(0,137,123,0.1)" : "transparent",
                     }}
-                    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = "rgba(255,255,255,0.04)" }}
+                    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = "hsl(var(--muted))" }}
                     onMouseLeave={e => { e.currentTarget.style.background = isSelected ? "rgba(0,137,123,0.1)" : "transparent" }}
                   >
                     <span className="text-base mt-0.5 leading-none">{opt.icon}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold" style={{ color: isSelected ? "#34d399" : T.text }}>{opt.value}</p>
-                      <p className="text-xs mt-0.5 leading-snug" style={{ color: "#475569" }}>{opt.desc}</p>
+                      <p className="text-xs mt-0.5 leading-snug text-muted-foreground">{opt.desc}</p>
                     </div>
                     {isSelected && <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: "#34d399" }} />}
                   </motion.button>
@@ -479,10 +480,10 @@ export default function NetworkJoin() {
       >
         <InsuraBridgeLogo size={34} textSize="0.95rem" />
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             onClick={() => navigate("/")}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold"
-            style={{ background: "rgba(14,26,54,0.7)", border: "1.5px solid #1c3360", color: "#94a3b8" }}>
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border border-border bg-muted text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Home
           </motion.button>
           <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
@@ -507,7 +508,7 @@ export default function NetworkJoin() {
                 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 className="rounded-2xl p-10 text-center shadow-2xl"
-                style={{ background: T.card, border: "1.5px solid #1c3360" }}
+                style={{ background: T.card, border: `1.5px solid ${T.border}` }}
               >
                 <motion.div
                   initial={{ scale: 0 }} animate={{ scale: 1 }}
@@ -517,8 +518,8 @@ export default function NetworkJoin() {
                 >
                   <CheckCircle2 className="w-8 h-8" style={{ color: "#34d399" }} />
                 </motion.div>
-                <h2 className="text-2xl font-bold mb-2" style={{ color: "#f1f5f9" }}>Application Received!</h2>
-                <p className="text-sm mb-8" style={{ color: "#64748b" }}>
+                <h2 className="text-2xl font-bold mb-2 text-foreground">Application Received!</h2>
+                <p className="text-sm mb-8 text-muted-foreground">
                   Our empanelment team will review your application and reach out within 2–3 business days.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -528,8 +529,7 @@ export default function NetworkJoin() {
                     Go to Portal Login
                   </motion.button>
                   <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/")}
-                    className="px-6 py-2.5 rounded-xl text-sm font-semibold"
-                    style={{ background: "rgba(14,26,54,0.7)", border: "1.5px solid #1c3360", color: "#94a3b8" }}>
+                    className="px-6 py-2.5 rounded-xl text-sm font-semibold border border-border bg-muted text-muted-foreground hover:text-foreground transition-colors">
                     Back to Home
                   </motion.button>
                 </div>
@@ -541,7 +541,7 @@ export default function NetworkJoin() {
                 animate={shaking ? { x: [0, -8, 8, -6, 6, -3, 3, 0] } : {}}
                 transition={{ duration: 0.45 }}
                 className="rounded-2xl p-8 shadow-2xl"
-                style={{ background: T.card, border: "1.5px solid #1c3360" }}
+                style={{ background: T.card, border: `1.5px solid ${T.border}` }}
               >
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-6">
@@ -554,7 +554,7 @@ export default function NetworkJoin() {
                   </motion.div>
                   <div>
                     <h1 className="text-xl font-bold" style={{ color: "#f1f5f9" }}>Join the Network</h1>
-                    <p className="text-xs" style={{ color: "#64748b" }}>Apply to become a cashless empanelled facility</p>
+                    <p className="text-xs text-muted-foreground">Apply to become a cashless empanelled facility</p>
                   </div>
                 </div>
 
@@ -569,7 +569,7 @@ export default function NetworkJoin() {
                       value={form.facilityName}
                       onChange={v => handleChange("facilityName", v)}
                       suggestions={HOSPITAL_NAMES}
-                      icon={<Building2 className="w-4 h-4" style={{ color: "#475569" }} />}
+                      icon={<Building2 className="w-4 h-4 text-muted-foreground" />}
                       placeholder="e.g. Apollo Hospital, City General…"
                       required
                       error={errors.facilityName}
@@ -599,7 +599,7 @@ export default function NetworkJoin() {
                       value={form.contactPerson}
                       onChange={v => handleChange("contactPerson", v)}
                       suggestions={["Dr. ", "Mr. ", "Ms. ", "Prof. ", "Dr. Anjali Sharma", "Dr. Rajiv Mehta", "Dr. Priya Nair"]}
-                      icon={<User className="w-4 h-4" style={{ color: "#475569" }} />}
+                      icon={<User className="w-4 h-4 text-muted-foreground" />}
                       placeholder="Dr. Anjali Sharma"
                       required
                       error={errors.contactPerson}
@@ -623,7 +623,7 @@ export default function NetworkJoin() {
                         Phone <span style={{ color: T.error }}>*</span>
                       </label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#475569" }} />
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
                         <input
                           type="tel"
                           value={form.phone}
@@ -655,7 +655,7 @@ export default function NetworkJoin() {
                         value={form.city}
                         onChange={v => handleChange("city", v)}
                         suggestions={CITIES}
-                        icon={<MapPin className="w-4 h-4" style={{ color: "#475569" }} />}
+                        icon={<MapPin className="w-4 h-4 text-muted-foreground" />}
                         placeholder="Mumbai"
                         required
                         error={errors.city}
@@ -720,7 +720,7 @@ export default function NetworkJoin() {
       </main>
 
       <footer className="relative z-10 py-5" style={{ borderTop: "1px solid #112044" }}>
-        <p className="text-center text-xs" style={{ color: "#334155" }}>© 2026 InsuraBridge · All rights reserved</p>
+        <p className="text-center text-xs text-muted-foreground">© 2026 InsuraBridge · All rights reserved</p>
       </footer>
     </div>
   )
