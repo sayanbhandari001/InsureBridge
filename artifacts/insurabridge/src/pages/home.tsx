@@ -591,9 +591,9 @@ export default function Home() {
       {/* ══ HERO ═══════════════════════════════════════════════════ */}
       <section
         ref={heroRef}
-        className="relative z-10 min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24"
+        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24"
       >
-        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10 lg:gap-20 min-h-[88vh]">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10 lg:gap-20">
 
           {/* LEFT — only the logo morphs on scroll */}
           <div className="flex-none lg:w-72 flex justify-center lg:justify-start pt-8 lg:pt-16">

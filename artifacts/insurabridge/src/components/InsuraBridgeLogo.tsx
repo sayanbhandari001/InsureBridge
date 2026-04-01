@@ -240,8 +240,10 @@ export function InsuraBridgeLogo({
           fontWeight: 800,
           fontSize: textSize,
           letterSpacing: "-0.025em",
-          lineHeight: 1,
+          lineHeight: 1.2,
           display: "inline-flex",
+          paddingBottom: "0.05em",
+          overflow: "visible",
           color: "hsl(var(--foreground))",
         }}>
           {animated ? (
