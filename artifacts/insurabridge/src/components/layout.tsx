@@ -13,6 +13,7 @@ import {
 import { formatDate } from "@/lib/utils"
 import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { useTheme } from "@/lib/theme-context"
 import { useCurrency, CURRENCIES } from "@/lib/currency-context"
 import { useLocale, LOCALES } from "@/lib/locale-context"
 
@@ -60,6 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const localeRef = useRef<HTMLDivElement>(null)
   const { currency, setCurrency } = useCurrency()
   const { locale, setLocale } = useLocale()
+  const { resetToDark } = useTheme()
   const { user, logout } = useAuth()
 
   const { data: claims } = useListClaims()
@@ -146,7 +148,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         isMobileOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex h-16 items-center px-4 border-b border-[hsl(var(--sidebar-border))]">
-          <InsuraBridgeLogo size={32} textSize="0.9rem" />
+          <button
+            onClick={resetToDark}
+            title="Reset to dark mode"
+            className="focus:outline-none hover:opacity-80 transition-opacity"
+          >
+            <InsuraBridgeLogo size={32} textSize="0.9rem" />
+          </button>
           <button className="ml-auto lg:hidden text-muted-foreground hover:text-foreground p-1" onClick={() => setIsMobileOpen(false)}>
             <X size={18} />
           </button>
