@@ -242,6 +242,7 @@ export function InsuraBridgeLogo({
           letterSpacing: "-0.025em",
           lineHeight: 1,
           display: "inline-flex",
+          color: "hsl(var(--foreground))",
         }}>
           {animated ? (
             <>
@@ -251,7 +252,6 @@ export function InsuraBridgeLogo({
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22, delay: 0.3 + i * 0.045, ease: "easeOut" }}
-                  style={{ color: "#e2e8f0" }}
                 >{ch}</motion.span>
               ))}
               {BRIDGE.map((ch, i) => (
@@ -271,7 +271,7 @@ export function InsuraBridgeLogo({
             </>
           ) : (
             <>
-              <span style={{ color: "#e2e8f0" }}>Insura</span>
+              <span>Insura</span>
               <span style={{
                 background: "linear-gradient(90deg,#38bdf8 0%,#00C896 100%)",
                 WebkitBackgroundClip: "text",

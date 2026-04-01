@@ -464,8 +464,8 @@ export default function NetworkJoin() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden"
-      style={{ background: T.bg, fontFamily: "'Inter', sans-serif", color: "#f1f5f9" }}>
+    <div className="min-h-screen flex flex-col relative overflow-hidden text-foreground"
+      style={{ background: T.bg, fontFamily: "'Inter', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden>
@@ -483,14 +483,15 @@ export default function NetworkJoin() {
           <ThemeToggle />
           <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             onClick={() => navigate("/")}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border border-border bg-muted text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Home
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border border-border bg-muted text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Back to Home</span>
           </motion.button>
           <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             onClick={() => navigate("/login")}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{ background: "linear-gradient(135deg, #1B3A6B 0%, #00897B 100%)", boxShadow: "0 4px 20px rgba(0,137,123,0.35)" }}>
-            Portal Login
+            <span className="hidden sm:inline">Portal </span>Login
           </motion.button>
         </div>
       </motion.header>
@@ -553,7 +554,7 @@ export default function NetworkJoin() {
                     <Building2 className="w-5 h-5" style={{ color: "#34d399" }} />
                   </motion.div>
                   <div>
-                    <h1 className="text-xl font-bold" style={{ color: "#f1f5f9" }}>Join the Network</h1>
+                    <h1 className="text-xl font-bold text-foreground">Join the Network</h1>
                     <p className="text-xs text-muted-foreground">Apply to become a cashless empanelled facility</p>
                   </div>
                 </div>

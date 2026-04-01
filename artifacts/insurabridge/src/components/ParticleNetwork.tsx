@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react"
+import { useTheme } from "@/lib/theme-context"
 
-const COLORS_DARK = ["#00BFA5", "#00897B", "#38bdf8", "#818cf8", "#34d399"]
+const COLORS_DARK  = ["#00BFA5", "#00897B", "#38bdf8", "#818cf8", "#34d399"]
+const COLORS_LIGHT = ["#00897B", "#0284c7", "#7c3aed", "#0891b2", "#059669"]
 
 const MAX_DIST = 140
 
@@ -20,12 +22,19 @@ export function ParticleNetwork() {
   const animRef = useRef(0)
   const particles = useRef<Particle[]>([])
   const frameRef = useRef(0)
+  const { theme } = useTheme()
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
     if (!ctx) return
+
+    const isLight = theme === "light"
+    const colors = isLight ? COLORS_LIGHT : COLORS_DARK
+    const lineAlphaMulti = isLight ? 0.12 : 0.28
+    const dotOpacity = isLight ? 0.35 : 0.55
+    const glowMult = isLight ? 0.25 : 0.55
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const COUNT = 65
@@ -44,8 +53,8 @@ export function ParticleNetwork() {
         vx: (Math.random() - 0.5) * (reduced ? 0 : 0.5),
         vy: (Math.random() - 0.5) * (reduced ? 0 : 0.5),
         radius: Math.random() * 2.6 + 1,
-        opacity: Math.random() * 0.55 + 0.3,
-        color: COLORS_DARK[i % COLORS_DARK.length],
+        opacity: Math.random() * dotOpacity + (isLight ? 0.15 : 0.3),
+        color: colors[i % colors.length],
         pulseOffset: Math.random() * Math.PI * 2,
       }))
     }
@@ -70,11 +79,11 @@ export function ParticleNetwork() {
           const dy = ps[i].y - ps[j].y
           const dist = Math.sqrt(dx * dx + dy * dy)
           if (dist < MAX_DIST) {
-            const alpha = (1 - dist / MAX_DIST) * 0.28
+            const alpha = (1 - dist / MAX_DIST) * lineAlphaMulti
             ctx.beginPath()
             ctx.moveTo(ps[i].x, ps[i].y)
             ctx.lineTo(ps[j].x, ps[j].y)
-            ctx.strokeStyle = `rgba(0,191,165,${alpha})`
+            ctx.strokeStyle = isLight ? `rgba(0,137,123,${alpha})` : `rgba(0,191,165,${alpha})`
             ctx.lineWidth = 0.8
             ctx.stroke()
           }
@@ -86,7 +95,7 @@ export function ParticleNetwork() {
         const r = p.radius * (1 + pulse * 0.45)
         const glowR = r * 7
         const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR)
-        const glowAlpha = 0.55 * pulse
+        const glowAlpha = glowMult * pulse
         grd.addColorStop(0, p.color + Math.round(glowAlpha * 255).toString(16).padStart(2, "0"))
         grd.addColorStop(1, p.color + "00")
         ctx.beginPath()
@@ -117,7 +126,7 @@ export function ParticleNetwork() {
       cancelAnimationFrame(animRef.current)
       ro.disconnect()
     }
-  }, [])
+  }, [theme])
 
   return (
     <canvas

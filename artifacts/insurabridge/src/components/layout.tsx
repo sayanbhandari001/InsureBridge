@@ -205,7 +205,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </button>
 
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-96 bg-card border border-border rounded-2xl shadow-2xl shadow-black/50 z-50 overflow-hidden">
+                <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-card border border-border rounded-2xl shadow-2xl shadow-black/50 z-50 overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                     <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
                     {unreadCount > 0 && (

@@ -25,8 +25,8 @@ const PIE_COLORS = { Pending: "#fbbf24", Approved: "#34d399", Rejected: "#f87171
 function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-xl px-3 py-2 text-xs font-semibold shadow-xl"
-      style={{ background: "rgba(10,20,40,0.95)", border: "1px solid rgba(96,165,250,0.2)", color: "#e2e8f0" }}>
+    <div className="rounded-xl px-3 py-2 text-xs font-semibold shadow-xl bg-card text-foreground border border-border/60"
+      style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.25)" }}>
       {payload[0].name}: <span style={{ color: payload[0].payload.color }}>{payload[0].value}</span>
     </div>
   )
