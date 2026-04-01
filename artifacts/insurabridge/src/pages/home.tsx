@@ -335,7 +335,7 @@ function NavBar({
             style={{ opacity: headerLogoOpacity, scale: headerLogoScale }}
             className="flex items-center gap-2.5 text-foreground hover:opacity-80 transition-opacity"
           >
-            <InsuraBridgeLogo size={32} textSize="0.95rem" />
+            <InsuraBridgeLogo size={32} textSize="0.95rem" animated={false} />
           </motion.button>
 
           {/* Desktop nav */}
@@ -906,7 +906,7 @@ export default function Home() {
       <footer className="relative z-10 border-t border-border py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <InsuraBridgeLogo size={28} textSize="0.85rem" />
+            <InsuraBridgeLogo size={28} textSize="0.85rem" animated={false} />
             <div className="flex items-center gap-6">
               {["Privacy", "Terms", "Security", "Contact"].map((l) => (
                 <button key={l} className="text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</button>

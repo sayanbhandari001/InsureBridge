@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, Zap, AlertCircle, Mail, Lock } from "lucide-react"
+import { Eye, EyeOff, Zap, AlertCircle, Mail, Lock, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { useAppNavigate } from "@/hooks/use-navigate"
 import { ParticleNetwork } from "@/components/ParticleNetwork"
@@ -248,6 +248,22 @@ export default function Login() {
             transition: "box-shadow 0.4s ease",
           }}
         >
+          {/* Back to homepage */}
+          <motion.button
+            type="button"
+            onClick={() => navigate("/")}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.15 }}
+            whileHover={{ x: -3 }}
+            className="flex items-center gap-1.5 mb-5 text-xs font-medium transition-colors group"
+            style={{ color: sub }}
+            aria-label="Back to homepage"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+            Back to homepage
+          </motion.button>
+
           {/* Logo */}
           <div className="flex items-center justify-between mb-6">
             <InsuraBridgeLogo size={38} textSize="1rem" />
