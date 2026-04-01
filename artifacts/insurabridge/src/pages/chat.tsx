@@ -103,7 +103,7 @@ export default function Chat() {
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col sm:flex-row gap-6 animate-in fade-in duration-500">
       {/* Threads sidebar */}
-      <Card className="w-full sm:w-80 lg:w-96 flex-shrink-0 flex flex-col overflow-hidden border-none shadow-md bg-white">
+      <Card className="w-full sm:w-80 lg:w-96 flex-shrink-0 flex flex-col overflow-hidden border-none shadow-md bg-card">
         <div className="p-4 border-b border-border/50 flex flex-col gap-3 bg-muted/20">
           <div className="flex items-center justify-between">
             <div>
@@ -118,7 +118,7 @@ export default function Chat() {
               size="icon"
               variant="ghost"
               onClick={() => setIsNewThreadOpen(true)}
-              className="h-8 w-8 bg-white border border-border hover:border-primary/40"
+              className="h-8 w-8 bg-card border border-border hover:border-primary/40"
             >
               <Plus className="w-4 h-4 text-primary" />
             </Button>
@@ -184,7 +184,7 @@ export default function Chat() {
       </Card>
 
       {/* Chat area */}
-      <Card className="flex-1 flex flex-col overflow-hidden border-none shadow-md bg-white min-h-0">
+      <Card className="flex-1 flex flex-col overflow-hidden border-none shadow-md bg-card min-h-0">
         {activeThreadId && activeThread ? (
           <>
             {/* Thread header */}
@@ -232,7 +232,7 @@ export default function Chat() {
                     <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm text-sm leading-relaxed ${
                       isMe
                         ? "bg-primary text-primary-foreground rounded-tr-sm"
-                        : "bg-white border border-border text-foreground rounded-tl-sm"
+                        : "bg-card border border-border/50 text-foreground rounded-tl-sm"
                     }`}>
                       {msg.content}
                     </div>
@@ -243,7 +243,7 @@ export default function Chat() {
             </div>
 
             {/* Send box */}
-            <div className="p-4 bg-white border-t border-border/50">
+            <div className="p-4 bg-card border-t border-border/50">
               <form onSubmit={handleSend} className="flex gap-2 items-center">
                 <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${user ? "bg-primary" : "bg-muted/60"}`}>
                   {user?.name?.charAt(0).toUpperCase()}

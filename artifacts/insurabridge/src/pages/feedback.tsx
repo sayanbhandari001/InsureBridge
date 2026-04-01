@@ -23,7 +23,7 @@ function StarRow({ rating }: { rating: number }) {
 
 function FeedbackCard({ feedback }: { feedback: any }) {
   return (
-    <Card className="border-none shadow-md hover:shadow-lg transition-shadow bg-white">
+    <Card className="border-none shadow-md hover:shadow-lg transition-shadow bg-card">
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -43,7 +43,7 @@ function FeedbackCard({ feedback }: { feedback: any }) {
             <span className="capitalize bg-muted/40 text-muted-foreground px-2 py-0.5 rounded font-medium">{feedback.deviceType}</span>
           )}
           {feedback.status && (
-            <span className={`px-2 py-0.5 rounded text-xs font-medium ${feedback.status === "resolved" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+            <span className={`px-2 py-0.5 rounded text-xs font-medium ${feedback.status === "resolved" ? "bg-emerald-500/15 text-emerald-400" : "bg-amber-500/15 text-amber-400"}`}>
               {feedback.status}
             </span>
           )}
@@ -88,12 +88,12 @@ export default function Feedback() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Customer Reviews", value: customerFeedback?.length ?? 0, rating: avgRating(customerFeedback), color: "text-blue-600 bg-blue-50" },
-          { label: "TPA Feedback", value: tpaFeedback?.length ?? 0, rating: avgRating(tpaFeedback), color: "text-purple-600 bg-purple-50" },
-          { label: "Insurer Feedback", value: insurerFeedback?.length ?? 0, rating: avgRating(insurerFeedback), color: "text-amber-600 bg-amber-50" },
-          { label: "App Feedback", value: appFeedback?.length ?? 0, rating: null, color: "text-green-600 bg-green-50" },
+          { label: "Customer Reviews", value: customerFeedback?.length ?? 0, rating: avgRating(customerFeedback), color: "text-blue-400 bg-blue-500/15" },
+          { label: "TPA Feedback", value: tpaFeedback?.length ?? 0, rating: avgRating(tpaFeedback), color: "text-purple-400 bg-purple-500/15" },
+          { label: "Insurer Feedback", value: insurerFeedback?.length ?? 0, rating: avgRating(insurerFeedback), color: "text-amber-400 bg-amber-500/15" },
+          { label: "App Feedback", value: appFeedback?.length ?? 0, rating: null, color: "text-emerald-400 bg-emerald-500/15" },
         ].map(s => (
-          <Card key={s.label} className="border-none shadow-md bg-white">
+          <Card key={s.label} className="border-none shadow-md bg-card">
             <CardContent className="p-5">
               <p className="text-2xl font-bold text-foreground">{s.value}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>

@@ -77,12 +77,12 @@ export default function Settlements() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total", value: settlements?.length ?? 0, icon: Banknote, color: "text-blue-600 bg-blue-50" },
-          { label: "Pending", value: settlements?.filter(s => s.status === "pending").length ?? 0, icon: Clock, color: "text-amber-600 bg-amber-50" },
-          { label: "Processing", value: settlements?.filter(s => s.status === "processing").length ?? 0, icon: Clock, color: "text-purple-600 bg-purple-50" },
-          { label: "Paid", value: settlements?.filter(s => s.status === "paid").length ?? 0, icon: CheckCircle, color: "text-green-600 bg-green-50" },
+          { label: "Total", value: settlements?.length ?? 0, icon: Banknote, color: "text-blue-400 bg-blue-500/15" },
+          { label: "Pending", value: settlements?.filter(s => s.status === "pending").length ?? 0, icon: Clock, color: "text-amber-400 bg-amber-500/15" },
+          { label: "Processing", value: settlements?.filter(s => s.status === "processing").length ?? 0, icon: Clock, color: "text-purple-400 bg-purple-500/15" },
+          { label: "Paid", value: settlements?.filter(s => s.status === "paid").length ?? 0, icon: CheckCircle, color: "text-emerald-400 bg-emerald-500/15" },
         ].map(s => (
-          <Card key={s.label} className="border-none shadow-md bg-white">
+          <Card key={s.label} className="border-none shadow-md bg-card">
             <CardContent className="p-5 flex items-center gap-4">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}>
                 <s.icon className="w-5 h-5" />
@@ -99,7 +99,7 @@ export default function Settlements() {
       {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search patient, policy, claim..." className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search patient, policy, claim..." className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
       </div>
 
       {/* Settlements List */}
@@ -107,7 +107,7 @@ export default function Settlements() {
         {isLoading ? (
           <div className="py-12 text-center text-muted-foreground">Loading settlements...</div>
         ) : filtered?.map(s => (
-          <Card key={s.id} className="border-none shadow-md hover:shadow-lg transition-shadow bg-white">
+          <Card key={s.id} className="border-none shadow-md hover:shadow-lg transition-shadow bg-card">
             <CardContent className="p-5">
               <div className="flex flex-col lg:flex-row gap-5">
                 {/* Left: Info */}
@@ -142,7 +142,7 @@ export default function Settlements() {
                       <div className="mt-3 pt-3 border-t border-border">
                         <p className="text-xs text-muted-foreground mb-1">Non-admissible Reasons:</p>
                         <div className="flex flex-wrap gap-1">
-                          {(s.nonAdmissibleReasons as string[]).map(r => <span key={r} className="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded">{r}</span>)}
+                          {(s.nonAdmissibleReasons as string[]).map(r => <span key={r} className="text-xs bg-red-500/15 text-red-600 px-2 py-0.5 rounded">{r}</span>)}
                         </div>
                       </div>
                     )}
@@ -177,37 +177,37 @@ export default function Settlements() {
       {/* Create Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-foreground mb-5">New Reimbursement Settlement</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Patient Name</label>
-                  <input name="patientName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="patientName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Claim Number</label>
-                  <input name="claimNumber" placeholder="CLM-XXXX" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="claimNumber" placeholder="CLM-XXXX" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Policy Number</label>
-                  <input name="policyNumber" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="policyNumber" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Hospital Name</label>
-                  <input name="hospitalName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="hospitalName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Admission Date</label>
-                  <input name="admissionDate" type="date" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="admissionDate" type="date" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Discharge Date</label>
-                  <input name="dischargeDate" type="date" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="dischargeDate" type="date" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Billing Breakdown</p>
@@ -215,7 +215,7 @@ export default function Settlements() {
                 {[["totalBillAmount", "Total Bill Amount *", true], ["roomRentCharges", "Room Rent"], ["surgeryCharges", "Surgery Charges"], ["medicineCharges", "Medicine Charges"], ["diagnosticCharges", "Diagnostic Charges"], ["otherCharges", "Other Charges"]].map(([name, label, required]) => (
                   <div key={name as string}>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">{label}</label>
-                    <input name={name as string} type="number" required={!!required} placeholder="₹0" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                    <input name={name as string} type="number" required={!!required} placeholder="₹0" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                   </div>
                 ))}
               </div>
@@ -233,7 +233,7 @@ export default function Settlements() {
       {/* Process Settlement Modal */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-foreground mb-1">Process Settlement</h2>
             <p className="text-sm text-muted-foreground mb-5">{selected.patientName} — Total Bill: {formatCurrency(selected.totalBillAmount)}</p>
             <form onSubmit={e => handleApprove(e, selected.id)} className="space-y-4">
@@ -241,12 +241,12 @@ export default function Settlements() {
                 {[["admissibleAmount", "Admissible Amount"], ["deductible", "Deductible"], ["coPayAmount", "Co-pay Amount"], ["nonAdmissibleAmount", "Non-admissible Amount"], ["netPayableAmount", "Net Payable Amount"]].map(([n, l]) => (
                   <div key={n}>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">{l}</label>
-                    <input name={n} type="number" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                    <input name={n} type="number" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                   </div>
                 ))}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Payment Mode</label>
-                  <select name="paymentMode" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30">
+                  <select name="paymentMode" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground">
                     <option value="pending">Pending</option>
                     <option value="neft">NEFT</option>
                     <option value="cheque">Cheque</option>
@@ -256,7 +256,7 @@ export default function Settlements() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Non-admissible Reasons (comma-separated)</label>
-                <input name="nonAdmissibleReasons" placeholder="Reason 1, Reason 2..." className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="nonAdmissibleReasons" placeholder="Reason 1, Reason 2..." className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Remarks</label>

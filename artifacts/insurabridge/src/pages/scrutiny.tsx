@@ -69,12 +69,12 @@ export default function Scrutiny() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total Cases", value: cases?.length ?? 0, icon: ClipboardList, color: "text-blue-600 bg-blue-50" },
-          { label: "Pending", value: cases?.filter(c => c.status === "pending").length ?? 0, icon: Clock, color: "text-amber-600 bg-amber-50" },
-          { label: "In Review", value: cases?.filter(c => c.status === "in_review").length ?? 0, icon: AlertTriangle, color: "text-purple-600 bg-purple-50" },
-          { label: "Completed", value: cases?.filter(c => c.status === "completed").length ?? 0, icon: CheckCircle, color: "text-green-600 bg-green-50" },
+          { label: "Total Cases", value: cases?.length ?? 0, icon: ClipboardList, color: "text-blue-400 bg-blue-500/15" },
+          { label: "Pending", value: cases?.filter(c => c.status === "pending").length ?? 0, icon: Clock, color: "text-amber-400 bg-amber-500/15" },
+          { label: "In Review", value: cases?.filter(c => c.status === "in_review").length ?? 0, icon: AlertTriangle, color: "text-purple-400 bg-purple-500/15" },
+          { label: "Completed", value: cases?.filter(c => c.status === "completed").length ?? 0, icon: CheckCircle, color: "text-emerald-400 bg-emerald-500/15" },
         ].map(s => (
-          <Card key={s.label} className="border-none shadow-md bg-white">
+          <Card key={s.label} className="border-none shadow-md bg-card">
             <CardContent className="p-5 flex items-center gap-4">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}>
                 <s.icon className="w-5 h-5" />
@@ -91,11 +91,11 @@ export default function Scrutiny() {
       {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient or claim..." className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by patient or claim..." className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
       </div>
 
       {/* Cases Table */}
-      <Card className="border-none shadow-md bg-white">
+      <Card className="border-none shadow-md bg-card">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -134,27 +134,27 @@ export default function Scrutiny() {
       {/* Create Modal */}
       {createOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <h2 className="text-lg font-bold text-foreground mb-5">New Scrutiny Case</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Patient Name</label>
-                  <input name="patientName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="patientName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Bill Amount (₹)</label>
-                  <input name="billAmount" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="billAmount" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Claim Number</label>
-                  <input name="claimNumber" placeholder="CLM-XXXX" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="claimNumber" placeholder="CLM-XXXX" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Assigned To</label>
-                  <input name="assignedTo" placeholder="Dr. Name" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="assignedTo" placeholder="Dr. Name" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div>
@@ -175,23 +175,23 @@ export default function Scrutiny() {
       {/* Review Modal */}
       {reviewCase && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <h2 className="text-lg font-bold text-foreground mb-1">Review Case</h2>
             <p className="text-sm text-muted-foreground mb-5">{reviewCase.patientName} — Bill: {formatCurrency(reviewCase.billAmount)}</p>
             <form onSubmit={e => handleComplete(e, reviewCase.id)} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Scrutinized Amount (₹)</label>
-                  <input name="scrutinizedAmount" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="scrutinizedAmount" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Deductions (₹)</label>
-                  <input name="deductions" type="number" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="deductions" type="number" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Deduction Reasons (comma-separated)</label>
-                <input name="deductionReasons" placeholder="Reason 1, Reason 2..." className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="deductionReasons" placeholder="Reason 1, Reason 2..." className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Remarks</label>

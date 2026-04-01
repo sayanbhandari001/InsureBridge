@@ -55,12 +55,12 @@ export default function Ecards() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total Cards", value: ecards?.length ?? 0, icon: CreditCard, color: "text-blue-600 bg-blue-50" },
-          { label: "Active", value: ecards?.filter(e => e.status === "active").length ?? 0, icon: ShieldCheck, color: "text-green-600 bg-green-50" },
-          { label: "Expired", value: ecards?.filter(e => e.status === "expired").length ?? 0, icon: Calendar, color: "text-amber-600 bg-amber-50" },
-          { label: "Suspended", value: ecards?.filter(e => e.status === "suspended").length ?? 0, icon: Users, color: "text-red-600 bg-red-50" },
+          { label: "Total Cards", value: ecards?.length ?? 0, icon: CreditCard, color: "text-blue-400 bg-blue-500/15" },
+          { label: "Active", value: ecards?.filter(e => e.status === "active").length ?? 0, icon: ShieldCheck, color: "text-emerald-400 bg-emerald-500/15" },
+          { label: "Expired", value: ecards?.filter(e => e.status === "expired").length ?? 0, icon: Calendar, color: "text-amber-400 bg-amber-500/15" },
+          { label: "Suspended", value: ecards?.filter(e => e.status === "suspended").length ?? 0, icon: Users, color: "text-red-400 bg-red-500/15" },
         ].map(stat => (
-          <Card key={stat.label} className="border-none shadow-md bg-white">
+          <Card key={stat.label} className="border-none shadow-md bg-card">
             <CardContent className="p-5 flex items-center gap-4">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.color}`}>
                 <stat.icon className="w-5 h-5" />
@@ -132,7 +132,7 @@ export default function Ecards() {
       {/* Create Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <h2 className="text-lg font-bold text-foreground mb-5">Issue New E-Card</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">

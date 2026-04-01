@@ -12,9 +12,9 @@ const RELATION_LABELS: Record<string, string> = {
 }
 
 const RELATION_COLORS: Record<string, string> = {
-  self: "bg-blue-100 text-blue-700", spouse: "bg-pink-100 text-pink-700",
-  child: "bg-amber-100 text-amber-700", parent: "bg-green-100 text-green-700",
-  parent_in_law: "bg-purple-100 text-purple-700", sibling: "bg-teal-100 text-teal-700",
+  self: "bg-blue-500/15 text-blue-400", spouse: "bg-pink-500/15 text-pink-400",
+  child: "bg-amber-500/15 text-amber-400", parent: "bg-emerald-500/15 text-emerald-400",
+  parent_in_law: "bg-purple-500/15 text-purple-400", sibling: "bg-teal-100 text-teal-700",
 }
 
 export default function Members() {
@@ -67,7 +67,7 @@ export default function Members() {
           { label: "With Pre-existing", value: members?.filter(m => (m.preExistingConditions as string[]).length > 0).length ?? 0 },
           { label: "Unique Policies", value: new Set(members?.map(m => m.policyNumber)).size ?? 0 },
         ].map(s => (
-          <Card key={s.label} className="border-none shadow-md bg-white">
+          <Card key={s.label} className="border-none shadow-md bg-card">
             <CardContent className="p-5 text-center">
               <p className="text-2xl font-bold text-foreground">{s.value}</p>
               <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
@@ -79,7 +79,7 @@ export default function Members() {
       {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or policy..." className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or policy..." className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
       </div>
 
       {/* Members Grid */}
@@ -87,7 +87,7 @@ export default function Members() {
         {isLoading ? (
           <div className="col-span-full py-12 text-center text-muted-foreground">Loading members...</div>
         ) : filtered?.map(member => (
-          <Card key={member.id} className="border-none shadow-md hover:shadow-lg transition-shadow bg-white">
+          <Card key={member.id} className="border-none shadow-md hover:shadow-lg transition-shadow bg-card">
             <CardContent className="p-5">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export default function Members() {
                   <p className="text-xs text-muted-foreground mb-1.5">Pre-existing Conditions</p>
                   <div className="flex flex-wrap gap-1">
                     {(member.preExistingConditions as string[]).map(c => (
-                      <span key={c} className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600">{c}</span>
+                      <span key={c} className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">{c}</span>
                     ))}
                   </div>
                 </div>
@@ -139,33 +139,33 @@ export default function Members() {
       {/* Add Member Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-foreground mb-5">Add New Member</h2>
             <form onSubmit={handleAdd} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Full Name</label>
-                  <input name="name" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="name" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Customer ID</label>
-                  <input name="customerId" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="customerId" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Policy Number</label>
-                <input name="policyNumber" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="policyNumber" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Relationship</label>
-                  <select name="relationship" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30">
+                  <select name="relationship" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground">
                     {Object.entries(RELATION_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Gender</label>
-                  <select name="gender" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30">
+                  <select name="gender" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground">
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Other</option>
@@ -174,15 +174,15 @@ export default function Members() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Date of Birth</label>
-                <input name="dateOfBirth" type="date" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="dateOfBirth" type="date" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Sum Insured (₹)</label>
-                <input name="sumInsured" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="sumInsured" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Pre-existing Conditions (comma-separated)</label>
-                <input name="preExistingConditions" placeholder="Diabetes, Hypertension..." className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="preExistingConditions" placeholder="Diabetes, Hypertension..." className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="flex gap-3">
                 <button type="button" onClick={() => setOpen(false)} className="flex-1 px-4 py-2 rounded-xl border border-border text-muted-foreground text-sm font-medium hover:bg-muted/30">Cancel</button>

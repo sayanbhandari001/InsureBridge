@@ -42,9 +42,9 @@ function daysUntil(dateStr: string | null): number | null {
 
 function ExpiryBadge({ days }: { days: number | null }) {
   if (days === null) return <span className="text-muted-foreground/70 text-xs">—</span>
-  if (days < 0) return <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Expired {Math.abs(days)}d ago</span>
+  if (days < 0) return <span className="text-xs font-semibold text-red-400 bg-red-500/15 px-2 py-0.5 rounded-full">Expired {Math.abs(days)}d ago</span>
   if (days <= 30) return <span className="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">In {days}d</span>
-  if (days <= 90) return <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">In {days}d</span>
+  if (days <= 90) return <span className="text-xs font-semibold text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full">In {days}d</span>
   return <span className="text-xs font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full">In {days}d</span>
 }
 
@@ -126,11 +126,11 @@ export default function Retention() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { icon: Database, label: "Total Records", value: data.totals.total.toLocaleString(), color: "text-muted-foreground", bg: "bg-muted/40" },
-            { icon: AlertTriangle, label: "Expired", value: data.totals.expired.toLocaleString(), color: "text-red-600", bg: "bg-red-50" },
+            { icon: AlertTriangle, label: "Expired", value: data.totals.expired.toLocaleString(), color: "text-red-400", bg: "bg-red-500/15" },
             { icon: Clock, label: "Expiring in 30 days", value: data.totals.expiring30d.toLocaleString(), color: "text-orange-600", bg: "bg-orange-50" },
-            { icon: CalendarClock, label: "Expiring in 90 days", value: data.totals.expiring90d.toLocaleString(), color: "text-amber-600", bg: "bg-amber-50" },
+            { icon: CalendarClock, label: "Expiring in 90 days", value: data.totals.expiring90d.toLocaleString(), color: "text-amber-400", bg: "bg-amber-500/15" },
           ].map(stat => (
-            <Card key={stat.label} className="border-none shadow-sm p-5 bg-white">
+            <Card key={stat.label} className="border-none shadow-sm p-5 bg-card">
               <div className={`w-9 h-9 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
                 <stat.icon className={`w-4 h-4 ${stat.color}`} />
               </div>
@@ -212,7 +212,7 @@ export default function Retention() {
         <Card className="border-none shadow-md p-6">
           <div className="flex items-start gap-4 flex-col sm:flex-row sm:items-center justify-between">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center shrink-0">
                 <Trash2 className="w-5 h-5 text-red-500" />
               </div>
               <div>
@@ -271,7 +271,7 @@ export default function Retention() {
           {purgeResult.totalPurged > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
               {Object.entries(purgeResult.details).filter(([, count]) => count > 0).map(([label, count]) => (
-                <div key={label} className="text-sm bg-white rounded-lg px-3 py-2 border border-emerald-100">
+                <div key={label} className="text-sm bg-white rounded-lg px-3 py-2 border border-emerald-500/20">
                   <span className="font-semibold text-emerald-700">{count}</span>
                   <span className="text-muted-foreground"> {label}</span>
                 </div>

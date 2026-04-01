@@ -53,7 +53,7 @@ function LineageModal({ policyNumber, onClose }: { policyNumber: string; onClose
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="bg-card border border-border rounded-2xl w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border/50">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -227,7 +227,7 @@ export default function Portability() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {["initiated", "under_review", "approved", "completed"].map(status => (
-          <Card key={status} className="border-none shadow-md bg-white">
+          <Card key={status} className="border-none shadow-md bg-card">
             <CardContent className="p-5 text-center">
               <p className="text-2xl font-bold text-foreground">{requests?.filter(r => r.status === status).length ?? 0}</p>
               <StatusBadge status={status} className="mt-1" />
@@ -241,7 +241,7 @@ export default function Portability() {
         {isLoading ? (
           <div className="py-12 text-center text-muted-foreground">Loading portability requests...</div>
         ) : requests?.map(req => (
-          <Card key={req.id} className="border-none shadow-md hover:shadow-lg transition-shadow bg-white">
+          <Card key={req.id} className="border-none shadow-md hover:shadow-lg transition-shadow bg-card">
             <CardContent className="p-5">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 min-w-0">
@@ -297,7 +297,7 @@ export default function Portability() {
                     </button>
                   )}
                   {req.status === "under_review" && (
-                    <button onClick={() => updateMutation.mutate({ id: req.id, data: { status: "approved", notes: "Approved by insurer" } })} className="px-4 py-2 rounded-xl bg-amber-50 text-amber-700 text-sm font-medium hover:bg-amber-100 transition-colors">
+                    <button onClick={() => updateMutation.mutate({ id: req.id, data: { status: "approved", notes: "Approved by insurer" } })} className="px-4 py-2 rounded-xl bg-amber-500/15 text-amber-700 text-sm font-medium hover:bg-amber-100 transition-colors">
                       Approve
                     </button>
                   )}
@@ -318,7 +318,7 @@ export default function Portability() {
                       value={newPolicyNum}
                       onChange={e => setNewPolicyNum(e.target.value)}
                       placeholder="e.g. NL-POL-2025-0001"
-                      className="flex-1 px-3 py-2 text-sm font-mono rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="flex-1 px-3 py-2 text-sm font-mono rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground"
                     />
                     <button
                       onClick={() => handleComplete(req.id)}
@@ -341,41 +341,41 @@ export default function Portability() {
       {/* Create Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <h2 className="text-lg font-bold text-foreground mb-5">New Portability Request</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Customer Name</label>
-                  <input name="customerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="customerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Customer ID</label>
-                  <input name="customerId" type="number" required placeholder="User ID" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="customerId" type="number" required placeholder="User ID" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">From Insurer</label>
-                  <input name="fromInsurerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="fromInsurerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">To Insurer</label>
-                  <input name="toInsurerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="toInsurerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Policy Number (existing)</label>
-                <input name="policyNumber" required className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="policyNumber" required className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Current Sum Insured</label>
-                  <input name="sumInsured" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="sumInsured" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">New Sum Insured</label>
-                  <input name="newSumInsured" type="number" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="newSumInsured" type="number" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div>

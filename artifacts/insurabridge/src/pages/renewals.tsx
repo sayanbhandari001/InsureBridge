@@ -38,7 +38,7 @@ function PolicyChainBadge({ oldPolicy, newPolicy }: { oldPolicy: string; newPoli
       <div className="flex items-center gap-1">
         <span className="font-mono text-xs bg-muted/40 text-muted-foreground px-2 py-0.5 rounded border border-border">{oldPolicy}</span>
         <ArrowRight className="w-3.5 h-3.5 text-green-600 shrink-0" />
-        <span className="font-mono text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200 font-semibold">{newPolicy}</span>
+        <span className="font-mono text-xs bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded border border-green-200 font-semibold">{newPolicy}</span>
       </div>
     </div>
   )
@@ -52,7 +52,7 @@ function LineageModal({ policyNumber, onClose }: { policyNumber: string; onClose
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="bg-card border border-border rounded-2xl w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border/50">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center">
@@ -90,7 +90,7 @@ function LineageModal({ policyNumber, onClose }: { policyNumber: string; onClose
                   </div>
                   <div className="pb-5 flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ev.type === "portability" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ev.type === "portability" ? "bg-blue-500/15 text-blue-400" : "bg-emerald-500/15 text-emerald-400"}`}>
                         {ev.type === "portability" ? "Portability" : "Renewal"}
                       </span>
                       <StatusBadge status={ev.status} />
@@ -112,7 +112,7 @@ function LineageModal({ policyNumber, onClose }: { policyNumber: string; onClose
                       {ev.newPolicyNumber && (
                         <>
                           <ArrowRight className="w-3 h-3 text-green-600 shrink-0" />
-                          <span className="font-mono text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-200 font-semibold">{ev.newPolicyNumber}</span>
+                          <span className="font-mono text-xs bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded border border-green-200 font-semibold">{ev.newPolicyNumber}</span>
                         </>
                       )}
                     </div>
@@ -227,12 +227,12 @@ export default function Renewals() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total", value: renewals?.length ?? 0, icon: Calendar, color: "text-blue-600 bg-blue-50" },
-          { label: "Pending", value: renewals?.filter(r => r.status === "pending").length ?? 0, icon: AlertCircle, color: "text-amber-600 bg-amber-50" },
-          { label: "Completed", value: renewals?.filter(r => r.status === "completed").length ?? 0, icon: TrendingUp, color: "text-green-600 bg-green-50" },
-          { label: "Total Members", value: renewals?.reduce((acc, r) => acc + r.memberCount, 0) ?? 0, icon: Users, color: "text-purple-600 bg-purple-50" },
+          { label: "Total", value: renewals?.length ?? 0, icon: Calendar, color: "text-blue-400 bg-blue-500/15" },
+          { label: "Pending", value: renewals?.filter(r => r.status === "pending").length ?? 0, icon: AlertCircle, color: "text-amber-400 bg-amber-500/15" },
+          { label: "Completed", value: renewals?.filter(r => r.status === "completed").length ?? 0, icon: TrendingUp, color: "text-emerald-400 bg-emerald-500/15" },
+          { label: "Total Members", value: renewals?.reduce((acc, r) => acc + r.memberCount, 0) ?? 0, icon: Users, color: "text-purple-400 bg-purple-500/15" },
         ].map(s => (
-          <Card key={s.label} className="border-none shadow-md bg-white">
+          <Card key={s.label} className="border-none shadow-md bg-card">
             <CardContent className="p-5 flex items-center gap-4">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}>
                 <s.icon className="w-5 h-5" />
@@ -251,7 +251,7 @@ export default function Renewals() {
         {isLoading ? (
           <div className="py-12 text-center text-muted-foreground">Loading renewals...</div>
         ) : renewals?.map(renewal => (
-          <Card key={renewal.id} className="border-none shadow-md hover:shadow-lg transition-shadow bg-white">
+          <Card key={renewal.id} className="border-none shadow-md hover:shadow-lg transition-shadow bg-card">
             <CardContent className="p-5">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 min-w-0">
@@ -304,17 +304,17 @@ export default function Renewals() {
 
                 <div className="flex sm:flex-col gap-2 shrink-0">
                   {renewal.status === "pending" && (
-                    <button onClick={() => updateMutation.mutate({ id: renewal.id, data: { status: "initiated" } })} className="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 whitespace-nowrap">
+                    <button onClick={() => updateMutation.mutate({ id: renewal.id, data: { status: "initiated" } })} className="px-4 py-2 rounded-xl bg-blue-500/15 text-blue-400 text-sm font-medium hover:bg-blue-100 whitespace-nowrap">
                       Initiate
                     </button>
                   )}
                   {renewal.status === "initiated" && (
-                    <button onClick={() => updateMutation.mutate({ id: renewal.id, data: { status: "payment_due" } })} className="px-4 py-2 rounded-xl bg-amber-50 text-amber-700 text-sm font-medium hover:bg-amber-100 whitespace-nowrap">
+                    <button onClick={() => updateMutation.mutate({ id: renewal.id, data: { status: "payment_due" } })} className="px-4 py-2 rounded-xl bg-amber-500/15 text-amber-400 text-sm font-medium hover:bg-amber-100 whitespace-nowrap">
                       Mark Payment Due
                     </button>
                   )}
                   {renewal.status === "payment_due" && completingId !== renewal.id && (
-                    <button onClick={() => { setCompletingId(renewal.id); setNewPolicyNum("") }} className="px-4 py-2 rounded-xl bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100 whitespace-nowrap">
+                    <button onClick={() => { setCompletingId(renewal.id); setNewPolicyNum("") }} className="px-4 py-2 rounded-xl bg-emerald-500/15 text-emerald-400 text-sm font-medium hover:bg-green-100 whitespace-nowrap">
                       Complete
                     </button>
                   )}
@@ -353,49 +353,49 @@ export default function Renewals() {
       {/* Create Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-foreground mb-5">New Renewal</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Customer Name</label>
-                  <input name="customerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="customerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Customer ID</label>
-                  <input name="customerId" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="customerId" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Policy Number</label>
-                <input name="policyNumber" required className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="policyNumber" required className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Insurer Name</label>
-                <input name="insurerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="insurerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Expiry Date</label>
-                <input name="expiryDate" type="date" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input name="expiryDate" type="date" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Current Sum Insured</label>
-                  <input name="currentSumInsured" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="currentSumInsured" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">New Sum Insured</label>
-                  <input name="newSumInsured" type="number" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="newSumInsured" type="number" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Current Premium</label>
-                  <input name="currentPremium" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="currentPremium" type="number" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Members</label>
-                  <input name="memberCount" type="number" defaultValue={1} className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input name="memberCount" type="number" defaultValue={1} className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div className="flex gap-3">

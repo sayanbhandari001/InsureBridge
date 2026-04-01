@@ -16,18 +16,18 @@ import { useAuth, ROLE_COLORS, ROLE_LABELS } from "@/lib/auth"
 const OUTCOME_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
   connected: {
     icon: <Phone className="w-4 h-4" />,
-    color: "text-emerald-700",
-    bg: "bg-emerald-50 border-emerald-200",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/15 border-emerald-500/30",
   },
   missed: {
     icon: <PhoneMissed className="w-4 h-4" />,
-    color: "text-red-700",
-    bg: "bg-red-50 border-red-200",
+    color: "text-red-400",
+    bg: "bg-red-500/15 border-red-500/30",
   },
   voicemail: {
     icon: <PhoneIncoming className="w-4 h-4" />,
-    color: "text-amber-700",
-    bg: "bg-amber-50 border-amber-200",
+    color: "text-amber-400",
+    bg: "bg-amber-500/15 border-amber-500/30",
   },
   busy: {
     icon: <Phone className="w-4 h-4" />,
@@ -106,7 +106,7 @@ export default function CallLogs() {
             { label: "Missed / Busy", value: calls.filter(c => c.outcome === "missed" || c.outcome === "busy").length, color: "text-red-500" },
             { label: "With Decisions", value: calls.filter(c => c.finalDecision).length, color: "text-primary" },
           ].map(s => (
-            <Card key={s.label} className="border-none shadow-sm p-4 bg-white">
+            <Card key={s.label} className="border-none shadow-sm p-4 bg-card">
               <p className={`text-2xl font-bold font-display ${s.color}`}>{s.value}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
             </Card>
@@ -193,7 +193,7 @@ export default function CallLogs() {
               {isExpanded && hasDetail && (
                 <div className="border-t border-border/50 bg-muted/30/60 p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Summary */}
-                  <div className="bg-white rounded-xl border border-blue-100 p-4">
+                  <div className="bg-card border border-border rounded-xl border border-blue-100 p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
                         <FileText className="w-3.5 h-3.5 text-blue-600" />
@@ -206,9 +206,9 @@ export default function CallLogs() {
                   </div>
 
                   {/* Final Decision */}
-                  <div className={`rounded-xl border p-4 ${call.finalDecision ? "bg-white border-emerald-100" : "bg-white border-border/50"}`}>
+                  <div className={`rounded-xl border p-4 ${call.finalDecision ? "bg-white border-emerald-500/20" : "bg-white border-border/50"}`}>
                     <div className="flex items-center gap-2 mb-3">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${call.finalDecision ? "bg-emerald-100" : "bg-muted/40"}`}>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${call.finalDecision ? "bg-emerald-500/15" : "bg-muted/40"}`}>
                         <Gavel className={`w-3.5 h-3.5 ${call.finalDecision ? "text-emerald-600" : "text-muted-foreground/70"}`} />
                       </div>
                       <h4 className={`font-semibold text-sm ${call.finalDecision ? "text-emerald-900" : "text-muted-foreground"}`}>
