@@ -235,7 +235,7 @@ function Typewriter() {
   }, [displayed, deleting, wordIdx])
 
   return (
-    <span className="text-primary">
+    <span className="text-primary inline-block" style={{ minWidth: "8ch" }}>
       {displayed}
       <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }} className="text-primary">|</motion.span>
     </span>
@@ -355,7 +355,7 @@ function NavBar({
           </nav>
 
           {/* CTAs + Theme toggle */}
-          <div className="hidden sm:flex items-center gap-2.5">
+          <div className="hidden md:flex items-center gap-2.5">
             <ThemeToggle />
             <motion.button
               whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
@@ -621,8 +621,8 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
               className="text-4xl sm:text-5xl md:text-6xl font-display font-black text-foreground leading-tight"
             >
-              The Intelligent Hub for{" "}
-              <br className="hidden sm:block" />
+              The Intelligent Hub for
+              <br />
               <Typewriter />
             </motion.h1>
 

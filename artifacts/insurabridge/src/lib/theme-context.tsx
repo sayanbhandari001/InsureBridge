@@ -31,7 +31,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     try { localStorage.setItem("ib-theme", theme) } catch {}
   }, [theme])
 
-  const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark")
+  const toggleTheme = () => {
+    const root = document.documentElement
+    root.setAttribute("data-theme-transitioning", "")
+    setTimeout(() => root.removeAttribute("data-theme-transitioning"), 220)
+    setTheme(t => t === "dark" ? "light" : "dark")
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
