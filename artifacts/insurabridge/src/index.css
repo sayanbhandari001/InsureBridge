@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -54,131 +54,175 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Always-dark enterprise theme */
+/* ─── Always-dark enterprise theme ─────────────────────────── */
 :root {
   --app-font-sans: 'Inter', sans-serif;
   --app-font-display: 'Outfit', sans-serif;
   --radius: 0.75rem;
 
-  --background: 222 47% 5%;
-  --foreground: 213 31% 91%;
+  /* Slightly lighter background for better readability */
+  --background: 220 40% 7%;
+  --foreground: 215 30% 93%;
 
-  --card: 222 47% 8%;
-  --card-foreground: 213 31% 91%;
-  --card-border: 217 33% 14%;
+  /* Cards lifted above background with more contrast */
+  --card: 220 40% 10%;
+  --card-foreground: 215 30% 93%;
+  --card-border: 216 30% 18%;
 
-  --popover: 222 47% 8%;
-  --popover-foreground: 213 31% 91%;
-  --popover-border: 217 33% 14%;
+  --popover: 220 40% 10%;
+  --popover-foreground: 215 30% 93%;
+  --popover-border: 216 30% 18%;
 
-  --primary: 217 91% 60%;
-  --primary-foreground: 222 47% 8%;
+  /* Softer blue-teal primary */
+  --primary: 210 90% 62%;
+  --primary-foreground: 220 40% 7%;
 
-  --secondary: 217 33% 14%;
-  --secondary-foreground: 213 31% 91%;
+  --secondary: 216 30% 16%;
+  --secondary-foreground: 215 30% 93%;
 
-  --muted: 217 33% 13%;
-  --muted-foreground: 215 20% 58%;
+  /* Muted text now at 65% brightness — much easier to read */
+  --muted: 216 30% 14%;
+  --muted-foreground: 215 22% 65%;
 
-  --accent: 217 91% 60%;
-  --accent-foreground: 222 47% 8%;
+  --accent: 210 90% 62%;
+  --accent-foreground: 220 40% 7%;
 
-  --destructive: 0 70% 55%;
+  --destructive: 0 72% 58%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 217 33% 14%;
-  --input: 217 33% 16%;
-  --ring: 217 91% 60%;
+  --border: 216 30% 18%;
+  --input: 216 30% 18%;
+  --ring: 210 90% 62%;
 
-  --chart-1: 217 91% 60%;
-  --chart-2: 199 89% 48%;
-  --chart-3: 142 71% 45%;
-  --chart-4: 262 83% 58%;
-  --chart-5: 43 100% 50%;
+  --chart-1: 210 90% 62%;
+  --chart-2: 173 80% 48%;
+  --chart-3: 142 71% 48%;
+  --chart-4: 262 83% 64%;
+  --chart-5: 43 96% 56%;
 
-  --sidebar: 222 47% 4%;
-  --sidebar-foreground: 213 31% 91%;
-  --sidebar-border: 217 33% 11%;
-  --sidebar-primary: 217 91% 60%;
-  --sidebar-primary-foreground: 222 47% 8%;
-  --sidebar-accent: 217 33% 11%;
-  --sidebar-accent-foreground: 213 31% 91%;
-  --sidebar-ring: 217 91% 60%;
+  /* Sidebar — distinct but harmonious */
+  --sidebar: 220 42% 5.5%;
+  --sidebar-foreground: 215 30% 93%;
+  --sidebar-border: 216 30% 14%;
+  --sidebar-primary: 210 90% 62%;
+  --sidebar-primary-foreground: 220 40% 7%;
+  --sidebar-accent: 216 30% 12%;
+  --sidebar-accent-foreground: 215 30% 93%;
+  --sidebar-ring: 210 90% 62%;
 }
 
-/* Keep .dark as an alias so dark: variants work */
+/* Keep .dark alias so dark: variants work */
 .dark {
-  --background: 222 47% 5%;
-  --foreground: 213 31% 91%;
-
-  --card: 222 47% 8%;
-  --card-foreground: 213 31% 91%;
-  --card-border: 217 33% 14%;
-
-  --popover: 222 47% 8%;
-  --popover-foreground: 213 31% 91%;
-  --popover-border: 217 33% 14%;
-
-  --primary: 217 91% 60%;
-  --primary-foreground: 222 47% 8%;
-
-  --secondary: 217 33% 14%;
-  --secondary-foreground: 213 31% 91%;
-
-  --muted: 217 33% 13%;
-  --muted-foreground: 215 20% 58%;
-
-  --accent: 217 91% 60%;
-  --accent-foreground: 222 47% 8%;
-
-  --destructive: 0 70% 55%;
+  --background: 220 40% 7%;
+  --foreground: 215 30% 93%;
+  --card: 220 40% 10%;
+  --card-foreground: 215 30% 93%;
+  --card-border: 216 30% 18%;
+  --popover: 220 40% 10%;
+  --popover-foreground: 215 30% 93%;
+  --popover-border: 216 30% 18%;
+  --primary: 210 90% 62%;
+  --primary-foreground: 220 40% 7%;
+  --secondary: 216 30% 16%;
+  --secondary-foreground: 215 30% 93%;
+  --muted: 216 30% 14%;
+  --muted-foreground: 215 22% 65%;
+  --accent: 210 90% 62%;
+  --accent-foreground: 220 40% 7%;
+  --destructive: 0 72% 58%;
   --destructive-foreground: 210 40% 98%;
-
-  --border: 217 33% 14%;
-  --input: 217 33% 16%;
-  --ring: 217 91% 60%;
-
-  --chart-1: 217 91% 60%;
-  --chart-2: 199 89% 48%;
-  --chart-3: 142 71% 45%;
-  --chart-4: 262 83% 58%;
-  --chart-5: 43 100% 50%;
-
-  --sidebar: 222 47% 4%;
-  --sidebar-foreground: 213 31% 91%;
-  --sidebar-border: 217 33% 11%;
-  --sidebar-primary: 217 91% 60%;
-  --sidebar-primary-foreground: 222 47% 8%;
-  --sidebar-accent: 217 33% 11%;
-  --sidebar-accent-foreground: 213 31% 91%;
-  --sidebar-ring: 217 91% 60%;
+  --border: 216 30% 18%;
+  --input: 216 30% 18%;
+  --ring: 210 90% 62%;
+  --chart-1: 210 90% 62%;
+  --chart-2: 173 80% 48%;
+  --chart-3: 142 71% 48%;
+  --chart-4: 262 83% 64%;
+  --chart-5: 43 96% 56%;
+  --sidebar: 220 42% 5.5%;
+  --sidebar-foreground: 215 30% 93%;
+  --sidebar-border: 216 30% 14%;
+  --sidebar-primary: 210 90% 62%;
+  --sidebar-primary-foreground: 220 40% 7%;
+  --sidebar-accent: 216 30% 12%;
+  --sidebar-accent-foreground: 215 30% 93%;
+  --sidebar-ring: 210 90% 62%;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--app-font-display);
     @apply font-semibold tracking-tight;
+    color: hsl(215 30% 96%);
+  }
+
+  /* Better scrollbar for dark mode */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(220 40% 7%);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(216 30% 22%);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(216 30% 30%);
+  }
+
+  /* Better focus rings */
+  :focus-visible {
+    outline: 2px solid hsl(210 90% 62%);
+    outline-offset: 2px;
+  }
+
+  /* Improved selection */
+  ::selection {
+    background: rgba(96, 165, 250, 0.25);
+    color: hsl(215 30% 96%);
   }
 }
 
-/* Page transition animation */
+/* ─── Page transition ──────────────────────────────────────── */
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
 .page-enter {
-  animation: page-enter 0.25s ease-out both;
+  animation: page-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* ─── Utility: glass card ──────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ─── Status badge colours ─────────────────────────────────── */
+.badge-approved  { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+.badge-pending   { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+.badge-rejected  { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+.badge-settled   { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.25); }
+.badge-info      { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }

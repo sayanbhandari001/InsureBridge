@@ -10,6 +10,7 @@ import {
   Banknote, LogOut, ChevronDown, Check, ShieldCheck
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
+import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
 
 interface NavItem {
   name: string
@@ -100,15 +101,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         "fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-[hsl(var(--sidebar))] border-r border-[hsl(var(--sidebar-border))] transition-transform duration-300 lg:static lg:flex lg:translate-x-0 shadow-xl shadow-black/30 lg:shadow-none",
         isMobileOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="flex h-16 items-center px-6 border-b border-[hsl(var(--sidebar-border))]">
-          <div className="flex items-center gap-2 font-display text-xl font-bold text-foreground">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-inner shadow-primary/30">
-              <span className="text-primary-foreground text-lg leading-none font-bold">I</span>
-            </div>
-            InsuraBridge
-          </div>
-          <button className="ml-auto lg:hidden text-muted-foreground hover:text-foreground" onClick={() => setIsMobileOpen(false)}>
-            <X size={20} />
+        <div className="flex h-16 items-center px-4 border-b border-[hsl(var(--sidebar-border))]">
+          <InsuraBridgeLogo size={32} textSize="0.9rem" />
+          <button className="ml-auto lg:hidden text-muted-foreground hover:text-foreground p-1" onClick={() => setIsMobileOpen(false)}>
+            <X size={18} />
           </button>
         </div>
 

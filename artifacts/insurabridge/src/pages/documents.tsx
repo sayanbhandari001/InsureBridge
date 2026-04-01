@@ -45,8 +45,8 @@ export default function Documents() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Documents Hub</h1>
-          <p className="text-slate-500 mt-1">Manage and verify all uploaded files securely.</p>
+          <h1 className="text-3xl font-display font-bold text-foreground">Documents Hub</h1>
+          <p className="text-muted-foreground mt-1">Manage and verify all uploaded files securely.</p>
         </div>
         <Button onClick={() => setIsUploadOpen(true)} className="gap-2">
           <Upload className="w-4 h-4" /> Upload Document
@@ -54,16 +54,16 @@ export default function Documents() {
       </div>
 
       <Card className="border-none shadow-md">
-        <div className="p-4 border-b border-slate-100 flex gap-4">
+        <div className="p-4 border-b border-border/50 flex gap-4">
           <div className="relative max-w-md w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Search documents by name or type..." className="pl-9 bg-slate-50 border-slate-200" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70" />
+            <Input placeholder="Search documents by name or type..." className="pl-9 bg-muted/30 border-border" />
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-slate-500 bg-slate-50/80 uppercase border-b border-slate-100">
+            <thead className="text-xs text-muted-foreground bg-muted/30/80 uppercase border-b border-border/50">
               <tr>
                 <th className="px-6 py-4 font-medium">Document</th>
                 <th className="px-6 py-4 font-medium">Type</th>
@@ -73,35 +73,35 @@ export default function Documents() {
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border/40">
               {isLoading ? (
-                <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-500">Loading documents...</td></tr>
+                <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">Loading documents...</td></tr>
               ) : documents?.map((doc) => (
-                <tr key={doc.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={doc.id} className="hover:bg-muted/20 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-50 rounded-lg text-primary">
                         <File className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="font-medium text-slate-900">{doc.fileName}</p>
-                        <p className="text-xs text-slate-500">{(doc.fileSize / 1024 / 1024).toFixed(2)} MB • {doc.fileType}</p>
+                        <p className="font-medium text-foreground">{doc.fileName}</p>
+                        <p className="text-xs text-muted-foreground">{(doc.fileSize / 1024 / 1024).toFixed(2)} MB • {doc.fileType}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-xs font-medium uppercase tracking-wider">
+                    <span className="px-2.5 py-1 bg-muted/40 text-muted-foreground rounded-md text-xs font-medium uppercase tracking-wider">
                       {doc.documentType.replace('_', ' ')}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="font-medium text-slate-900">{doc.uploaderName}</p>
-                    <p className="text-xs text-slate-500 capitalize">{doc.uploaderRole}</p>
+                    <p className="font-medium text-foreground">{doc.uploaderName}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{doc.uploaderRole}</p>
                   </td>
-                  <td className="px-6 py-4 text-slate-600">{formatDate(doc.createdAt)}</td>
+                  <td className="px-6 py-4 text-muted-foreground">{formatDate(doc.createdAt)}</td>
                   <td className="px-6 py-4"><StatusBadge status={doc.status} /></td>
                   <td className="px-6 py-4 text-right">
-                    <Button variant="ghost" size="sm" className="h-8 gap-1 text-slate-600 hover:text-primary">
+                    <Button variant="ghost" size="sm" className="h-8 gap-1 text-muted-foreground hover:text-primary">
                       <Download className="w-4 h-4" /> Download
                     </Button>
                   </td>
@@ -120,12 +120,12 @@ export default function Documents() {
           </DialogHeader>
           <form onSubmit={handleUpload} className="space-y-4 mt-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">File Name</label>
+              <label className="text-sm font-medium text-muted-foreground">File Name</label>
               <Input name="fileName" required placeholder="Patient_Bill_01.pdf" />
             </div>
             
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Document Type</label>
+              <label className="text-sm font-medium text-muted-foreground">Document Type</label>
               <select name="documentType" className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20">
                 <option value="bill">Bill</option>
                 <option value="discharge_summary">Discharge Summary</option>
@@ -139,7 +139,7 @@ export default function Documents() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Notes (Optional)</label>
+              <label className="text-sm font-medium text-muted-foreground">Notes (Optional)</label>
               <textarea name="notes" rows={3} className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" placeholder="Additional context..." />
             </div>
 

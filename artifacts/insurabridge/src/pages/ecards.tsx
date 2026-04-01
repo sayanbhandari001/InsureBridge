@@ -40,8 +40,8 @@ export default function Ecards() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">E-Cards</h1>
-          <p className="text-slate-500 mt-1">Manage digital insurance cards for members.</p>
+          <h1 className="text-3xl font-display font-bold text-foreground">E-Cards</h1>
+          <p className="text-muted-foreground mt-1">Manage digital insurance cards for members.</p>
         </div>
         <button
           onClick={() => setOpen(true)}
@@ -66,8 +66,8 @@ export default function Ecards() {
                 <stat.icon className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                <p className="text-xs text-slate-500">{stat.label}</p>
+                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                <p className="text-xs text-muted-foreground">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
@@ -77,7 +77,7 @@ export default function Ecards() {
       {/* Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {isLoading ? (
-          <div className="col-span-full py-12 text-center text-slate-500">Loading e-cards...</div>
+          <div className="col-span-full py-12 text-center text-muted-foreground">Loading e-cards...</div>
         ) : ecards?.map(card => (
           <div key={card.id} className="bg-gradient-to-br from-primary to-primary/70 rounded-2xl p-6 text-white shadow-xl shadow-primary/20 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-20 translate-x-20" />
@@ -133,48 +133,48 @@ export default function Ecards() {
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-lg font-bold text-slate-900 mb-5">Issue New E-Card</h2>
+            <h2 className="text-lg font-bold text-foreground mb-5">Issue New E-Card</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-700 mb-1 block">Member Name</label>
-                  <input name="memberName" required placeholder="Full name" className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Member Name</label>
+                  <input name="memberName" required placeholder="Full name" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-700 mb-1 block">Member ID</label>
-                  <input name="memberId" type="number" required placeholder="User ID" className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                </div>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-700 mb-1 block">Policy Number</label>
-                <input name="policyNumber" required placeholder="e.g. NL-POL-2024-0011" className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-slate-700 mb-1 block">Insurer Name</label>
-                  <input name="insurerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-700 mb-1 block">TPA Name</label>
-                  <input name="tpaName" required className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Member ID</label>
+                  <input name="memberId" type="number" required placeholder="User ID" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-700 mb-1 block">Sum Insured (₹)</label>
-                <input name="sumInsured" type="number" required placeholder="500000" className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Policy Number</label>
+                <input name="policyNumber" required placeholder="e.g. NL-POL-2024-0011" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-700 mb-1 block">Valid From</label>
-                  <input name="validFrom" type="date" required className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Insurer Name</label>
+                  <input name="insurerName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-700 mb-1 block">Valid To</label>
-                  <input name="validTo" type="date" required className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">TPA Name</label>
+                  <input name="tpaName" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Sum Insured (₹)</label>
+                <input name="sumInsured" type="number" required placeholder="500000" className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Valid From</label>
+                  <input name="validFrom" type="date" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Valid To</label>
+                  <input name="validTo" type="date" required className="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setOpen(false)} className="flex-1 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">Cancel</button>
+                <button type="button" onClick={() => setOpen(false)} className="flex-1 px-4 py-2 rounded-xl border border-border text-muted-foreground text-sm font-medium hover:bg-muted/30 transition-colors">Cancel</button>
                 <button type="submit" disabled={createMutation.isPending} className="flex-1 px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">
                   {createMutation.isPending ? "Issuing..." : "Issue Card"}
                 </button>

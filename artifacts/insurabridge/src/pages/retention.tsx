@@ -41,11 +41,11 @@ function daysUntil(dateStr: string | null): number | null {
 }
 
 function ExpiryBadge({ days }: { days: number | null }) {
-  if (days === null) return <span className="text-slate-400 text-xs">—</span>
+  if (days === null) return <span className="text-muted-foreground/70 text-xs">—</span>
   if (days < 0) return <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Expired {Math.abs(days)}d ago</span>
   if (days <= 30) return <span className="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">In {days}d</span>
   if (days <= 90) return <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">In {days}d</span>
-  return <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">In {days}d</span>
+  return <span className="text-xs font-medium text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full">In {days}d</span>
 }
 
 export default function Retention() {
@@ -86,14 +86,14 @@ export default function Retention() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Data Retention</h1>
-          <p className="text-slate-500 mt-1">All records are retained for 1 year per person, then eligible for archival.</p>
+          <h1 className="text-3xl font-display font-bold text-foreground">Data Retention</h1>
+          <p className="text-muted-foreground mt-1">All records are retained for 1 year per person, then eligible for archival.</p>
         </div>
         <Button
           variant="ghost"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="gap-2 border border-slate-200"
+          className="gap-2 border border-border"
         >
           <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
           Refresh
@@ -106,8 +106,8 @@ export default function Retention() {
           <ShieldCheck className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h3 className="font-semibold text-slate-900">1-Year Retention Policy</h3>
-          <p className="text-sm text-slate-600 mt-1 max-w-3xl">
+          <h3 className="font-semibold text-foreground">1-Year Retention Policy</h3>
+          <p className="text-sm text-muted-foreground mt-1 max-w-3xl">
             Every record — claims, call logs, messages, documents, e-cards, and more — is stored for exactly
             <strong> 365 days</strong> from the date it was created. After expiry, records are eligible for permanent
             deletion via the purge process. This policy applies to all users and roles across the platform.
@@ -119,13 +119,13 @@ export default function Retention() {
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="border-none shadow-sm p-5 animate-pulse bg-slate-100 h-24" />
+            <Card key={i} className="border-none shadow-sm p-5 animate-pulse bg-muted/40 h-24" />
           ))}
         </div>
       ) : data && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { icon: Database, label: "Total Records", value: data.totals.total.toLocaleString(), color: "text-slate-700", bg: "bg-slate-100" },
+            { icon: Database, label: "Total Records", value: data.totals.total.toLocaleString(), color: "text-muted-foreground", bg: "bg-muted/40" },
             { icon: AlertTriangle, label: "Expired", value: data.totals.expired.toLocaleString(), color: "text-red-600", bg: "bg-red-50" },
             { icon: Clock, label: "Expiring in 30 days", value: data.totals.expiring30d.toLocaleString(), color: "text-orange-600", bg: "bg-orange-50" },
             { icon: CalendarClock, label: "Expiring in 90 days", value: data.totals.expiring90d.toLocaleString(), color: "text-amber-600", bg: "bg-amber-50" },
@@ -135,7 +135,7 @@ export default function Retention() {
                 <stat.icon className={`w-4 h-4 ${stat.color}`} />
               </div>
               <p className={`text-2xl font-bold font-display ${stat.color}`}>{stat.value}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{stat.label}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
             </Card>
           ))}
         </div>
@@ -143,13 +143,13 @@ export default function Retention() {
 
       {/* Per-table breakdown */}
       <Card className="border-none shadow-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
-          <BarChart3 className="w-4 h-4 text-slate-400" />
-          <h2 className="font-semibold text-slate-800">Record Breakdown by Data Type</h2>
+        <div className="px-6 py-4 border-b border-border/50 flex items-center gap-3">
+          <BarChart3 className="w-4 h-4 text-muted-foreground/70" />
+          <h2 className="font-semibold text-foreground">Record Breakdown by Data Type</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-slate-500 bg-slate-50/80 uppercase border-b border-slate-100">
+            <thead className="text-xs text-muted-foreground bg-muted/30/80 uppercase border-b border-border/50">
               <tr>
                 <th className="px-6 py-3 font-medium">Data Type</th>
                 <th className="px-6 py-3 font-medium text-right">Total</th>
@@ -160,43 +160,43 @@ export default function Retention() {
                 <th className="px-6 py-3 font-medium">Latest Expiry</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border/40">
               {isLoading ? (
-                <tr><td colSpan={7} className="px-6 py-8 text-center text-slate-500">Loading...</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-muted-foreground">Loading...</td></tr>
               ) : data?.tables.map(row => {
                 const days = daysUntil(row.soonestExpiry)
                 return (
-                  <tr key={row.table} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={row.table} className="hover:bg-muted/20 transition-colors">
                     <td className="px-6 py-3.5">
-                      <span className="font-medium text-slate-800">{row.label}</span>
-                      <span className="block text-[10px] text-slate-400 font-mono">{row.table}</span>
+                      <span className="font-medium text-foreground">{row.label}</span>
+                      <span className="block text-[10px] text-muted-foreground/70 font-mono">{row.table}</span>
                     </td>
-                    <td className="px-6 py-3.5 text-right font-semibold text-slate-700">{row.total.toLocaleString()}</td>
+                    <td className="px-6 py-3.5 text-right font-semibold text-muted-foreground">{row.total.toLocaleString()}</td>
                     <td className="px-6 py-3.5 text-right">
                       {row.expired > 0
                         ? <span className="font-semibold text-red-600">{row.expired}</span>
-                        : <span className="text-slate-400">0</span>
+                        : <span className="text-muted-foreground/70">0</span>
                       }
                     </td>
                     <td className="px-6 py-3.5 text-right">
                       {row.expiring30d > 0
                         ? <span className="font-semibold text-orange-600">{row.expiring30d}</span>
-                        : <span className="text-slate-400">0</span>
+                        : <span className="text-muted-foreground/70">0</span>
                       }
                     </td>
                     <td className="px-6 py-3.5 text-right">
                       {row.expiring90d > 0
                         ? <span className="font-semibold text-amber-600">{row.expiring90d}</span>
-                        : <span className="text-slate-400">0</span>
+                        : <span className="text-muted-foreground/70">0</span>
                       }
                     </td>
                     <td className="px-6 py-3.5">
                       <ExpiryBadge days={days} />
                       {row.soonestExpiry && (
-                        <span className="block text-[10px] text-slate-400 mt-0.5">{formatDate(row.soonestExpiry)}</span>
+                        <span className="block text-[10px] text-muted-foreground/70 mt-0.5">{formatDate(row.soonestExpiry)}</span>
                       )}
                     </td>
-                    <td className="px-6 py-3.5 text-xs text-slate-500">
+                    <td className="px-6 py-3.5 text-xs text-muted-foreground">
                       {row.latestExpiry ? formatDate(row.latestExpiry) : "—"}
                     </td>
                   </tr>
@@ -216,8 +216,8 @@ export default function Retention() {
                 <Trash2 className="w-5 h-5 text-red-500" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900">Purge Expired Records</h3>
-                <p className="text-sm text-slate-500 mt-0.5">
+                <h3 className="font-semibold text-foreground">Purge Expired Records</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">
                   Permanently delete all records that have passed their 1-year retention date.
                   This action cannot be undone.
                 </p>
@@ -273,7 +273,7 @@ export default function Retention() {
               {Object.entries(purgeResult.details).filter(([, count]) => count > 0).map(([label, count]) => (
                 <div key={label} className="text-sm bg-white rounded-lg px-3 py-2 border border-emerald-100">
                   <span className="font-semibold text-emerald-700">{count}</span>
-                  <span className="text-slate-600"> {label}</span>
+                  <span className="text-muted-foreground"> {label}</span>
                 </div>
               ))}
             </div>
