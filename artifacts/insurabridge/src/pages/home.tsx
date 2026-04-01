@@ -2,242 +2,306 @@ import {
   useState, useEffect, useRef, useCallback,
 } from "react"
 import {
-  motion, AnimatePresence, useScroll, useTransform,
-  useMotionValue, useSpring, animate, useInView,
+  motion, AnimatePresence,
+  useScroll, useTransform, useSpring,
+  useMotionValue, animate, useInView,
 } from "framer-motion"
 import {
-  ArrowRight, Building2, CheckCircle2, HeartPulse, BadgeCheck,
-  Globe, ChevronDown, Star, Clock, BarChart3, Lock, Phone, Mail,
-  MapPin, Menu, X, TrendingUp, Award, Layers, RefreshCw, Zap,
+  ArrowRight, Building2, CheckCircle, CheckCircle2, Zap, Globe,
+  Lock, Menu, X, BarChart3, RefreshCw, Award, Layers, TrendingUp,
+  HeartPulse, BadgeCheck, Star, ChevronDown, Briefcase, ShieldCheck,
+  Landmark, LayoutDashboard,
 } from "lucide-react"
-import { AuroraBackground } from "@/components/AuroraBackground"
-import { ParticleNetwork } from "@/components/ParticleNetwork"
 import { InsuraBridgeLogo } from "@/components/InsuraBridgeLogo"
 import { useAppNavigate } from "@/hooks/use-navigate"
 
-/* ─── colours ──────────────────────────────────────────────── */
-const C = {
-  bg: "linear-gradient(145deg,#060c1a 0%,#081428 55%,#060f12 100%)",
-  card: "rgba(8,18,38,0.82)",
-  border: "#1c3360",
-  heading: "#f1f5f9",
-  sub: "#64748b",
-  accent: "#93c5fd",
-  green: "#34d399",
-  grad: "linear-gradient(135deg,#1B3A6B 0%,#00897B 100%)",
-}
-
-/* ─── static data ───────────────────────────────────────────── */
+/* ─── Data ──────────────────────────────────────────────────── */
 const NAV_LINKS = [
-  { label: "Features",    id: "features" },
-  { label: "How It Works",id: "how-it-works" },
-  { label: "Who We Serve",id: "roles" },
-  { label: "Testimonials",id: "testimonials" },
-  { label: "FAQ",         id: "faq" },
+  { href: "#ecosystem", label: "Ecosystem" },
+  { href: "#features",  label: "Features" },
+  { href: "#stats",     label: "Impact" },
+  { href: "#testimonials", label: "Testimonials" },
+  { href: "#faq",       label: "FAQ" },
 ]
 
-const STATS: { raw: number; display: string; label: string; prefix?: string; suffix?: string; special?: string }[] = [
-  { raw: 500,   display: "500+",       label: "Empanelled Hospitals",  suffix: "+" },
-  { raw: 1.2,   display: "1.2M+",      label: "Claims Processed",      suffix: "M+" },
-  { raw: 98.4,  display: "98.4%",      label: "Settlement Rate",       suffix: "%" },
-  { raw: 60,    display: "60+",        label: "Insurer Partners",       suffix: "+" },
-  { raw: 4,     display: "<4h",        label: "Avg Claim TAT",         special: "<4h" },
-  { raw: 3200,  display: "₹3,200Cr",   label: "Claims Settled",        prefix: "₹", suffix: "Cr" },
-]
-
-const PARTNERS = [
-  "StarHealth","HDFC ERGO","Niva Bupa","New India","ICICI Lombard",
-  "Bajaj Allianz","Aditya Birla Health","Care Health","ManipalCigna",
-  "SBI Health","Reliance Health","Royal Sundaram",
-]
-
-const FEATURES = [
-  { icon: HeartPulse, title: "Real-Time Claim Tracking", desc: "End-to-end visibility with live status, auto-escalation, and smart notifications.", color: "#ef4444" },
-  { icon: Globe,      title: "Network Empanelment",      desc: "Digital KYC, rate contracts, and live status for cashless hospital onboarding.",  color: "#3b82f6" },
-  { icon: BadgeCheck, title: "Digital E-Cards",          desc: "Instant insurance cards downloadable from any device, any time.",                  color: "#8b5cf6" },
-  { icon: BarChart3,  title: "Analytics & Reports",      desc: "Real-time dashboards and one-click exports for claims, utilisation, and network.", color: "#10b981" },
-  { icon: RefreshCw,  title: "Renewals & Portability",   desc: "Automated reminders, portability requests, and endorsement processing.",          color: "#06b6d4" },
-  { icon: Zap,        title: "Instant Settlements",      desc: "Automated NEFT/RTGS triggers with full audit trail and real-time reconciliation.", color: "#f97316" },
-  { icon: Lock,       title: "Enterprise Security",      desc: "ISO 27001-aligned infra, E2E encryption, IRDAI-compliant data residency.",        color: "#6366f1" },
-  { icon: RefreshCw,  title: "Smart Documents",          desc: "Centralised vault with version control, e-signature, and one-click sharing.",     color: "#f59e0b" },
-  { icon: Award,      title: "Multi-Role Dashboards",    desc: "Tailored views for TPAs, Insurers, Hospitals, and Members — one platform.",      color: "#ec4899" },
-]
-
-const STEPS = [
-  { icon: Layers,   step: "01", title: "Connect Stakeholders",     desc: "Onboard TPAs, insurers, hospitals, and members in days — not months." },
-  { icon: RefreshCw,step: "02", title: "Configure Workflows",      desc: "Set approval flows, escalation rules, and notification preferences — no code needed." },
-  { icon: TrendingUp,step:"03", title: "Go Live & Track",          desc: "Process claims, issue e-cards, and monitor every KPI in real time." },
+const STATS = [
+  { value: 500,  display: "500+",     label: "Network Hospitals",  suffix: "+",  Icon: Building2 },
+  { value: 1.2,  display: "1.2M+",   label: "Claims Processed",   suffix: "M+", Icon: CheckCircle },
+  { value: 98.4, display: "98.4%",   label: "Settlement Rate",    suffix: "%",  Icon: Zap },
+  { value: 60,   display: "60+",      label: "Insurance Partners", suffix: "+",  Icon: Globe },
 ]
 
 const ROLES = [
-  { slug:"tpa",      label:"Third-Party Administrators", tagline:"Streamline operations at scale",      desc:"Manage claim intake, processing, and settlement across multiple insurers from one dashboard.", features:["Bulk claim ingestion","Auto-adjudication","Hospital coordination","Insurer reconciliation"], color:"#1B3A6B" },
-  { slug:"insurer",  label:"Insurance Companies",        tagline:"Full portfolio visibility",            desc:"Monitor claim ratios, manage TPA performance, and enforce underwriting guidelines.",           features:["Loss ratio dashboards","TPA SLA tracking","Policy analytics","Regulatory reports"],       color:"#00897B" },
-  { slug:"hospital", label:"Hospitals & Clinics",        tagline:"Faster cashless clearances",           desc:"Submit pre-auth, upload discharge docs, and receive settlements through one secure portal.",   features:["Pre-auth in minutes","Digital billing","Real-time settlement","Network empanelment"],    color:"#2a5298" },
-  { slug:"customer", label:"Policy Holders",             tagline:"Your health, always covered",          desc:"Track claims, download e-cards, check network hospitals, and reach support instantly.",        features:["Claim status tracking","Digital e-card","Network finder","24×7 support chat"],           color:"#00BFA5" },
+  {
+    slug: "tpa", Icon: Briefcase,
+    title: "Third-Party Administrators",
+    tagline: "Streamline operations at scale",
+    desc: "Manage claim intake, processing, and settlement across multiple insurers from one dashboard.",
+    features: ["Bulk claim ingestion", "Auto-adjudication", "Hospital coordination", "Insurer reconciliation"],
+    color: "hsl(var(--primary))",
+  },
+  {
+    slug: "insurer", Icon: ShieldCheck,
+    title: "Insurance Companies",
+    tagline: "Full portfolio visibility",
+    desc: "Monitor claim ratios, manage TPA performance, and enforce underwriting guidelines.",
+    features: ["Loss ratio dashboards", "TPA SLA tracking", "Policy analytics", "Regulatory reports"],
+    color: "hsl(var(--primary))",
+  },
+  {
+    slug: "hospital", Icon: Building2,
+    title: "Hospitals & Clinics",
+    tagline: "Faster cashless clearances",
+    desc: "Submit pre-auth, upload discharge docs, and receive settlements through one secure portal.",
+    features: ["Pre-auth in minutes", "Digital billing", "Real-time settlement", "Network empanelment"],
+    color: "hsl(var(--primary))",
+  },
+  {
+    slug: "customer", Icon: Landmark,
+    title: "Policy Holders",
+    tagline: "Your health, always covered",
+    desc: "Track claims, download e-cards, check network hospitals, and reach support instantly.",
+    features: ["Claim status tracking", "Digital e-card", "Network finder", "24×7 support chat"],
+    color: "hsl(var(--primary))",
+  },
+]
+
+const FEATURES = [
+  { Icon: HeartPulse, title: "Real-Time Claim Tracking",   desc: "End-to-end visibility with live status, auto-escalation, and smart notifications." },
+  { Icon: Globe,      title: "Network Empanelment",         desc: "Digital KYC, rate contracts, and live status for cashless hospital onboarding." },
+  { Icon: BadgeCheck, title: "Digital E-Cards",             desc: "Instant insurance cards downloadable from any device, any time." },
+  { Icon: BarChart3,  title: "Analytics & Reports",         desc: "Real-time dashboards and one-click exports for claims, utilisation, and network." },
+  { Icon: RefreshCw,  title: "Renewals & Portability",      desc: "Automated reminders, portability requests, and endorsement processing." },
+  { Icon: Zap,        title: "Instant Settlements",         desc: "Automated NEFT/RTGS triggers with full audit trail and real-time reconciliation." },
+  { Icon: Lock,       title: "Enterprise Security",         desc: "ISO 27001-aligned infra, E2E encryption, IRDAI-compliant data residency." },
+  { Icon: Award,      title: "Smart Documents",             desc: "Centralised vault with version control, e-signature, and one-click sharing." },
+  { Icon: LayoutDashboard, title: "Multi-Role Dashboards",  desc: "Tailored views for TPAs, Insurers, Hospitals, and Members — one platform." },
+]
+
+const OPS_FEATURES = [
+  {
+    title: "Unified Claims Console",
+    desc: "Every claim across all TPAs and insurers in one view — filterable, searchable, actionable.",
+  },
+  {
+    title: "Member & Policy Hub",
+    desc: "Full member lifecycle management from onboarding to renewal, portability, and e-cards.",
+  },
+  {
+    title: "Settlement Automation",
+    desc: "NEFT/RTGS triggers, reconciliation, and audit trail — no manual steps, no errors.",
+  },
+  {
+    title: "Smart Communication Centre",
+    desc: "Threaded messaging, voice call logs, and document sharing between all stakeholders.",
+  },
 ]
 
 const TESTIMONIALS = [
-  { name:"Rajiv Mehta",      title:"COO, MediTPA Solutions",       text:"InsuraBridge cut our claim TAT from 9 days to under 4 hours. The auto-escalation alone saved two full-time headcounts.", rating:5 },
-  { name:"Dr. Anjali Sharma",title:"Medical Director, City General",text:"Pre-auth used to be a phone nightmare. Now it's two minutes. Our cashless clearance rate went from 68% to 94%.",        rating:5 },
-  { name:"Priya Nair",       title:"Head of Claims, National Life", text:"Loss ratio breakdowns by product, geography, and age band — data we used to build manually every month.",               rating:5 },
-  { name:"Amit Kulkarni",    title:"Policy Holder",                 text:"Filed Monday, settlement confirmation by Tuesday afternoon. Didn't have to call anyone — everything just happened.",     rating:5 },
+  { name: "Rajiv Mehta",       title: "COO, MediTPA Solutions",        text: "InsuraBridge cut our claim TAT from 9 days to under 4 hours. The auto-escalation alone saved two full-time headcounts.", rating: 5 },
+  { name: "Dr. Anjali Sharma", title: "Medical Director, City General", text: "Pre-auth used to be a phone nightmare. Now it's two minutes. Our cashless clearance rate went from 68% to 94%.", rating: 5 },
+  { name: "Priya Nair",        title: "Head of Claims, National Life",  text: "Loss ratio breakdowns by product, geography, and age band — data we used to build manually every month.", rating: 5 },
+  { name: "Amit Kulkarni",     title: "Policy Holder",                  text: "Filed Monday, settlement confirmation by Tuesday afternoon. Didn't have to call anyone — everything just happened.", rating: 5 },
 ]
 
 const FAQS = [
-  { q:"How long does onboarding take?",                  a:"Most organisations go live within 7–14 business days. Our team handles migration, config, and training." },
-  { q:"Is InsuraBridge IRDAI compliant?",                a:"Yes — built to meet IRDAI guidelines on data localisation, audit trails, and policyholder data protection." },
-  { q:"Can we integrate with our existing HMS?",         a:"Yes. We have REST APIs, HL7/FHIR connectors, and pre-built integrations with Athena, MocDoc, and Practo." },
-  { q:"What support SLA do you offer?",                  a:"All plans include 24×7 critical-issue support with a 2-hour response SLA. Standard queries resolved in one business day." },
-  { q:"How is pricing structured?",                      a:"Flexible per-member-per-month for insurers; fixed monthly plans for hospitals. Contact us for a custom quote." },
+  { q: "How long does onboarding take?",          a: "Most organisations go live within 7–14 business days. Our team handles migration, config, and training." },
+  { q: "Is InsuraBridge IRDAI compliant?",        a: "Yes — built to meet IRDAI guidelines on data localisation, audit trails, and policyholder data protection." },
+  { q: "Can we integrate with our existing HMS?", a: "Yes. We have REST APIs, HL7/FHIR connectors, and pre-built integrations with Athena, MocDoc, and Practo." },
+  { q: "What support SLA do you offer?",          a: "All plans include 24×7 critical-issue support with a 2-hour response SLA. Standard queries resolved in one business day." },
+  { q: "How is pricing structured?",              a: "Flexible per-member-per-month for insurers; fixed monthly plans for hospitals. Contact us for a custom quote." },
 ]
 
-const HERO_WORDS = ["Modern Insurance", "Health Claims", "TPA Operations", "Member Care", "Network Empanelment"]
+const PARTNERS = [
+  "Star Health", "HDFC ERGO", "Niva Bupa", "New India Assurance", "ICICI Lombard",
+  "Bajaj Allianz", "Aditya Birla Health", "Care Health", "ManipalCigna",
+  "SBI Health", "Reliance Health", "Royal Sundaram",
+]
 
-/* ─── animation variants ───────────────────────────────────── */
-const fadeUp = {
-  hidden: { opacity: 0, y: 32 },
-  visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.55, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] } }),
-}
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.88 },
-  visible: (i = 0) => ({ opacity: 1, scale: 1, transition: { duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] } }),
-}
+const HERO_WORDS = ["Health Claims", "TPA Operations", "Network Empanelment", "Member Care", "Insurance"]
 
-/* ─── small helpers ─────────────────────────────────────────── */
+/* ─── Helpers ───────────────────────────────────────────────── */
 function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
 }
 
-/* ─── AnimatedStat: count-up number display ─────────────────── */
+/* ─── AnimatedStat ──────────────────────────────────────────── */
 function AnimatedStat({ stat }: { stat: typeof STATS[0] }) {
   const ref = useRef<HTMLSpanElement>(null)
   const mv = useMotionValue(0)
   const inView = useInView(ref, { once: true, margin: "-60px" })
-
-  // Transform must be called unconditionally at top level
   const displayValue = useTransform(mv, (v) => {
     if (stat.suffix === "%")  return v.toFixed(1)
     if (stat.suffix === "M+") return v.toFixed(1)
-    if (stat.suffix === "Cr") return Math.round(v).toLocaleString("en-IN")
     return Math.round(v).toString()
   })
-
   useEffect(() => {
     if (!inView) return
-    const ctrl = animate(mv, stat.raw, { duration: 2.2, ease: "easeOut" })
+    const ctrl = animate(mv, stat.value, { duration: 2, ease: "easeOut" })
     return ctrl.stop
-  }, [inView, mv, stat.raw])
-
-  if (stat.special) return <span ref={ref}>{stat.special}</span>
+  }, [inView, mv, stat.value])
 
   return (
-    <motion.span ref={ref}>
-      {stat.prefix ?? ""}
+    <motion.span ref={ref} className="text-3xl md:text-4xl font-display font-black text-foreground">
       <motion.span>{displayValue}</motion.span>
-      {stat.suffix ?? ""}
+      <span>{stat.suffix}</span>
     </motion.span>
   )
 }
 
-/* ─── Marquee ────────────────────────────────────────────────── */
+/* ─── NetworkCard ───────────────────────────────────────────── */
+function NetworkCard({
+  Icon, title, desc, delay = 0, onClick, stat, statLabel, features,
+}: {
+  Icon: React.ElementType; title: string; desc: string; delay?: number;
+  onClick?: () => void; stat?: string; statLabel?: string; features?: string[];
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ delay, duration: 0.55, ease: "easeOut" }}
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+      onClick={onClick}
+      className={`group relative bg-card p-7 rounded-2xl border border-border shadow-sm
+        hover:shadow-lg hover:shadow-primary/8 transition-shadow duration-300
+        flex flex-col gap-4 overflow-hidden${onClick ? " cursor-pointer" : ""}`}
+      role={onClick ? "button" : "article"}
+    >
+      {/* hover glow */}
+      <div className="absolute -right-16 -top-16 w-36 h-36 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.12) 0%, transparent 70%)" }} />
+
+      {/* icon */}
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-primary/10 text-primary
+        group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300 flex-shrink-0">
+        <Icon className="w-5 h-5" />
+      </div>
+
+      <div className="flex flex-col gap-1.5 flex-1">
+        <h3 className="font-display font-bold text-base text-foreground">{title}</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+        {features && (
+          <ul className="mt-3 space-y-1.5">
+            {features.map((f) => (
+              <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                {f}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {stat && (
+        <div className="pt-3 border-t border-border">
+          <span className="text-2xl font-display font-black text-foreground">{stat}</span>
+          <span className="text-xs text-muted-foreground ml-1">{statLabel}</span>
+        </div>
+      )}
+
+      {/* animated underline + arrow on hover */}
+      <div className="flex items-center justify-between mt-1">
+        <div className="h-0.5 w-0 bg-primary group-hover:w-3/4 transition-all duration-500 ease-out rounded-full" />
+        {onClick && (
+          <span className="flex items-center gap-1 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            Access Portal <ArrowRight className="w-3 h-3" />
+          </span>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
+/* ─── Typewriter ────────────────────────────────────────────── */
+function Typewriter() {
+  const [wordIdx, setWordIdx] = useState(0)
+  const [displayed, setDisplayed] = useState("")
+  const [deleting, setDeleting] = useState(false)
+
+  useEffect(() => {
+    const word = HERO_WORDS[wordIdx]
+    let t: ReturnType<typeof setTimeout>
+    if (!deleting && displayed.length < word.length)
+      t = setTimeout(() => setDisplayed(word.slice(0, displayed.length + 1)), 65)
+    else if (!deleting && displayed.length === word.length)
+      t = setTimeout(() => setDeleting(true), 1800)
+    else if (deleting && displayed.length > 0)
+      t = setTimeout(() => setDisplayed(word.slice(0, displayed.length - 1)), 38)
+    else { setDeleting(false); setWordIdx((i) => (i + 1) % HERO_WORDS.length) }
+    return () => clearTimeout(t)
+  }, [displayed, deleting, wordIdx])
+
+  return (
+    <span className="text-primary">
+      {displayed}
+      <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }} className="text-primary">|</motion.span>
+    </span>
+  )
+}
+
+/* ─── Scroll progress bar ───────────────────────────────────── */
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30 })
+  return (
+    <motion.div className="fixed top-0 left-0 right-0 z-[60] h-[3px] origin-left bg-primary" style={{ scaleX }} />
+  )
+}
+
+/* ─── Marquee ───────────────────────────────────────────────── */
 function Marquee({ items }: { items: string[] }) {
   const doubled = [...items, ...items]
   return (
-    <div className="overflow-hidden relative" style={{ maskImage: "linear-gradient(90deg,transparent 0%,black 10%,black 90%,transparent 100%)" }}>
+    <div className="overflow-hidden" style={{ maskImage: "linear-gradient(90deg,transparent,black 10%,black 90%,transparent)" }}>
       <motion.div
-        className="flex gap-12 whitespace-nowrap"
+        className="flex gap-14 whitespace-nowrap"
         animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
       >
         {doubled.map((p, i) => (
-          <span key={i} className="text-sm font-bold flex-shrink-0" style={{ color: "#334155" }}>
-            {p}
-          </span>
+          <span key={i} className="text-sm font-semibold text-muted-foreground/50 flex-shrink-0">{p}</span>
         ))}
       </motion.div>
     </div>
   )
 }
 
-/* ─── Card tilt on hover ────────────────────────────────────── */
-function TiltCard({ children, className = "", style = {}, onClick }: {
-  children: React.ReactNode; className?: string; style?: React.CSSProperties; onClick?: () => void
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  const rotateX = useSpring(useMotionValue(0), { stiffness: 200, damping: 20 })
-  const rotateY = useSpring(useMotionValue(0), { stiffness: 200, damping: 20 })
-
-  function onMove(e: React.MouseEvent) {
-    const r = ref.current!.getBoundingClientRect()
-    const x = (e.clientX - r.left) / r.width  - 0.5
-    const y = (e.clientY - r.top)  / r.height - 0.5
-    rotateX.set(-y * 10)
-    rotateY.set(x * 10)
-  }
-  function onLeave() { rotateX.set(0); rotateY.set(0) }
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      onClick={onClick}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 800, ...style }}
-      className={`rounded-2xl ${className}`}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
 /* ─── Testimonial carousel ──────────────────────────────────── */
 function TestimonialCarousel() {
   const [idx, setIdx] = useState(0)
-
   useEffect(() => {
     const id = setInterval(() => setIdx((i) => (i + 1) % TESTIMONIALS.length), 4500)
     return () => clearInterval(id)
   }, [])
-
   const t = TESTIMONIALS[idx]
-
   return (
-    <div className="relative">
+    <div>
       <AnimatePresence mode="wait">
         <motion.div
           key={idx}
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -40 }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="rounded-2xl p-8"
-          style={{ background: C.card, border: `1px solid ${C.border}` }}
+          initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+          transition={{ duration: 0.4 }}
+          className="bg-card border border-border rounded-2xl p-8"
         >
           <div className="flex gap-1 mb-4">
-            {Array.from({ length: t.rating }).map((_, j) => (
-              <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
-            ))}
+            {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />)}
           </div>
-          <p className="text-sm md:text-base italic leading-relaxed mb-6" style={{ color: "#94a3b8" }}>
-            "{t.text}"
-          </p>
+          <p className="text-sm md:text-base italic leading-relaxed mb-6 text-muted-foreground">"{t.text}"</p>
           <div>
-            <p className="text-sm font-bold" style={{ color: C.heading }}>{t.name}</p>
-            <p className="text-xs" style={{ color: C.sub }}>{t.title}</p>
+            <p className="text-sm font-bold text-foreground">{t.name}</p>
+            <p className="text-xs text-muted-foreground">{t.title}</p>
           </div>
         </motion.div>
       </AnimatePresence>
-
-      {/* Dot nav */}
-      <div className="flex gap-2 justify-center mt-5">
+      <div className="flex gap-2 justify-center mt-4">
         {TESTIMONIALS.map((_, i) => (
           <motion.button
-            key={i}
-            onClick={() => setIdx(i)}
-            animate={{ width: i === idx ? 24 : 8, opacity: i === idx ? 1 : 0.4 }}
+            key={i} onClick={() => setIdx(i)}
+            animate={{ width: i === idx ? 24 : 8, opacity: i === idx ? 1 : 0.35 }}
             transition={{ duration: 0.3 }}
-            className="h-2 rounded-full"
-            style={{ background: "linear-gradient(90deg,#1B3A6B,#00897B)" }}
+            className="h-2 rounded-full bg-primary"
           />
         ))}
       </div>
@@ -245,583 +309,590 @@ function TestimonialCarousel() {
   )
 }
 
-/* ─── Typewriter cycling words ──────────────────────────────── */
-function TypewriterWords() {
-  const [wordIdx, setWordIdx]   = useState(0)
-  const [displayed, setDisplayed] = useState("")
-  const [deleting, setDeleting]   = useState(false)
-
-  useEffect(() => {
-    const word = HERO_WORDS[wordIdx]
-    let timeout: ReturnType<typeof setTimeout>
-
-    if (!deleting && displayed.length < word.length) {
-      timeout = setTimeout(() => setDisplayed(word.slice(0, displayed.length + 1)), 60)
-    } else if (!deleting && displayed.length === word.length) {
-      timeout = setTimeout(() => setDeleting(true), 1800)
-    } else if (deleting && displayed.length > 0) {
-      timeout = setTimeout(() => setDisplayed(word.slice(0, displayed.length - 1)), 35)
-    } else if (deleting && displayed.length === 0) {
-      setDeleting(false)
-      setWordIdx((i) => (i + 1) % HERO_WORDS.length)
-    }
-
-    return () => clearTimeout(timeout)
-  }, [displayed, deleting, wordIdx])
+/* ─── Navbar ────────────────────────────────────────────────── */
+function NavBar({
+  navigate,
+  headerLogoOpacity,
+  headerLogoScale,
+}: {
+  navigate: (to: string) => void
+  headerLogoOpacity: any
+  headerLogoScale: any
+}) {
+  const [open, setOpen] = useState(false)
 
   return (
-    <span
-      style={{
-        background: "linear-gradient(90deg,#93c5fd 0%,#34d399 100%)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        display: "inline-block",
-        minWidth: "2ch",
-      }}
-    >
-      {displayed}
-      <motion.span
-        animate={{ opacity: [1, 0] }}
-        transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-        style={{ WebkitTextFillColor: "#34d399" }}
-      >
-        |
-      </motion.span>
-    </span>
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-sm font-semibold z-50">
+        Skip to main content
+      </a>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo — fades out while hero card animates, then fades back */}
+          <motion.button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            style={{ opacity: headerLogoOpacity, scale: headerLogoScale }}
+            className="flex items-center gap-2.5 text-foreground hover:opacity-80 transition-opacity"
+          >
+            <InsuraBridgeLogo size={32} textSize="0.95rem" />
+          </motion.button>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-6" aria-label="Primary navigation">
+            {NAV_LINKS.map(({ href, label }) => (
+              <button
+                key={label}
+                onClick={() => scrollTo(href.slice(1))}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          {/* CTAs */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            <motion.button
+              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+              onClick={() => navigate("/network-join")}
+              className="px-4 py-2 rounded-full font-semibold text-sm border border-border bg-card text-foreground hover:bg-muted transition-colors"
+            >
+              Join Network
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.04, opacity: 0.9 }} whileTap={{ scale: 0.96 }}
+              onClick={() => navigate("/login")}
+              className="flex items-center gap-1.5 px-5 py-2 rounded-full font-semibold text-sm text-white shadow-sm"
+              style={{ background: "linear-gradient(135deg, hsl(var(--primary)) 0%, #00BFA5 100%)" }}
+            >
+              Portal Login <ArrowRight className="w-3.5 h-3.5" />
+            </motion.button>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden p-2 rounded-xl border border-border text-foreground hover:bg-muted transition-colors"
+            onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
+          >
+            <AnimatePresence mode="wait">
+              {open
+                ? <motion.span key="x"   initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.18 }} className="block"><X className="w-5 h-5" /></motion.span>
+                : <motion.span key="ham" initial={{ rotate:  90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.18 }} className="block"><Menu className="w-5 h-5" /></motion.span>
+              }
+            </AnimatePresence>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-30 bg-foreground/20 backdrop-blur-sm"
+              onClick={() => setOpen(false)}
+            />
+            <motion.nav
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 340, damping: 36 }}
+              className="fixed top-0 right-0 bottom-0 z-40 w-72 bg-card border-l border-border shadow-2xl flex flex-col"
+            >
+              <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+                <span className="font-display font-black text-lg text-foreground">InsuraBridge</span>
+                <button onClick={() => setOpen(false)} className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex flex-col p-4 gap-1 flex-1">
+                {NAV_LINKS.map(({ href, label }) => (
+                  <button key={label} onClick={() => { scrollTo(href.slice(1)); setOpen(false) }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-foreground hover:bg-muted transition-colors text-left">
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="p-4 border-t border-border space-y-2">
+                <button onClick={() => { navigate("/network-join"); setOpen(false) }}
+                  className="flex items-center justify-center w-full py-3 rounded-xl text-sm font-semibold border border-border text-foreground hover:bg-muted transition-colors">
+                  Join Network
+                </button>
+                <button onClick={() => { navigate("/login"); setOpen(false) }}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-white"
+                  style={{ background: "linear-gradient(135deg, hsl(var(--primary)), #00BFA5)" }}>
+                  Portal Login <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
+    </header>
   )
 }
 
-/* ─── Scroll-progress bar ───────────────────────────────────── */
-function ScrollProgress() {
-  const { scrollYProgress } = useScroll()
-  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30 })
+/* ─── DashboardMockup ───────────────────────────────────────── */
+function DashboardMockup() {
+  const stats = [
+    { label: "Open Claims", value: "1,284", delta: "+12", color: "#60a5fa" },
+    { label: "Settled Today", value: "₹2.4Cr", delta: "+8%", color: "#34d399" },
+    { label: "Pre-auth Queue", value: "47", delta: "-3", color: "#fbbf24" },
+    { label: "SLA Breaches", value: "2", delta: "-5", color: "#f87171" },
+  ]
   return (
-    <motion.div
-      className="fixed top-0 left-0 right-0 z-[60] h-[3px] origin-left"
-      style={{ scaleX, background: "linear-gradient(90deg,#1B3A6B,#00897B,#34d399)" }}
-    />
-  )
-}
+    <div className="relative">
+      <div className="absolute -inset-4 rounded-3xl opacity-20 blur-2xl bg-primary pointer-events-none" />
+      <div className="relative bg-card border border-border rounded-2xl overflow-hidden shadow-2xl">
+        {/* Browser chrome */}
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/50">
+          <div className="flex gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-red-500/70" />
+            <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
+            <span className="w-3 h-3 rounded-full bg-green-500/70" />
+          </div>
+          <div className="flex-1 mx-4 bg-background/60 border border-border rounded-md px-3 py-1 text-xs text-muted-foreground text-center">
+            app.insurabridge.in/dashboard
+          </div>
+        </div>
 
-/* ─── Floating orbs ────────────────────────────────────────── */
-function FloatingOrbs() {
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {[
-        { w: 600, h: 600, x: "-20%", y: "10%",  col: "rgba(0,137,123,0.12)", dur: 14 },
-        { w: 500, h: 500, x: "70%",  y: "-10%", col: "rgba(27,58,107,0.18)", dur: 18 },
-        { w: 400, h: 400, x: "40%",  y: "50%",  col: "rgba(0,191,165,0.08)", dur: 22 },
-      ].map((o, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full"
-          style={{ width: o.w, height: o.h, left: o.x, top: o.y, background: `radial-gradient(circle,${o.col} 0%,transparent 70%)` }}
-          animate={{ x: [0, 30, -20, 0], y: [0, -20, 30, 0] }}
-          transition={{ duration: o.dur, repeat: Infinity, ease: "easeInOut" }}
-        />
-      ))}
+        {/* Dashboard content */}
+        <div className="p-5 bg-background/40">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs text-muted-foreground">Good morning,</p>
+              <p className="text-sm font-bold text-foreground">TPA Operations Centre</p>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Live
+            </div>
+          </div>
+
+          {/* Stat cards */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {stats.map((s) => (
+              <div key={s.label} className="bg-card border border-border rounded-xl p-3">
+                <p className="text-xs text-muted-foreground mb-1">{s.label}</p>
+                <p className="text-lg font-black font-display text-foreground">{s.value}</p>
+                <p className="text-xs mt-0.5" style={{ color: s.delta.startsWith("+") ? "#34d399" : "#f87171" }}>{s.delta}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Mini claim rows */}
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-border bg-muted/30">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Recent Claims</p>
+            </div>
+            {[
+              { id: "CLM-2841", hospital: "Apollo Delhi",   amount: "₹84,000", status: "Approved",    color: "#34d399" },
+              { id: "CLM-2840", hospital: "Fortis Gurgaon", amount: "₹1.2L",   status: "Under Review", color: "#fbbf24" },
+              { id: "CLM-2839", hospital: "Max Saket",      amount: "₹36,000", status: "Pending",     color: "#60a5fa" },
+            ].map((row) => (
+              <div key={row.id} className="flex items-center justify-between px-4 py-2.5 border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
+                <div>
+                  <p className="text-xs font-mono font-semibold text-foreground">{row.id}</p>
+                  <p className="text-xs text-muted-foreground">{row.hospital}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-semibold text-foreground">{row.amount}</p>
+                  <p className="text-xs" style={{ color: row.color }}>{row.status}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
 
-/* ─── NavBar ────────────────────────────────────────────────── */
-function NavBar({ navigate }: { navigate: (to: string) => void }) {
-  const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20)
-    window.addEventListener("scroll", fn, { passive: true })
-    return () => window.removeEventListener("scroll", fn)
-  }, [])
-
-  return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed top-0 inset-x-0 z-50"
-      style={{
-        background: scrolled ? "rgba(6,12,26,0.95)" : "rgba(6,12,26,0.6)",
-        backdropFilter: "blur(20px)",
-        borderBottom: `1px solid ${scrolled ? "rgba(28,51,96,0.7)" : "rgba(28,51,96,0.3)"}`,
-        transition: "background 0.3s, border-color 0.3s",
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-5 md:px-10 flex items-center justify-between h-16">
-        <InsuraBridgeLogo size={36} textSize="0.95rem" />
-
-        <nav className="hidden lg:flex items-center gap-7">
-          {NAV_LINKS.map((l, i) => (
-            <motion.button
-              key={l.label}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.06 }}
-              onClick={() => scrollTo(l.id)}
-              className="text-sm font-medium relative group"
-              style={{ color: C.sub }}
-            >
-              <span className="transition-colors group-hover:text-white">{l.label}</span>
-              <span
-                className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-left"
-                style={{ background: "linear-gradient(90deg,#93c5fd,#34d399)" }}
-              />
-            </motion.button>
-          ))}
-        </nav>
-
-        <div className="hidden lg:flex items-center gap-3">
-          <motion.button
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-            onClick={() => navigate("/network-join")}
-            className="px-4 py-2 rounded-xl text-sm font-semibold"
-            style={{ background: "rgba(14,26,54,0.7)", border: `1.5px solid ${C.border}`, color: C.accent }}
-          >
-            Join Network
-          </motion.button>
-          <motion.button
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px rgba(0,137,123,0.55)" }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => navigate("/login")}
-            className="px-5 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-1.5"
-            style={{ background: C.grad, boxShadow: "0 4px 16px rgba(0,137,123,0.35)" }}
-          >
-            Portal Login <ArrowRight className="w-3.5 h-3.5" />
-          </motion.button>
-        </div>
-
-        <button className="lg:hidden p-2 rounded-lg" style={{ color: C.sub }} onClick={() => setOpen(!open)}>
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden overflow-hidden"
-            style={{ background: "rgba(6,12,26,0.98)", borderTop: "1px solid #1c3360" }}
-          >
-            <div className="px-5 py-4 space-y-3">
-              {NAV_LINKS.map((l) => (
-                <button key={l.label} onClick={() => { scrollTo(l.id); setOpen(false) }}
-                  className="block w-full text-left text-sm font-medium py-2 transition-colors"
-                  style={{ color: C.sub }}>
-                  {l.label}
-                </button>
-              ))}
-              <div className="pt-3 border-t flex flex-col gap-2" style={{ borderColor: C.border }}>
-                <button onClick={() => { navigate("/network-join"); setOpen(false) }}
-                  className="py-2.5 rounded-xl text-sm font-semibold" style={{ border: `1.5px solid ${C.border}`, color: C.accent }}>
-                  Join Network
-                </button>
-                <button onClick={() => { navigate("/login"); setOpen(false) }}
-                  className="py-2.5 rounded-xl text-sm font-semibold text-white" style={{ background: C.grad }}>
-                  Portal Login
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
-  )
-}
-
-/* ─── SectionLabel ──────────────────────────────────────────── */
-function SectionLabel({ text }: { text: string }) {
-  return (
-    <motion.span
-      variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4"
-      style={{ background: "rgba(0,137,123,0.15)", border: "1px solid rgba(0,191,165,0.28)", color: C.green }}
-    >
-      <CheckCircle2 className="w-3 h-3" /> {text}
-    </motion.span>
-  )
-}
-
-/* ─── main ──────────────────────────────────────────────────── */
+/* ─── Main ──────────────────────────────────────────────────── */
 export default function Home() {
   const navigate = useAppNavigate()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [winW, setWinW] = useState(typeof window !== "undefined" ? window.innerWidth : 1440)
+
   const heroRef = useRef<HTMLDivElement>(null)
 
-  /* Mouse parallax for hero */
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 })
-  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 })
+  useEffect(() => {
+    const onResize = () => setWinW(window.innerWidth)
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [])
 
-  const onMouseMove = useCallback((e: React.MouseEvent) => {
-    const r = heroRef.current?.getBoundingClientRect()
-    if (!r) return
-    mouseX.set(((e.clientX - r.left) / r.width  - 0.5) * 30)
-    mouseY.set(((e.clientY - r.top)  / r.height - 0.5) * 30)
-  }, [mouseX, mouseY])
+  /* Scroll-based hero morph */
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
+  const smoothP = useSpring(scrollYProgress, { stiffness: 110, damping: 28, restDelta: 1e-4 })
+
+  const cardX       = useTransform(smoothP, (p) => p * (60 - winW / 2))
+  const cardY       = useTransform(smoothP, [0, 1], [0, -24])
+  const cardScale   = useTransform(smoothP, [0, 0.9], [1, 0.068])
+  const cardOpacity = useTransform(smoothP, [0, 0.78], [1, 0])
+  const cardBR      = useTransform(smoothP, [0, 0.8], ["1.5rem", "50%"])
+
+  const headerLogoOpacity = useTransform(smoothP, [0, 0.12, 0.72, 1], [1, 0.2, 0.2, 1])
+  const headerLogoScale   = useTransform(smoothP, [0, 0.72, 1], [1, 0.88, 1])
 
   return (
-    <div
-      className="min-h-screen relative overflow-x-hidden"
-      style={{ background: C.bg, fontFamily: "'Inter',sans-serif", color: C.heading }}
-    >
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-
-      {/* Global animated BG */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        <AuroraBackground />
-        <ParticleNetwork />
-      </div>
+    <div id="main" className="min-h-screen relative w-full bg-background bg-grid-pattern">
+      {/* Hero radial glow overlay */}
+      <div className="absolute inset-0 bg-hero-glow pointer-events-none" aria-hidden />
 
       <ScrollProgress />
-      <NavBar navigate={navigate} />
+      <NavBar navigate={navigate} headerLogoOpacity={headerLogoOpacity} headerLogoScale={headerLogoScale} />
 
-      {/* ══ HERO ══════════════════════════════════════════════ */}
+      {/* ══ HERO ═══════════════════════════════════════════════════ */}
       <section
         ref={heroRef}
-        onMouseMove={onMouseMove}
-        className="relative z-10 pt-36 pb-20 px-5 md:px-10 min-h-screen flex items-center"
+        className="relative z-10 h-[185vh] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 flex flex-col items-center text-center"
       >
-        <FloatingOrbs />
-
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center w-full">
-          {/* Left copy */}
-          <div>
-            <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
-              <motion.span
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold mb-6"
-                style={{ background: "rgba(0,137,123,0.15)", border: "1px solid rgba(0,191,165,0.3)", color: C.green }}
-                animate={{ boxShadow: ["0 0 0 0 rgba(0,191,165,0)", "0 0 0 8px rgba(0,191,165,0.1)", "0 0 0 0 rgba(0,191,165,0)"] }}
-                transition={{ duration: 2.5, repeat: Infinity }}
-              >
-                <motion.span
-                  className="w-2 h-2 rounded-full"
-                  style={{ background: C.green }}
-                  animate={{ scale: [1, 1.4, 1] }}
-                  transition={{ duration: 1.2, repeat: Infinity }}
-                />
-                Trusted by 60+ Insurers across India
-              </motion.span>
-            </motion.div>
-
-            <div className="text-4xl md:text-5xl xl:text-6xl font-black leading-tight mb-6">
-              {["The Intelligent", "Hub for"].map((line, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {line}
-                </motion.div>
-              ))}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                style={{ minHeight: "1.2em" }}
-              >
-                <TypewriterWords />
-              </motion.div>
-            </div>
-
-            <motion.p
-              variants={fadeUp} custom={4} initial="hidden" animate="visible"
-              className="text-base md:text-lg leading-relaxed mb-8 max-w-xl"
-              style={{ color: C.sub }}
-            >
-              InsuraBridge unifies TPAs, Insurers, Hospitals, and Members — automating claims,
-              empanelments, settlements, and member experiences end-to-end.
-            </motion.p>
-
-            <motion.div variants={fadeUp} custom={5} initial="hidden" animate="visible" className="flex flex-wrap gap-4 mb-10">
-              <motion.button
-                whileHover={{ scale: 1.06, boxShadow: "0 12px 40px rgba(0,137,123,0.55)" }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/network-join")}
-                className="flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-white text-sm relative overflow-hidden"
-                style={{ background: C.grad }}
-              >
-                <motion.span className="absolute inset-0 opacity-0 hover:opacity-100"
-                  style={{ background: "rgba(255,255,255,0.08)" }}
-                />
-                <Building2 className="w-4 h-4" /> Join the Network
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.06, borderColor: C.accent }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/login")}
-                className="flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm"
-                style={{ background: "rgba(14,26,54,0.75)", border: `1.5px solid ${C.border}`, color: C.accent }}
-              >
-                Portal Login <ArrowRight className="w-4 h-4" />
-              </motion.button>
-            </motion.div>
-
-            {/* Trust pills */}
-            <motion.div variants={fadeUp} custom={6} initial="hidden" animate="visible" className="flex flex-wrap gap-2">
-              {["IRDAI Compliant","ISO 27001","₹3,200Cr+ Settled","24×7 Support"].map((t, i) => (
-                <motion.span
-                  key={t}
-                  initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7 + i * 0.08 }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
-                  style={{ background: "rgba(0,137,123,0.1)", border: "1px solid rgba(0,191,165,0.2)", color: C.green }}
-                >
-                  <CheckCircle2 className="w-3 h-3" /> {t}
-                </motion.span>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Right: stats grid with parallax */}
-          <motion.div
-            style={{ x: springX, y: springY }}
-            className="grid grid-cols-2 gap-4"
-          >
-            {STATS.map((s, i) => (
-              <motion.div
-                key={s.label}
-                variants={scaleIn} custom={i} initial="hidden" animate="visible"
-                whileHover={{ scale: 1.04, borderColor: "#00897B" }}
-                className="p-5 rounded-2xl text-center cursor-default"
-                style={{ background: C.card, border: `1px solid ${C.border}`, backdropFilter: "blur(12px)", transition: "border-color 0.25s" }}
-              >
-                <p className="text-2xl xl:text-3xl font-extrabold mb-1" style={{ color: C.accent }}>
-                  <AnimatedStat stat={s} />
-                </p>
-                <p className="text-xs font-medium" style={{ color: C.sub }}>{s.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Scroll hint */}
+        {/* Sticky morphing card */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
-          animate={{ y: [0, 8, 0] }} transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          style={{ color: "#334155" }}
+          className="sticky top-20 mb-10 w-full max-w-2xl backdrop-blur-sm border border-border p-8 sm:p-12 shadow-xl will-change-transform z-10"
+          style={{
+            x: cardX, y: cardY,
+            scale: cardScale,
+            opacity: cardOpacity,
+            borderRadius: cardBR,
+            background: "hsl(var(--card) / 0.75)",
+          }}
         >
-          <span className="text-xs">Scroll</span>
-          <ChevronDown className="w-4 h-4" />
+          {/* Live badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold border border-primary/20 bg-primary/5 text-primary"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            Unified Insurance Platform — Trusted by 60+ Insurers
+          </motion.div>
+
+          {/* Logo in hero card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="flex justify-center mb-6"
+          >
+            <InsuraBridgeLogo size={64} textSize="1.5rem" />
+          </motion.div>
+
+          {/* Hero headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-display font-black text-foreground leading-tight mb-4"
+          >
+            The Intelligent Hub for{" "}
+            <Typewriter />
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+            className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl mx-auto"
+          >
+            InsuraBridge unifies TPAs, Insurers, Hospitals, and Members — automating claims, empanelments, settlements, and member experiences end-to-end.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+            className="flex flex-wrap items-center justify-center gap-3"
+          >
+            <motion.button
+              whileHover={{ scale: 1.04, boxShadow: "0 8px 32px hsl(var(--primary) / 0.45)" }}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => navigate("/network-join")}
+              className="flex items-center gap-2 px-7 py-3 rounded-full font-bold text-sm text-white shadow-md hover:shadow-lg"
+              style={{ background: "linear-gradient(135deg, hsl(var(--primary)), #00BFA5)" }}
+            >
+              <Building2 className="w-4 h-4" /> Join the Network
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+              onClick={() => navigate("/login")}
+              className="flex items-center gap-2 px-7 py-3 rounded-full font-semibold text-sm border border-border bg-card text-foreground hover:bg-muted transition-colors"
+            >
+              Portal Login <ArrowRight className="w-4 h-4" />
+            </motion.button>
+          </motion.div>
+
+          {/* scroll hint */}
+          <motion.p
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
+            className="mt-8 text-xs text-muted-foreground/50 flex items-center justify-center gap-1"
+          >
+            <ChevronDown className="w-3.5 h-3.5 animate-bounce" /> Scroll to explore
+          </motion.p>
         </motion.div>
       </section>
 
-      {/* ══ PARTNER MARQUEE ═══════════════════════════════════ */}
-      <section className="relative z-10 py-10 border-y" style={{ borderColor: "#112044" }}>
-        <motion.p
-          variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-          className="text-center text-xs font-semibold mb-6 tracking-widest uppercase"
-          style={{ color: "#334155" }}
-        >
-          Trusted by leading insurers &amp; TPAs
-        </motion.p>
+      {/* ══ STATS ══════════════════════════════════════════════════ */}
+      <section id="stats" className="relative z-10 border-y border-border bg-muted/30 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {STATS.map((s, i) => (
+              <motion.div
+                key={s.label}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="flex flex-col items-center gap-2"
+              >
+                <s.Icon className="w-5 h-5 text-primary opacity-60" aria-hidden />
+                <AnimatedStat stat={s} />
+                <span className="text-sm text-muted-foreground font-medium">{s.label}</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ PARTNER MARQUEE ════════════════════════════════════════ */}
+      <section className="relative z-10 py-10 border-b border-border/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
+          <p className="text-center text-xs text-muted-foreground/50 font-semibold uppercase tracking-widest">Trusted by India's leading insurers</p>
+        </div>
         <Marquee items={PARTNERS} />
       </section>
 
-      {/* ══ FEATURES ══════════════════════════════════════════ */}
-      <section id="features" className="relative z-10 py-24 px-5 md:px-10">
-        <div className="max-w-7xl mx-auto">
+      {/* ══ ECOSYSTEM ══════════════════════════════════════════════ */}
+      <section id="ecosystem" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="text-center mb-14">
+          <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+            initial="hidden" whileInView="visible" viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-5 border border-primary/20 bg-primary/5 text-primary">
+            <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" /> One Platform
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-display font-black text-foreground mb-4"
+          >
+            One Unified Ecosystem
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+            className="text-muted-foreground max-w-2xl mx-auto text-lg"
+          >
+            Every stakeholder in the health insurance lifecycle, connected on a single secure platform. Click any card to access the portal for that role.
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {ROLES.map((r, i) => (
+            <NetworkCard
+              key={r.slug}
+              Icon={r.Icon}
+              title={r.title}
+              desc={r.desc}
+              features={r.features}
+              delay={i * 0.1}
+              onClick={() => navigate("/login")}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* ══ FEATURES ═══════════════════════════════════════════════ */}
+      <section id="features" className="relative z-10 bg-muted/40 border-y border-border py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <SectionLabel text="Platform Capabilities" />
-            <motion.h2 variants={fadeUp} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-extrabold mb-4">
-              Everything you need, nothing you don't
+            <motion.h2
+              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-display font-black text-foreground mb-4"
+            >
+              Platform Capabilities
             </motion.h2>
-            <motion.p variants={fadeUp} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="max-w-2xl mx-auto text-base" style={{ color: C.sub }}>
-              Nine purpose-built modules covering every touchpoint in the health insurance ecosystem.
+            <motion.p
+              initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+              className="text-muted-foreground max-w-xl mx-auto"
+            >
+              InsuraBridge is engineered for the demands of large-scale health insurance operations.
             </motion.p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {FEATURES.map((f, i) => (
-              <motion.div
-                key={f.title}
-                variants={fadeUp} custom={i % 3} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className="rounded-2xl p-6 cursor-default group"
-                style={{
-                  background: C.card,
-                  border: `1px solid ${C.border}`,
-                  backdropFilter: "blur(8px)",
-                  transition: "border-color 0.25s, box-shadow 0.25s",
-                }}
-                onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLDivElement).style.borderColor = f.color + "66"
-                  ;(e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 32px ${f.color}22`
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLDivElement).style.borderColor = C.border
-                  ;(e.currentTarget as HTMLDivElement).style.boxShadow = "none"
-                }}
-              >
-                <motion.div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: f.color + "22", border: `1px solid ${f.color}44` }}
-                  whileHover={{ rotate: [0, -8, 8, 0] }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <f.icon className="w-5 h-5" style={{ color: f.color }} />
-                </motion.div>
-                <h3 className="text-sm font-bold mb-2" style={{ color: C.heading }}>{f.title}</h3>
-                <p className="text-xs leading-relaxed" style={{ color: C.sub }}>{f.desc}</p>
-              </motion.div>
+              <NetworkCard key={f.title} Icon={f.Icon} title={f.title} desc={f.desc} delay={i * 0.07} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══ HOW IT WORKS ══════════════════════════════════════ */}
-      <section id="how-it-works" className="relative z-10 py-24 px-5 md:px-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <SectionLabel text="Getting Started" />
-            <motion.h2 variants={fadeUp} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-extrabold mb-4">
-              Up and running in three steps
-            </motion.h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {STEPS.map((s, i) => (
+      {/* ══ OPERATIONS CENTRE ══════════════════════════════════════ */}
+      <section className="relative z-10 py-24 overflow-hidden">
+        {/* subtle BG */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none bg-hero-glow" aria-hidden />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left copy */}
+            <div>
               <motion.div
-                key={s.step}
-                initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.18, duration: 0.6, ease: [0.22,1,0.36,1] }}
-                className="rounded-2xl p-7 text-center relative"
-                style={{ background: C.card, border: `1px solid ${C.border}` }}
+                initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6 border border-primary/20 bg-primary/5 text-primary"
               >
-                {/* Animated step number */}
-                <motion.div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                  style={{ background: C.grad, boxShadow: "0 4px 20px rgba(0,137,123,0.3)" }}
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <s.icon className="w-6 h-6 text-white" />
-                </motion.div>
-                <motion.p
-                  className="text-3xl font-black mb-2"
-                  style={{
-                    background: "linear-gradient(90deg,#93c5fd,#34d399)",
-                    WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                  }}
-                  initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }} transition={{ delay: i * 0.18 + 0.3 }}
-                >
-                  {s.step}
-                </motion.p>
-                <h3 className="text-base font-bold mb-2" style={{ color: C.heading }}>{s.title}</h3>
-                <p className="text-xs leading-relaxed" style={{ color: C.sub }}>{s.desc}</p>
+                <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" /> Enterprise-Grade
               </motion.div>
-            ))}
+              <motion.h2
+                initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.05 }}
+                className="text-3xl md:text-4xl font-display font-black text-foreground mb-5 leading-tight"
+              >
+                Operations Centre
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+                className="text-muted-foreground text-lg mb-8 leading-relaxed"
+              >
+                InsuraBridge delivers a comprehensive claims, member, and settlement management system — unified under one platform. No context switching, no silos.
+              </motion.p>
+
+              <div className="space-y-4 mb-10">
+                {OPS_FEATURES.map((f, i) => (
+                  <motion.div
+                    key={f.title}
+                    initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="mt-1 w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center bg-primary/15 text-primary">
+                      <CheckCircle2 className="w-3 h-3" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">{f.title}</p>
+                      <p className="text-muted-foreground text-sm">{f.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
+                  whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.96 }}
+                  onClick={() => navigate("/login")}
+                  className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm text-white shadow-md hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, hsl(var(--primary)), #00BFA5)" }}
+                >
+                  <LayoutDashboard className="w-4 h-4" /> Access Dashboard
+                </motion.button>
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.38 }}
+                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  onClick={() => navigate("/network-join")}
+                  className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm border border-border bg-card text-foreground hover:bg-muted transition-colors"
+                >
+                  Join the Network
+                </motion.button>
+              </div>
+            </div>
+
+            {/* Right dashboard mockup */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <DashboardMockup />
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ══ ROLES ═════════════════════════════════════════════ */}
-      <section id="roles" className="relative z-10 py-24 px-5 md:px-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <SectionLabel text="Built for Every Role" />
-            <motion.h2 variants={fadeUp} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-extrabold mb-4">
-              One platform, four perspectives
+      {/* ══ TESTIMONIALS ═══════════════════════════════════════════ */}
+      <section id="testimonials" className="relative z-10 bg-muted/40 border-y border-border py-24">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <motion.h2
+              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-display font-black text-foreground mb-4"
+            >
+              Trusted by Professionals
             </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+              className="text-muted-foreground"
+            >
+              Real outcomes from real teams across India's healthcare insurance ecosystem.
+            </motion.p>
           </div>
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
-            {ROLES.map((r, i) => (
-              <motion.div
-                key={r.slug}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.55 }}
-              >
-                <TiltCard
-                  className="p-6 h-full cursor-pointer"
-                  style={{ background: C.card, border: `1.5px solid ${r.color}44`, transition: "border-color 0.25s" }}
-                  onClick={() => navigate(`/login?role=${r.slug}`)}
-                >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 font-black text-sm"
-                    style={{ background: r.color + "33", color: C.accent }}>
-                    {r.label.charAt(0)}
-                  </div>
-                  <h3 className="text-sm font-bold mb-1" style={{ color: C.heading }}>{r.label}</h3>
-                  <p className="text-xs font-semibold mb-3" style={{ color: r.color === "#00BFA5" ? "#00BFA5" : C.accent }}>
-                    {r.tagline}
-                  </p>
-                  <p className="text-xs leading-relaxed mb-4" style={{ color: C.sub }}>{r.desc}</p>
-                  <ul className="space-y-1.5 mb-4">
-                    {r.features.map((feat) => (
-                      <li key={feat} className="flex items-center gap-1.5 text-xs" style={{ color: "#64748b" }}>
-                        <CheckCircle2 className="w-3 h-3 flex-shrink-0" style={{ color: C.green }} />
-                        {feat}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: C.accent }}>
-                    Sign in as {r.label.split(" ")[0]} <ArrowRight className="w-3 h-3" />
-                  </div>
-                </TiltCard>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══ TESTIMONIALS ══════════════════════════════════════ */}
-      <section id="testimonials" className="relative z-10 py-24 px-5 md:px-10">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-10">
-            <SectionLabel text="Customer Stories" />
-            <motion.h2 variants={fadeUp} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-extrabold mb-4">
-              Trusted by the industry's best
-            </motion.h2>
-          </div>
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
             <TestimonialCarousel />
           </motion.div>
         </div>
       </section>
 
-      {/* ══ FAQ ═══════════════════════════════════════════════ */}
-      <section id="faq" className="relative z-10 py-24 px-5 md:px-10">
-        <div className="max-w-3xl mx-auto">
+      {/* ══ HOW IT WORKS ═══════════════════════════════════════════ */}
+      <section id="how-it-works" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="text-center mb-14">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-display font-black text-foreground mb-4"
+          >
+            Getting Started
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+            className="text-muted-foreground max-w-xl mx-auto"
+          >
+            Go live in days, not months.
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { step: "01", Icon: Layers, title: "Connect Stakeholders", desc: "Onboard TPAs, insurers, hospitals, and members in days — not months." },
+            { step: "02", Icon: RefreshCw, title: "Configure Workflows", desc: "Set approval flows, escalation rules, and notification preferences — no code needed." },
+            { step: "03", Icon: TrendingUp, title: "Go Live & Track", desc: "Process claims, issue e-cards, and monitor every KPI in real time." },
+          ].map((s, i) => (
+            <motion.div
+              key={s.step}
+              initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.5 }}
+              className="bg-card rounded-2xl p-7 border border-border shadow-sm"
+            >
+              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-5">
+                <s.Icon className="w-5 h-5" />
+              </div>
+              <div className="text-xs font-bold text-primary/60 mb-2 font-mono">{s.step}</div>
+              <h3 className="font-display font-bold text-lg text-foreground mb-2">{s.title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{s.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══ FAQ ════════════════════════════════════════════════════ */}
+      <section id="faq" className="relative z-10 bg-muted/40 border-t border-border py-24">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <SectionLabel text="Common Questions" />
-            <motion.h2 variants={fadeUp} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-extrabold mb-4">
-              Frequently asked questions
+            <motion.h2
+              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-display font-black text-foreground mb-4"
+            >
+              Frequently Asked Questions
             </motion.h2>
           </div>
           <div className="space-y-3">
-            {FAQS.map((f, i) => (
+            {FAQS.map((faq, i) => (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.06, duration: 0.45 }}
-                className="rounded-2xl overflow-hidden"
-                style={{ background: C.card, border: `1px solid ${C.border}` }}
+                key={faq.q}
+                initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
+                className="bg-card border border-border rounded-2xl overflow-hidden"
               >
                 <button
-                  className="w-full flex items-center justify-between px-6 py-4 text-left"
+                  className="w-full flex items-center justify-between px-6 py-4 text-left text-sm font-semibold text-foreground hover:bg-muted/30 transition-colors"
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 >
-                  <span className="text-sm font-semibold pr-4" style={{ color: C.heading }}>{f.q}</span>
-                  <motion.div animate={{ rotate: openFaq === i ? 180 : 0 }} transition={{ duration: 0.25 }}>
-                    <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: C.sub }} />
-                  </motion.div>
+                  {faq.q}
+                  <motion.span animate={{ rotate: openFaq === i ? 180 : 0 }} transition={{ duration: 0.25 }}>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  </motion.span>
                 </button>
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                   {openFaq === i && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.28 }}
+                      initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.28 }}
                       className="overflow-hidden"
                     >
-                      <p className="px-6 pb-5 text-xs leading-relaxed" style={{ color: C.sub }}>{f.a}</p>
+                      <p className="px-6 pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border pt-3">{faq.a}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -831,102 +902,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══ CTA ═══════════════════════════════════════════════ */}
-      <section className="relative z-10 py-24 px-5 md:px-10">
-        <motion.div
-          className="max-w-4xl mx-auto text-center rounded-2xl p-12 md:p-16 relative overflow-hidden"
-          style={{ background: C.card, border: `1px solid ${C.border}` }}
-          initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }} transition={{ duration: 0.65 }}
-        >
-          {/* Animated background glow */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(circle at 50% 50%, rgba(0,137,123,0.12) 0%, transparent 70%)" }}
-            animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 3, repeat: Infinity }}
-          />
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }} transition={{ type: "spring", delay: 0.2 }}
-          >
-            <Award className="w-12 h-12 mx-auto mb-6 text-blue-300" />
-          </motion.div>
-          <motion.h2 variants={fadeUp} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-extrabold mb-4">
-            Ready to modernise your insurance operations?
-          </motion.h2>
-          <motion.p variants={fadeUp} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="text-base mb-10 max-w-xl mx-auto" style={{ color: C.sub }}>
-            Join 60+ insurers, 500+ hospitals, and 1.2 million members already on InsuraBridge.
-          </motion.p>
-          <motion.div variants={fadeUp} custom={3} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <motion.button whileHover={{ scale: 1.05, boxShadow: "0 12px 40px rgba(0,137,123,0.55)" }} whileTap={{ scale: 0.96 }}
-              onClick={() => navigate("/network-join")}
-              className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-white"
-              style={{ background: C.grad }}>
-              <Building2 className="w-4 h-4" /> Join the Network
-            </motion.button>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
-              onClick={() => navigate("/login")}
-              className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold"
-              style={{ background: "rgba(14,26,54,0.8)", border: `1.5px solid ${C.border}`, color: C.accent }}>
-              Portal Login <ArrowRight className="w-4 h-4" />
-            </motion.button>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* ══ FOOTER ════════════════════════════════════════════ */}
-      <motion.footer
-        className="relative z-10 border-t"
-        style={{ borderColor: "#112044" }}
-        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-      >
-        <div className="max-w-7xl mx-auto px-5 md:px-10 py-12">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-            <div>
-              <div className="mb-4"><InsuraBridgeLogo size={30} textSize="0.85rem" /></div>
-              <p className="text-xs leading-relaxed" style={{ color: C.sub }}>
-                The unified platform for modern health insurance — connecting TPAs, insurers, hospitals, and members.
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#334155" }}>Platform</p>
-              {["Claims Management","Network Empanelment","E-Cards & Members","Settlements","Analytics"].map((l) => (
-                <button key={l} onClick={() => navigate("/login")} className="block text-xs mb-2 transition-colors hover:text-white" style={{ color: C.sub }}>{l}</button>
+      {/* ══ FOOTER ═════════════════════════════════════════════════ */}
+      <footer className="relative z-10 border-t border-border py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <InsuraBridgeLogo size={28} textSize="0.85rem" />
+            <div className="flex items-center gap-6">
+              {["Privacy", "Terms", "Security", "Contact"].map((l) => (
+                <button key={l} className="text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</button>
               ))}
             </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#334155" }}>For</p>
-              {ROLES.map((r) => (
-                <button key={r.slug} onClick={() => navigate(`/login?role=${r.slug}`)} className="block text-xs mb-2 transition-colors hover:text-white" style={{ color: C.sub }}>{r.label}</button>
-              ))}
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#334155" }}>Contact</p>
-              {[
-                { Icon: Mail, text: "hello@insurabridge.in" },
-                { Icon: Phone, text: "+91 98765 00000" },
-                { Icon: MapPin, text: "Mumbai, Maharashtra" },
-                { Icon: Clock, text: "24×7 Critical Support" },
-              ].map(({ Icon, text }) => (
-                <p key={text} className="flex items-center gap-2 text-xs mb-2.5" style={{ color: C.sub }}>
-                  <Icon className="w-3 h-3 flex-shrink-0" style={{ color: "#334155" }} /> {text}
-                </p>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6" style={{ borderTop: "1px solid #112044" }}>
-            <p className="text-xs" style={{ color: "#334155" }}>© 2026 InsuraBridge Technologies Pvt. Ltd. All rights reserved.</p>
-            <div className="flex gap-5">
-              {["Privacy Policy","Terms of Service","Cookie Policy"].map((l) => (
-                <button key={l} className="text-xs transition-colors hover:text-white" style={{ color: "#334155" }}>{l}</button>
-              ))}
-            </div>
+            <p className="text-xs text-muted-foreground">© 2026 InsuraBridge · IRDAI Compliant · All rights reserved</p>
           </div>
         </div>
-      </motion.footer>
+      </footer>
     </div>
   )
 }

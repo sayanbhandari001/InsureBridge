@@ -220,6 +220,17 @@
   border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
+/* ─── Homepage grid pattern background ─────────────────────── */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(hsl(var(--border) / 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border) / 0.4) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.bg-hero-glow {
+  background: radial-gradient(ellipse 80% 55% at 50% 0%, hsl(var(--primary) / 0.14), transparent 72%);
+}
+
 /* ─── Status badge colours ─────────────────────────────────── */
 .badge-approved  { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
 .badge-pending   { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
